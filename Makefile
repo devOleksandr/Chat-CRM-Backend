@@ -1,7 +1,8 @@
 # ========= LOCAL DEVELOPMENT =========
-rebuild_local: down build up generate migrate seed
-rebuild_ubuntu_server: down build up generate migrate seed
-rebuild_local_clean: down build up migrate_reset seed
+rebuild_local: down build up wait migrate seed
+rebuild_ubuntu_server: down build up wait migrate seed
+rebuild_local_clean: down build up migrate_reset
+db_only: down_db up_db
 
 # ========= STAGING (PROD FILE) =========
 rebuild_stage: down_stage build_stage up_stage migrate_stage seed_stage
@@ -16,8 +17,19 @@ up:
 down:
 	docker compose --env-file .env down --volumes --remove-orphans
 
+down_db:
+	docker compose --env-file .env stop postgres
+	docker compose --env-file .env rm -f postgres
+
+up_db:
+	docker compose --env-file .env up postgres -d
+
 build:
 	docker compose --env-file .env build
+
+wait:
+	@echo "Waiting for containers to be ready..."
+	sleep 10
 
 migrate:
 	@echo "Running migrations..."
@@ -91,6 +103,10 @@ d_node_install_local_user:
 		    npm ci \
 		"
 
+# ========= LOCAL DEVELOPMENT WITH DB ONLY =========
+dev_local: up_db
+	@echo "🚀 Database started. Now run: npm run start:dev"
+
 # ========= UTILITIES =========
 logs:
 	docker compose --env-file .env logs -f
@@ -116,9 +132,11 @@ db_studio:
 # ========= HELP =========
 help:
 	@echo "💻 LOCAL DEVELOPMENT:"
-	@echo "  make rebuild_local       - Full local rebuild (standard)"
+	@echo "  make rebuild_local       - Full local rebuild (Docker)"
 	@echo "  make rebuild_local_clean - Clean rebuild (reset DB)"
 	@echo "  make rebuild_ubuntu_server - Ubuntu server rebuild"
+	@echo "  make dev_local          - Start DB only for local dev"
+	@echo "  make db_only            - Start/stop DB only"
 	@echo ""
 	@echo "🧪 STAGING:"
 	@echo "  make rebuild_stage       - Full staging rebuild"

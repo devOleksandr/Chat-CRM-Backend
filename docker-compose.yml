@@ -21,7 +21,7 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
-    command: sh -c "npx prisma migrate deploy && npm run start:dev"
+    command: sh -c "sleep 5 && npx prisma migrate deploy && npm run start:dev"
     env_file:
       - .env
     depends_on:
@@ -30,7 +30,6 @@ services:
     environment:
       - NODE_ENV=development
       - WATCHPACK_POLLING=true
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
