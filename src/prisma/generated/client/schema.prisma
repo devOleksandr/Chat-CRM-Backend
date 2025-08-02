@@ -1,0 +1,52 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearchPostgres"]
+  output          = "../src/prisma/generated/client"
+  binaryTargets   = ["native", "linux-musl-openssl-3.0.x", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  Admin
+}
+
+model User {
+  id                        Int       @id @default(autoincrement())
+  email                     String    @unique
+  password                  String
+  firstName                 String
+  lastName                  String
+  role                      Role      @default(Admin)
+  refreshToken              String?   @map("refresh_token")
+  createdAt                 DateTime  @default(now()) @map("created_at")
+  updatedAt                 DateTime  @updatedAt @map("updated_at")
+  pendingEmail              String?   @map("pending_email")
+  emailChangeToken          String?   @map("email_change_token")
+  emailChangeTokenExpiresAt DateTime? @map("email_change_token_expires_at")
+  passwordChangeToken       String?   @map("password_change_token")
+  projects                  Project[] // Projects created by this admin
+
+  @@map("users")
+}
+
+model Project {
+  id        Int      @id @default(autoincrement())
+  name      String
+  uniqueId  String   @unique @map("unique_id") // Unique ID assigned by admin
+  createdBy User     @relation(fields: [userId], references: [id])
+  userId    Int      @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("projects")
+}

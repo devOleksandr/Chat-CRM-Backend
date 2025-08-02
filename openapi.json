@@ -1,0 +1,1422 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/auth/login": {
+      "post": {
+        "description": "Authenticate user with email and password, returns access and refresh tokens",
+        "operationId": "AuthController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "User login credentials",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              },
+              "examples": {
+                "validLogin": {
+                  "summary": "Valid login credentials",
+                  "value": {
+                    "email": "user@example.com",
+                    "password": "SecurePassword123!"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User authenticated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponseDto"
+                },
+                "examples": {
+                  "success": {
+                    "summary": "Successful login response",
+                    "value": {
+                      "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                      "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                      "user": {
+                        "id": 1,
+                        "email": "user@example.com",
+                        "firstName": "John",
+                        "lastName": "Doe",
+                        "role": "Member"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data - validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "number",
+                      "example": 400
+                    },
+                    "message": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": [
+                        "email must be an email",
+                        "password should not be empty"
+                      ]
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "Bad Request"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials - email or password is incorrect",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "number",
+                      "example": 401
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid credentials"
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "Unauthorized"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "User login",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/refresh": {
+      "post": {
+        "description": "Generate new access and refresh tokens using a valid refresh token",
+        "operationId": "AuthController_refresh",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "Refresh token data",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenDto"
+              },
+              "examples": {
+                "validRefresh": {
+                  "summary": "Valid refresh token",
+                  "value": {
+                    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tokens refreshed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokensDto"
+                },
+                "examples": {
+                  "success": {
+                    "summary": "Successful token refresh",
+                    "value": {
+                      "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                      "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data - validation failed"
+          },
+          "401": {
+            "description": "Invalid or expired refresh token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "number",
+                      "example": 401
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid or expired refresh token"
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "Unauthorized"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Refresh access token",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "description": "Logout user by clearing their refresh token from the database",
+        "operationId": "AuthController_logout",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "User logged out successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Logged out successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User not authenticated - JWT token is missing or invalid"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "User logout",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/reset-password/request": {
+      "post": {
+        "description": "Send password reset email to user with reset link (always returns success for security)",
+        "operationId": "AuthController_requestReset",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "Password reset request data",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordRequestDto"
+              },
+              "examples": {
+                "validRequest": {
+                  "summary": "Valid password reset request",
+                  "value": {
+                    "email": "user@example.com"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password reset email sent (if email exists)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "If the email exists, a password reset link has been sent"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid email format"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Request password reset",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/reset-password": {
+      "post": {
+        "description": "Reset user password using valid reset token from email",
+        "operationId": "AuthController_resetPassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "Password reset data",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordDto"
+              },
+              "examples": {
+                "validReset": {
+                  "summary": "Valid password reset",
+                  "value": {
+                    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                    "newPassword": "NewSecurePassword123!"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password reset successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Password reset successful"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid token or weak password",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "number",
+                      "example": 400
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid or expired reset token"
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "Bad Request"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Reset password",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/register": {
+      "post": {
+        "description": "Register new user with email, password, and profile information",
+        "operationId": "AuthController_register",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "User registration data (Admin role creation is not allowed for security)",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "email",
+                  "password",
+                  "firstName",
+                  "lastName"
+                ],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "user@example.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 6,
+                    "example": "SecurePassword123!"
+                  },
+                  "firstName": {
+                    "type": "string",
+                    "example": "John"
+                  },
+                  "lastName": {
+                    "type": "string",
+                    "example": "Doe"
+                  }
+                }
+              },
+              "examples": {
+                "validRegistration": {
+                  "summary": "Valid registration data (creates Member role)",
+                  "value": {
+                    "email": "user@example.com",
+                    "password": "SecurePassword123!",
+                    "firstName": "John",
+                    "lastName": "Doe"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User registered successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid data or email already exists"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "User registration",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/users": {
+      "get": {
+        "operationId": "UserController_getAllUsers",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page number",
+            "schema": {
+              "minimum": 1,
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Items per page",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "example": 10,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Get all users (paginated, admin only)",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/api/users/{id}": {
+      "get": {
+        "operationId": "UserController_getUserById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Get user by id (admin only)",
+        "tags": [
+          "users"
+        ]
+      },
+      "patch": {
+        "operationId": "UserController_updateUserByAdmin",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminUpdateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Update user by id (admin only)",
+        "tags": [
+          "users"
+        ]
+      },
+      "delete": {
+        "operationId": "UserController_deleteUser",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "User deleted successfully"
+          },
+          "404": {
+            "description": "User not found"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Delete user by id with cascade deletion (admin only)",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/api/users/confirm-password-change": {
+      "post": {
+        "operationId": "UserController_confirmPasswordChange",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmPasswordChangeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password changed successfully"
+          },
+          "400": {
+            "description": "Invalid or expired token"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Confirm password change with token from email",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/api/projects": {
+      "post": {
+        "description": "Creates a new project with the provided data. Only admins can create projects.",
+        "operationId": "ProjectController_createProject",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "Project creation data",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProjectDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Project created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid project data"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Insufficient permissions"
+          },
+          "409": {
+            "description": "Project with this unique ID already exists"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Create a new project",
+        "tags": [
+          "projects"
+        ]
+      },
+      "get": {
+        "description": "Retrieves all projects for the authenticated user with optional filtering.",
+        "operationId": "ProjectController_getUserProjects",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": false,
+            "in": "query",
+            "description": "Filter by user ID",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "uniqueId",
+            "required": false,
+            "in": "query",
+            "description": "Filter by project unique ID",
+            "schema": {
+              "example": "PROJ-001",
+              "type": "string"
+            }
+          },
+          {
+            "name": "name",
+            "required": false,
+            "in": "query",
+            "description": "Filter by project name (partial match)",
+            "schema": {
+              "example": "Project",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Projects retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectListResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Insufficient permissions"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Get user projects",
+        "tags": [
+          "projects"
+        ]
+      }
+    },
+    "/api/projects/{id}": {
+      "get": {
+        "description": "Retrieves a project by its ID. Users can only access their own projects.",
+        "operationId": "ProjectController_getProjectById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Project ID",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Project retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Access denied to this project"
+          },
+          "404": {
+            "description": "Project not found"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Get project by ID",
+        "tags": [
+          "projects"
+        ]
+      },
+      "put": {
+        "description": "Updates an existing project. Users can only update their own projects.",
+        "operationId": "ProjectController_updateProject",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Project ID",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Project update data",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProjectDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Project updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid project data"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Access denied to this project"
+          },
+          "404": {
+            "description": "Project not found"
+          },
+          "409": {
+            "description": "Project with this unique ID already exists"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Update project",
+        "tags": [
+          "projects"
+        ]
+      },
+      "delete": {
+        "description": "Deletes a project. Users can only delete their own projects.",
+        "operationId": "ProjectController_deleteProject",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Project ID",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Project deleted successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Access denied to this project"
+          },
+          "404": {
+            "description": "Project not found"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Delete project",
+        "tags": [
+          "projects"
+        ]
+      }
+    },
+    "/api/projects/unique/{uniqueId}": {
+      "get": {
+        "description": "Retrieves a project by its unique ID. Users can only access their own projects.",
+        "operationId": "ProjectController_getProjectByUniqueId",
+        "parameters": [
+          {
+            "name": "uniqueId",
+            "required": true,
+            "in": "path",
+            "description": "Project unique ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Project retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Access denied to this project"
+          },
+          "404": {
+            "description": "Project not found"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Get project by unique ID",
+        "tags": [
+          "projects"
+        ]
+      }
+    },
+    "/api/projects/check-availability/{uniqueId}": {
+      "get": {
+        "description": "Checks if a project unique ID is available for use.",
+        "operationId": "ProjectController_checkUniqueIdAvailability",
+        "parameters": [
+          {
+            "name": "uniqueId",
+            "required": true,
+            "in": "path",
+            "description": "Unique ID to check",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Availability check completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "available": {
+                      "type": "boolean",
+                      "description": "Whether the unique ID is available"
+                    },
+                    "uniqueId": {
+                      "type": "string",
+                      "description": "The unique ID that was checked"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid unique ID format"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Insufficient permissions"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Check unique ID availability",
+        "tags": [
+          "projects"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Chat CRM API",
+    "description": "API documentation for Chat CRM application",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [
+    {
+      "name": "auth",
+      "description": "Authentication endpoints"
+    },
+    {
+      "name": "users",
+      "description": "User management endpoints"
+    },
+    {
+      "name": "projects",
+      "description": "Project management endpoints"
+    }
+  ],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "access-token": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http",
+        "name": "Authorization",
+        "description": "Enter JWT token",
+        "in": "header"
+      }
+    },
+    "schemas": {
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "Admin email address",
+            "example": "admin@chat-crm.com"
+          },
+          "password": {
+            "type": "string",
+            "description": "Admin password",
+            "example": "admin123",
+            "minLength": 6
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "LoginUserDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "example": 1
+          },
+          "email": {
+            "type": "string",
+            "example": "user@example.com"
+          },
+          "firstName": {
+            "type": "string",
+            "example": "John"
+          },
+          "lastName": {
+            "type": "string",
+            "example": "Doe"
+          },
+          "role": {
+            "type": "string",
+            "example": "Admin",
+            "enum": [
+              "Admin"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "firstName",
+          "lastName",
+          "role"
+        ]
+      },
+      "LoginResponseDto": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "example": "access.jwt.token"
+          },
+          "refreshToken": {
+            "type": "string",
+            "example": "refresh.jwt.token"
+          },
+          "user": {
+            "$ref": "#/components/schemas/LoginUserDto"
+          }
+        },
+        "required": [
+          "accessToken",
+          "refreshToken",
+          "user"
+        ]
+      },
+      "RefreshTokenDto": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "description": "Refresh token",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          }
+        },
+        "required": [
+          "refreshToken"
+        ]
+      },
+      "TokensDto": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+            "description": "JWT access token"
+          },
+          "refreshToken": {
+            "type": "string",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+            "description": "JWT refresh token"
+          }
+        },
+        "required": [
+          "accessToken",
+          "refreshToken"
+        ]
+      },
+      "ResetPasswordRequestDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "Admin email for password reset",
+            "example": "admin@chat-crm.com"
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "ResetPasswordDto": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "Password reset token"
+          },
+          "newPassword": {
+            "type": "string",
+            "description": "New password",
+            "minLength": 6,
+            "example": "newpass123"
+          }
+        },
+        "required": [
+          "token",
+          "newPassword"
+        ]
+      },
+      "UserResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "User ID",
+            "example": 1
+          },
+          "firstName": {
+            "type": "string",
+            "description": "User first name",
+            "example": "Admin"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "User last name",
+            "example": "User"
+          },
+          "email": {
+            "type": "string",
+            "description": "User email address",
+            "example": "admin@chat-crm.com"
+          },
+          "role": {
+            "type": "string",
+            "description": "User role (always Admin)",
+            "enum": [
+              "Admin"
+            ],
+            "example": "Admin"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "User creation date",
+            "example": "2023-01-01T00:00:00.000Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "User last update date",
+            "example": "2023-01-01T00:00:00.000Z"
+          }
+        },
+        "required": [
+          "id",
+          "firstName",
+          "lastName",
+          "email",
+          "role",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "AdminUpdateUserDto": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "description": "User first name",
+            "example": "Admin"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "User last name",
+            "example": "User"
+          },
+          "email": {
+            "type": "string",
+            "description": "User email address",
+            "example": "admin@chat-crm.com"
+          },
+          "password": {
+            "type": "string",
+            "description": "User password",
+            "example": "admin123",
+            "minLength": 6
+          },
+          "role": {
+            "type": "string",
+            "description": "User role (always Admin)",
+            "enum": [
+              "Admin"
+            ],
+            "example": "Admin"
+          }
+        }
+      },
+      "ConfirmPasswordChangeDto": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "Password change confirmation token",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          }
+        },
+        "required": [
+          "token"
+        ]
+      },
+      "CreateProjectDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Project name",
+            "example": "My Awesome Project",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "uniqueId": {
+            "type": "string",
+            "description": "Unique project ID assigned by admin",
+            "example": "PROJ-001",
+            "minLength": 3,
+            "maxLength": 50
+          }
+        },
+        "required": [
+          "name",
+          "uniqueId"
+        ]
+      },
+      "ProjectResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Project ID",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "description": "Project name",
+            "example": "My Awesome Project"
+          },
+          "uniqueId": {
+            "type": "string",
+            "description": "Unique project ID assigned by admin",
+            "example": "PROJ-001"
+          },
+          "createdBy": {
+            "description": "User who created the project",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UserResponseDto"
+              }
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Project creation date",
+            "example": "2023-01-01T00:00:00.000Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "Project last update date",
+            "example": "2023-01-01T00:00:00.000Z"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "uniqueId",
+          "createdBy",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "ProjectListResponseDto": {
+        "type": "object",
+        "properties": {
+          "projects": {
+            "description": "Array of projects",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProjectResponseDto"
+            }
+          },
+          "total": {
+            "type": "number",
+            "description": "Total number of projects",
+            "example": 10
+          },
+          "page": {
+            "type": "number",
+            "description": "Current page number",
+            "example": 1
+          },
+          "limit": {
+            "type": "number",
+            "description": "Number of projects per page",
+            "example": 10
+          }
+        },
+        "required": [
+          "projects",
+          "total",
+          "page",
+          "limit"
+        ]
+      },
+      "UpdateProjectDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Project name",
+            "example": "Updated Project Name",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "uniqueId": {
+            "type": "string",
+            "description": "Unique project ID assigned by admin",
+            "example": "PROJ-002",
+            "minLength": 3,
+            "maxLength": 50
+          }
+        }
+      }
+    }
+  }
+}
