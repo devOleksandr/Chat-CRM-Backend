@@ -2,11 +2,8 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ChatController } from './chat.controller';
 import { ProjectParticipantController } from './controllers/project-participant.controller';
-import { MobileParticipantController } from './controllers/mobile-participant.controller';
-import { MobileChatController } from './controllers/mobile-chat.controller';
 import { ChatService } from './chat.service';
 import { ChatGateway } from './chat.gateway';
-import { MobileChatGateway } from './mobile-chat.gateway';
 import { ChatRepositoryPort } from './ports/chat-repository.port';
 import { MessageRepositoryPort } from './ports/message-repository.port';
 import { ProjectParticipantRepositoryPort } from './ports/project-participant-repository.port';
@@ -29,12 +26,11 @@ import { ProjectModule } from '../project/project.module';
  */
 @Module({
   imports: [ConfigModule, PrismaModule, AuthModule, ProjectModule],
-  controllers: [ChatController, ProjectParticipantController, MobileParticipantController, MobileChatController],
+  controllers: [ChatController, ProjectParticipantController],
   providers: [
     ChatService,
     ProjectParticipantService,
     ChatGateway,
-    MobileChatGateway,
     OnlineStatusService,
     ChatErrorHandler,
     // Repository ports

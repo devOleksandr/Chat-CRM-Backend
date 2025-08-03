@@ -12,6 +12,8 @@ import { Server, Socket } from 'socket.io';
 import { Logger, UseGuards } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ChatService } from './chat.service';
+import { ProjectService } from '../project/project.service';
+import { ProjectParticipantService } from './services/project-participant.service';
 import { ChatErrorHandler } from './handlers/chat-error.handler';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { MessageType } from './ports/message-repository.port';
@@ -39,6 +41,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 
   constructor(
     private readonly chatService: ChatService,
+    private readonly projectService: ProjectService,
+    private readonly projectParticipantService: ProjectParticipantService,
     private readonly errorHandler: ChatErrorHandler,
     private readonly jwtService: JwtService,
     private readonly onlineStatusService: OnlineStatusService,
@@ -512,5 +516,228 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
    */
   async getUserOnlineStatus(userId: number): Promise<{ isOnline: boolean; lastSeen: Date | null }> {
     return await this.onlineStatusService.getUserOnlineStatus(userId);
+  }
+
+  // ==================== MOBILE APP ENDPOINTS (No Authentication) ====================
+
+  /**
+   * Handle mobile app connection (no authentication required)
+   * @param client - The connected socket client
+   */
+  async handleMobileConnection(client: Socket) {
+    try {
+      this.logger.log(`📱 Mobile WebSocket connection attempt from ${client.id}`);
+      
+      const { participantId, projectId } = client.handshake.auth;
+      
+      if (!participantId || !projectId) {
+        this.logger.warn(`❌ Mobile connection missing required data: participantId=${participantId}, projectId=${projectId}`);
+        client.emit('error', { 
+          message: 'Missing participantId or projectId',
+          code: 'MISSING_DATA'
+        });
+        client.disconnect();
+        return;
+      }
+
+      // Get the participant user ID from the participant ID string
+      const participantUserId = await this.projectParticipantService.getParticipantUserId(participantId, projectId);
+      
+      // Store connected mobile user
+      this.connectedUsers.set(client.id, { socket: client, userId: participantUserId });
+
+      // Update user online status in database
+      await this.onlineStatusService.updateUserOnlineStatus(participantUserId, true);
+
+      // Join user's personal room for status updates
+      client.join(`user_${participantUserId}`);
+
+      this.logger.log(`✅ Mobile user ${participantUserId} (participantId: ${participantId}) connected successfully`);
+      
+      // Emit connection success
+      client.emit('connected', {
+        userId: participantUserId,
+        participantId,
+        projectId,
+        timestamp: new Date(),
+      });
+
+    } catch (error) {
+      this.logger.error(`❌ Mobile connection error: ${error.message}`, error.stack);
+      client.emit('error', { 
+        message: 'Connection failed',
+        code: 'CONNECTION_ERROR'
+      });
+      client.disconnect();
+    }
+  }
+
+  /**
+   * Send message from mobile app (no authentication required)
+   * @param client - The socket client
+   * @param data - Message data including participantId and projectId
+   */
+  @SubscribeMessage('mobileSendMessage')
+  async handleMobileSendMessage(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: { 
+      chatId: number; 
+      content: string; 
+      type?: MessageType; 
+      metadata?: Record<string, any>;
+      participantId: string;
+      projectId: number;
+    },
+  ) {
+    try {
+      // Verify participantId matches the connected user
+      const connectedUser = this.connectedUsers.get(client.id);
+      if (!connectedUser) {
+        client.emit('error', { message: 'Not connected', code: 'NOT_CONNECTED' });
+        return;
+      }
+
+      // Get the participant user ID from the participant ID string
+      const participantUserId = await this.projectParticipantService.getParticipantUserId(data.participantId, data.projectId);
+      
+      // Verify the participant ID matches the connected user
+      if (connectedUser.userId !== participantUserId) {
+        client.emit('error', { message: 'Participant ID mismatch', code: 'ID_MISMATCH' });
+        return;
+      }
+
+      // Create message DTO
+      const messageDto: CreateMessageDto = {
+        chatId: data.chatId,
+        content: data.content,
+        type: data.type || MessageType.TEXT,
+        metadata: data.metadata,
+      };
+
+      // Create message
+      const message = await this.chatService.createMessage(messageDto, participantUserId);
+
+      // Broadcast message to chat room
+      this.server.to(`chat_${data.chatId}`).emit('newMessage', {
+        message,
+        chatId: data.chatId,
+        timestamp: new Date(),
+      });
+
+      this.logger.log(`📱 Mobile message sent: ${message.id} in chat ${data.chatId} by participant ${data.participantId}`);
+
+    } catch (error) {
+      this.logger.error(`❌ Mobile send message error: ${error.message}`, error.stack);
+      client.emit('error', { 
+        message: 'Failed to send message',
+        code: 'SEND_ERROR'
+      });
+    }
+  }
+
+  /**
+   * Join chat from mobile app (no authentication required)
+   * @param client - The socket client
+   * @param data - Chat data including participantId and projectId
+   */
+  @SubscribeMessage('mobileJoinChat')
+  async handleMobileJoinChat(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: { 
+      chatId: number;
+      participantId: string;
+      projectId: number;
+    },
+  ) {
+    try {
+      // Verify participantId matches the connected user
+      const connectedUser = this.connectedUsers.get(client.id);
+      if (!connectedUser) {
+        client.emit('error', { message: 'Not connected', code: 'NOT_CONNECTED' });
+        return;
+      }
+
+      // Get the participant user ID from the participant ID string
+      const participantUserId = await this.projectParticipantService.getParticipantUserId(data.participantId, data.projectId);
+      
+      // Verify the participant ID matches the connected user
+      if (connectedUser.userId !== participantUserId) {
+        client.emit('error', { message: 'Participant ID mismatch', code: 'ID_MISMATCH' });
+        return;
+      }
+
+      // Join the chat room
+      client.join(`chat_${data.chatId}`);
+
+      // Notify other participants
+      client.to(`chat_${data.chatId}`).emit('userJoinedChat', {
+        chatId: data.chatId,
+        userId: participantUserId,
+        participantId: data.participantId,
+        timestamp: new Date(),
+      });
+
+      this.logger.log(`📱 Mobile user ${data.participantId} joined chat ${data.chatId}`);
+
+    } catch (error) {
+      this.logger.error(`❌ Mobile join chat error: ${error.message}`, error.stack);
+      client.emit('error', { 
+        message: 'Failed to join chat',
+        code: 'JOIN_ERROR'
+      });
+    }
+  }
+
+  /**
+   * Leave chat from mobile app (no authentication required)
+   * @param client - The socket client
+   * @param data - Chat data including participantId and projectId
+   */
+  @SubscribeMessage('mobileLeaveChat')
+  async handleMobileLeaveChat(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: { 
+      chatId: number;
+      participantId: string;
+      projectId: number;
+    },
+  ) {
+    try {
+      // Verify participantId matches the connected user
+      const connectedUser = this.connectedUsers.get(client.id);
+      if (!connectedUser) {
+        client.emit('error', { message: 'Not connected', code: 'NOT_CONNECTED' });
+        return;
+      }
+
+      // Get the participant user ID from the participant ID string
+      const participantUserId = await this.projectParticipantService.getParticipantUserId(data.participantId, data.projectId);
+      
+      // Verify the participant ID matches the connected user
+      if (connectedUser.userId !== participantUserId) {
+        client.emit('error', { message: 'Participant ID mismatch', code: 'ID_MISMATCH' });
+        return;
+      }
+
+      // Leave the chat room
+      client.leave(`chat_${data.chatId}`);
+
+      // Notify other participants
+      client.to(`chat_${data.chatId}`).emit('userLeftChat', {
+        chatId: data.chatId,
+        userId: participantUserId,
+        participantId: data.participantId,
+        timestamp: new Date(),
+      });
+
+      this.logger.log(`📱 Mobile user ${data.participantId} left chat ${data.chatId}`);
+
+    } catch (error) {
+      this.logger.error(`❌ Mobile leave chat error: ${error.message}`, error.stack);
+      client.emit('error', { 
+        message: 'Failed to leave chat',
+        code: 'LEAVE_ERROR'
+      });
+    }
   }
 } 

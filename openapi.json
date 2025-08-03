@@ -1449,6 +1449,161 @@
         ]
       }
     },
+    "/api/chat/mobile/{chatId}/messages": {
+      "get": {
+        "description": "Retrieves a paginated list of messages for a specific chat. No authentication required for mobile app usage.",
+        "operationId": "ChatController_getMessagesMobile",
+        "parameters": [
+          {
+            "name": "chatId",
+            "required": true,
+            "in": "path",
+            "description": "ID of the chat",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "participantId",
+            "required": true,
+            "in": "query",
+            "description": "External participant ID (string) provided by mobile app",
+            "schema": {
+              "example": "mobile_user_123",
+              "type": "string"
+            }
+          },
+          {
+            "name": "projectId",
+            "required": true,
+            "in": "query",
+            "description": "ID of the project",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Maximum number of messages to return (default: 20)",
+            "schema": {
+              "example": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "Number of messages to skip (default: 0)",
+            "schema": {
+              "example": 0,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved messages",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedMessagesResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Chat not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get messages for a chat (Mobile App)",
+        "tags": [
+          "chat"
+        ]
+      },
+      "post": {
+        "description": "Creates a new message in a specific chat. No authentication required for mobile app usage.",
+        "operationId": "ChatController_createMessageMobile",
+        "parameters": [
+          {
+            "name": "chatId",
+            "required": true,
+            "in": "path",
+            "description": "ID of the chat",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "participantId",
+            "required": true,
+            "in": "query",
+            "description": "External participant ID (string) provided by mobile app",
+            "schema": {
+              "example": "mobile_user_123",
+              "type": "string"
+            }
+          },
+          {
+            "name": "projectId",
+            "required": true,
+            "in": "query",
+            "description": "ID of the project",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateMessageViaApiDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successfully created message",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid message content or spam protection triggered"
+          },
+          "404": {
+            "description": "Chat not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Send a message to a chat (Mobile App)",
+        "tags": [
+          "chat"
+        ]
+      }
+    },
     "/api/chat/{chatId}/read": {
       "put": {
         "description": "Marks all messages in a chat as read for the authenticated user",
@@ -1485,60 +1640,6 @@
           }
         ],
         "summary": "Mark chat as read",
-        "tags": [
-          "chat"
-        ]
-      }
-    },
-    "/api/chat/status/{userId}": {
-      "get": {
-        "description": "Retrieves the online status of a user",
-        "operationId": "ChatController_getUserOnlineStatus",
-        "parameters": [
-          {
-            "name": "userId",
-            "required": false,
-            "in": "path",
-            "description": "ID of the user to get status for (defaults to authenticated user)",
-            "schema": {
-              "example": 1,
-              "type": "number"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved online status",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "isOnline": {
-                      "type": "boolean",
-                      "example": true
-                    },
-                    "lastSeen": {
-                      "type": "string",
-                      "format": "date-time",
-                      "example": "2025-01-15T10:00:00.000Z",
-                      "nullable": true
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "User is not authenticated"
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Get user online status",
         "tags": [
           "chat"
         ]
@@ -1584,6 +1685,99 @@
         "summary": "Get current user online status",
         "tags": [
           "chat"
+        ]
+      }
+    },
+    "/api/chat/mobile/project/{projectId}/participant/{participantId}": {
+      "post": {
+        "description": "Gets or creates a chat between admin and participant. No authentication required for mobile app usage.",
+        "operationId": "ChatController_createOrGetChatMobile",
+        "parameters": [
+          {
+            "name": "projectId",
+            "required": true,
+            "in": "path",
+            "description": "ID of the project",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "participantId",
+            "required": true,
+            "in": "path",
+            "description": "External participant ID (string) provided by mobile app",
+            "schema": {
+              "example": "mobile_user_123",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved or created chat",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid project or participant data"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get or create chat (Mobile App)",
+        "tags": [
+          "chat"
+        ]
+      }
+    },
+    "/api/project-participants/mobile": {
+      "post": {
+        "description": "Creates a new participant for a specific project with external participant ID. No authentication required for mobile app usage.",
+        "operationId": "ProjectParticipantController_createParticipantMobile",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProjectParticipantDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successfully created participant",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectParticipantResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid participant data or participant ID already exists"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a new project participant (Mobile App)",
+        "tags": [
+          "project-participants"
         ]
       }
     },
@@ -1774,337 +1968,6 @@
         "summary": "Delete project participant",
         "tags": [
           "project-participants"
-        ]
-      }
-    },
-    "/api/project-participants/project/{projectId}/unique/{uniqueId}": {
-      "get": {
-        "description": "Retrieves information about a participant using their unique identifier within a project",
-        "operationId": "ProjectParticipantController_getParticipantByUniqueId",
-        "parameters": [
-          {
-            "name": "projectId",
-            "required": true,
-            "in": "path",
-            "description": "ID of the project",
-            "schema": {
-              "example": 1,
-              "type": "number"
-            }
-          },
-          {
-            "name": "uniqueId",
-            "required": true,
-            "in": "path",
-            "description": "Unique identifier of the participant",
-            "schema": {
-              "example": "user123",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved participant",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProjectParticipantResponseDto"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "User is not authenticated"
-          },
-          "404": {
-            "description": "Participant not found"
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Get participant by unique ID",
-        "tags": [
-          "project-participants"
-        ]
-      }
-    },
-    "/api/project-participants/project/{projectId}/count": {
-      "get": {
-        "description": "Returns the total number of participants in a project",
-        "operationId": "ProjectParticipantController_getParticipantsCount",
-        "parameters": [
-          {
-            "name": "projectId",
-            "required": true,
-            "in": "path",
-            "description": "ID of the project",
-            "schema": {
-              "example": 1,
-              "type": "number"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved participants count",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "count": {
-                      "type": "number",
-                      "example": 15
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "User is not authenticated"
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Get participants count",
-        "tags": [
-          "project-participants"
-        ]
-      }
-    },
-    "/api/mobile-participants": {
-      "post": {
-        "description": "Creates a new participant for a specific project with external participant ID. No authentication required for mobile app usage.",
-        "operationId": "MobileParticipantController_createParticipant",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateProjectParticipantDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Successfully created participant",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProjectParticipantResponseDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid participant data or participant ID already exists"
-          }
-        },
-        "summary": "Create a new project participant (Mobile App)",
-        "tags": [
-          "mobile-participants"
-        ]
-      }
-    },
-    "/api/mobile-chat/project/{projectId}/participant/{participantId}": {
-      "post": {
-        "description": "Gets or creates a chat between admin and participant. No authentication required for mobile app usage.",
-        "operationId": "MobileChatController_getOrCreateChat",
-        "parameters": [
-          {
-            "name": "projectId",
-            "required": true,
-            "in": "path",
-            "description": "ID of the project",
-            "schema": {
-              "example": 1,
-              "type": "number"
-            }
-          },
-          {
-            "name": "participantId",
-            "required": true,
-            "in": "path",
-            "description": "External participant ID (string) provided by mobile app",
-            "schema": {
-              "example": "mobile_user_123",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved or created chat",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ChatResponseDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid project or participant data"
-          }
-        },
-        "summary": "Get or create chat (Mobile App)",
-        "tags": [
-          "mobile-chat"
-        ]
-      }
-    },
-    "/api/mobile-chat/{chatId}/messages": {
-      "get": {
-        "description": "Retrieves a paginated list of messages for a specific chat. No authentication required for mobile app usage.",
-        "operationId": "MobileChatController_getMessages",
-        "parameters": [
-          {
-            "name": "chatId",
-            "required": true,
-            "in": "path",
-            "description": "ID of the chat",
-            "schema": {
-              "example": 1,
-              "type": "number"
-            }
-          },
-          {
-            "name": "participantId",
-            "required": true,
-            "in": "query",
-            "description": "External participant ID (string) provided by mobile app",
-            "schema": {
-              "example": "mobile_user_123",
-              "type": "string"
-            }
-          },
-          {
-            "name": "projectId",
-            "required": true,
-            "in": "query",
-            "description": "ID of the project",
-            "schema": {
-              "example": 1,
-              "type": "number"
-            }
-          },
-          {
-            "name": "limit",
-            "required": false,
-            "in": "query",
-            "description": "Maximum number of messages to return (default: 20)",
-            "schema": {
-              "example": 20,
-              "type": "number"
-            }
-          },
-          {
-            "name": "offset",
-            "required": false,
-            "in": "query",
-            "description": "Number of messages to skip (default: 0)",
-            "schema": {
-              "example": 0,
-              "type": "number"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved messages",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PaginatedMessagesResponseDto"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Chat not found"
-          }
-        },
-        "summary": "Get messages for a chat (Mobile App)",
-        "tags": [
-          "mobile-chat"
-        ]
-      },
-      "post": {
-        "description": "Creates a new message in a specific chat. No authentication required for mobile app usage.",
-        "operationId": "MobileChatController_createMessage",
-        "parameters": [
-          {
-            "name": "chatId",
-            "required": true,
-            "in": "path",
-            "description": "ID of the chat",
-            "schema": {
-              "example": 1,
-              "type": "number"
-            }
-          },
-          {
-            "name": "participantId",
-            "required": true,
-            "in": "query",
-            "description": "External participant ID (string) provided by mobile app",
-            "schema": {
-              "example": "mobile_user_123",
-              "type": "string"
-            }
-          },
-          {
-            "name": "projectId",
-            "required": true,
-            "in": "query",
-            "description": "ID of the project",
-            "schema": {
-              "example": 1,
-              "type": "number"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateMessageViaApiDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Successfully created message",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MessageResponseDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid message content or spam protection triggered"
-          },
-          "404": {
-            "description": "Chat not found"
-          }
-        },
-        "summary": "Send a message to a chat (Mobile App)",
-        "tags": [
-          "mobile-chat"
         ]
       }
     }

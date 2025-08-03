@@ -41,6 +41,33 @@ export class ProjectParticipantController {
   ) {}
 
   /**
+   * Create a new project participant (Mobile App - No Authentication)
+   * @param createParticipantDto - Participant creation data
+   * @returns Promise<ProjectParticipantResponseDto> Newly created participant
+   */
+  @ApiOperation({
+    summary: 'Create a new project participant (Mobile App)',
+    description: 'Creates a new participant for a specific project with external participant ID. No authentication required for mobile app usage.',
+  })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'Successfully created participant',
+    type: ProjectParticipantResponseDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Invalid participant data or participant ID already exists',
+  })
+  @Post('mobile')
+  @HttpCode(HttpStatus.CREATED)
+  @UseGuards() // No authentication guard for mobile app
+  async createParticipantMobile(
+    @Body(ValidationPipe) createParticipantDto: CreateProjectParticipantDto,
+  ): Promise<ProjectParticipantResponseDto> {
+    return await this.projectParticipantService.createParticipant(createParticipantDto);
+  }
+
+  /**
    * Create a new project participant (Admin only)
    * @param createParticipantDto - Participant creation data
    * @returns Promise<ProjectParticipantResponseDto> Newly created participant
@@ -169,50 +196,7 @@ export class ProjectParticipantController {
     return await this.projectParticipantService.getParticipantById(participantId, req.user.id);
   }
 
-  /**
-   * Get a participant by unique ID within a project
-   * @param projectId - The project ID
-   * @param uniqueId - The unique identifier
-   * @returns Promise<ProjectParticipantResponseDto> Participant information
-   */
-  @ApiOperation({
-    summary: 'Get participant by unique ID',
-    description: 'Retrieves information about a participant using their unique identifier within a project',
-  })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Successfully retrieved participant',
-    type: ProjectParticipantResponseDto,
-  })
-  @ApiResponse({
-    status: HttpStatus.NOT_FOUND,
-    description: 'Participant not found',
-  })
-  @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
-    description: 'User is not authenticated',
-  })
-  @ApiParam({
-    name: 'projectId',
-    description: 'ID of the project',
-    example: 1,
-  })
-  @ApiParam({
-    name: 'uniqueId',
-    description: 'Unique identifier of the participant',
-    example: 'user123',
-  })
-  @Get('project/:projectId/unique/:uniqueId')
-  async getParticipantByUniqueId(
-    @Param('projectId', ParseIntPipe) projectId: number,
-    @Param('uniqueId') uniqueId: string,
-    @Request() req: any,
-  ): Promise<ProjectParticipantResponseDto> {
-    // TODO: Add authorization check - verify that req.user.id owns the project
-    // This should be implemented when project ownership validation is available
-    
-    return await this.projectParticipantService.getParticipantByParticipantId(uniqueId, projectId, req.user.id);
-  }
+
 
   /**
    * Delete a project participant
@@ -252,46 +236,4 @@ export class ProjectParticipantController {
     await this.projectParticipantService.deleteParticipant(participantId, req.user.id);
   }
 
-  /**
-   * Get the count of participants in a project
-   * @param projectId - The project ID
-   * @returns Promise<{ count: number }> Count of participants
-   */
-  @ApiOperation({
-    summary: 'Get participants count',
-    description: 'Returns the total number of participants in a project',
-  })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Successfully retrieved participants count',
-    schema: {
-      type: 'object',
-      properties: {
-        count: {
-          type: 'number',
-          example: 15,
-        },
-      },
-    },
-  })
-  @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
-    description: 'User is not authenticated',
-  })
-  @ApiParam({
-    name: 'projectId',
-    description: 'ID of the project',
-    example: 1,
-  })
-  @Get('project/:projectId/count')
-  async getParticipantsCount(
-    @Param('projectId', ParseIntPipe) projectId: number,
-    @Request() req: any,
-  ): Promise<{ count: number }> {
-    // TODO: Add authorization check - verify that req.user.id owns the project
-    // This should be implemented when project ownership validation is available
-    
-    const count = await this.projectParticipantService.getParticipantsCount(projectId, req.user.id);
-    return { count };
-  }
 } 
