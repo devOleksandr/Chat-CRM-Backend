@@ -175,17 +175,25 @@ export class ChatService {
    * @param participantId - The participant user ID
    * @returns Promise<ChatResponseDto> Chat response
    */
-  async getOrCreateChat(projectId: number, adminId: number, participantId: number): Promise<ChatResponseDto> {
+  async getOrCreateChat(projectId: number, adminId: number, participantId: number): Promise<{ chat: ChatResponseDto; isNewChat: boolean }> {
     try {
       // Try to find existing chat
       const existingChat = await this.chatRepository.findChatByParticipants(projectId, adminId, participantId);
       
       if (existingChat) {
-        return await this.mapChatToResponseDto(existingChat, adminId);
+        const chatResponse = await this.mapChatToResponseDto(existingChat, adminId);
+        return {
+          chat: chatResponse,
+          isNewChat: false,
+        };
       }
 
       // Create new chat if it doesn't exist
-      return await this.createChat(projectId, adminId, participantId);
+      const newChat = await this.createChat(projectId, adminId, participantId);
+      return {
+        chat: newChat,
+        isNewChat: true,
+      };
     } catch (error) {
       await this.errorHandler.handleError(error, {
         operation: 'getOrCreateChat',

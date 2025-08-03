@@ -1483,7 +1483,7 @@
     },
     "/api/chat/project/{projectId}/participant/{participantId}": {
       "post": {
-        "description": "Creates a new chat or returns existing one between admin and participant. Admin ID is automatically extracted from JWT token.",
+        "description": "Creates a new chat or returns existing one between admin and participant. Admin ID is automatically extracted from JWT token. Returns metadata indicating whether chat was created or retrieved.",
         "operationId": "ChatController_createOrGetChat",
         "parameters": [
           {
@@ -1513,7 +1513,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ChatResponseDto"
+                  "$ref": "#/components/schemas/ChatWithMetadataResponseDto"
                 }
               }
             }
@@ -1901,7 +1901,7 @@
     },
     "/api/chat/mobile/project/{projectUniqueId}/participant/{participantId}": {
       "post": {
-        "description": "Gets or creates a chat between admin and participant. No authentication required for mobile app usage.",
+        "description": "Gets or creates a chat between admin and participant. No authentication required for mobile app usage. Returns metadata indicating whether chat was created or retrieved.",
         "operationId": "ChatController_createOrGetChatMobile",
         "parameters": [
           {
@@ -1931,7 +1931,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ChatResponseDto"
+                  "$ref": "#/components/schemas/ChatWithMetadataResponseDto"
                 }
               }
             }
@@ -2644,6 +2644,64 @@
           "updatedAt",
           "isActive",
           "unreadCount"
+        ]
+      },
+      "ChatCreationMetadataDto": {
+        "type": "object",
+        "properties": {
+          "isNewChat": {
+            "type": "boolean",
+            "description": "Whether the chat was created in this request",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "description": "Human-readable message about the operation",
+            "example": "Chat created successfully"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When the chat was originally created",
+            "example": "2025-01-15T10:00:00.000Z"
+          },
+          "accessedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When the chat was last accessed",
+            "example": "2025-01-15T10:30:00.000Z"
+          }
+        },
+        "required": [
+          "isNewChat",
+          "message",
+          "createdAt",
+          "accessedAt"
+        ]
+      },
+      "ChatWithMetadataResponseDto": {
+        "type": "object",
+        "properties": {
+          "chat": {
+            "description": "Chat information",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ChatResponseDto"
+              }
+            ]
+          },
+          "metadata": {
+            "description": "Metadata about chat creation/retrieval",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ChatCreationMetadataDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "chat",
+          "metadata"
         ]
       },
       "MessageSenderDto": {

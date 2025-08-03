@@ -29,9 +29,10 @@ import { ProjectService } from '../project/project.service';
 import { ProjectParticipantService } from '../project/services/project-participant.service';
 import { OnlineStatusService } from './services/online-status.service';
 import { CreateMessageDto, CreateMessageViaApiDto } from './dto/create-message.dto';
-import { ChatResponseDto } from './dto/chat-response.dto';
+import { ChatResponseDto, ChatWithMetadataResponseDto } from './dto/chat-response.dto';
 import { MessageResponseDto, PaginatedMessagesResponseDto } from './dto/message-response.dto';
 import { ProjectChatFilterDto } from './dto/project-chat-filter.dto';
+import { calculateChatAge, generateChatMessage } from './utils/chat-utils';
 
 /**
  * Controller for handling chat-related HTTP requests
@@ -214,16 +215,16 @@ export class ChatController {
    * @param projectId - The project ID
    * @param participantId - The participant ID
    * @param req - The request object containing user information
-   * @returns Promise<ChatResponseDto> Chat response
+   * @returns Promise<ChatWithMetadataResponseDto> Chat response with metadata
    */
   @ApiOperation({
     summary: 'Create or get chat with participant',
-    description: 'Creates a new chat or returns existing one between admin and participant. Admin ID is automatically extracted from JWT token.',
+    description: 'Creates a new chat or returns existing one between admin and participant. Admin ID is automatically extracted from JWT token. Returns metadata indicating whether chat was created or retrieved.',
   })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Successfully retrieved or created chat',
-    type: ChatResponseDto,
+    type: ChatWithMetadataResponseDto,
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
@@ -244,11 +245,23 @@ export class ChatController {
     @Param('projectId', ParseIntPipe) projectId: number,
     @Param('participantId', ParseIntPipe) participantId: number,
     @Request() req: any,
-  ): Promise<ChatResponseDto> {
+  ): Promise<ChatWithMetadataResponseDto> {
     // TODO: Add authorization check - verify that req.user.id is admin and owns the project
     // This should be implemented when project ownership validation is available
     
-    return await this.chatService.getOrCreateChat(projectId, req.user.id, participantId);
+    const result = await this.chatService.getOrCreateChat(projectId, req.user.id, participantId);
+    const chatAge = calculateChatAge(result.chat.createdAt);
+    const message = generateChatMessage(result.isNewChat, chatAge);
+    
+    return {
+      chat: result.chat,
+      metadata: {
+        isNewChat: result.isNewChat,
+        message,
+        createdAt: result.chat.createdAt,
+        accessedAt: new Date(),
+      },
+    };
   }
 
   /**
@@ -613,16 +626,16 @@ export class ChatController {
    * Get or create chat between admin and participant (Mobile App - No Authentication)
    * @param projectUniqueId - The project unique ID
    * @param participantId - The participant ID string
-   * @returns Promise<ChatResponseDto> Chat response
+   * @returns Promise<ChatWithMetadataResponseDto> Chat response with metadata
    */
   @ApiOperation({
     summary: 'Get or create chat (Mobile App)',
-    description: 'Gets or creates a chat between admin and participant. No authentication required for mobile app usage.',
+    description: 'Gets or creates a chat between admin and participant. No authentication required for mobile app usage. Returns metadata indicating whether chat was created or retrieved.',
   })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Successfully retrieved or created chat',
-    type: ChatResponseDto,
+    type: ChatWithMetadataResponseDto,
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
@@ -643,7 +656,7 @@ export class ChatController {
   async createOrGetChatMobile(
     @Param('projectUniqueId') projectUniqueId: string,
     @Param('participantId') participantId: string,
-  ): Promise<ChatResponseDto> {
+  ): Promise<ChatWithMetadataResponseDto> {
     // Get the project and admin ID
     const project = await this.projectService.getProjectByUniqueIdPublic(projectUniqueId);
     const projectId = project.id;
@@ -652,6 +665,18 @@ export class ChatController {
     // Get the participant user ID from the participant ID string
     const participantUserId = await this.projectParticipantService.getParticipantUserIdByProjectUniqueId(participantId, projectUniqueId);
     
-    return await this.chatService.getOrCreateChat(projectId, adminId, participantUserId);
+    const result = await this.chatService.getOrCreateChat(projectId, adminId, participantUserId);
+    const chatAge = calculateChatAge(result.chat.createdAt);
+    const message = generateChatMessage(result.isNewChat, chatAge);
+    
+    return {
+      chat: result.chat,
+      metadata: {
+        isNewChat: result.isNewChat,
+        message,
+        createdAt: result.chat.createdAt,
+        accessedAt: new Date(),
+      },
+    };
   }
 } 

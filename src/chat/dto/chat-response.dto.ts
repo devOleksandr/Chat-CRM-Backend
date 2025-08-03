@@ -181,4 +181,105 @@ export class ChatResponseDto {
     example: '2025-01-15T10:30:00.000Z',
   })
   readonly lastMessageAt?: Date;
+}
+
+/**
+ * Data Transfer Object for chat creation metadata
+ */
+export class ChatCreationMetadataDto {
+  @ApiProperty({
+    description: 'Whether the chat was created in this request',
+    example: true,
+  })
+  readonly isNewChat: boolean;
+
+  @ApiProperty({
+    description: 'Human-readable message about the operation',
+    example: 'Chat created successfully',
+  })
+  readonly message: string;
+
+  @ApiProperty({
+    description: 'When the chat was originally created',
+    example: '2025-01-15T10:00:00.000Z',
+  })
+  readonly createdAt: Date;
+
+  @ApiProperty({
+    description: 'When the chat was last accessed',
+    example: '2025-01-15T10:30:00.000Z',
+  })
+  readonly accessedAt: Date;
+}
+
+/**
+ * Data Transfer Object for chat response with creation metadata
+ * Used for createOrGetChat endpoints to indicate whether chat was created or retrieved
+ */
+export class ChatWithMetadataResponseDto {
+  @ApiProperty({
+    description: 'Chat information',
+    type: ChatResponseDto,
+  })
+  readonly chat: ChatResponseDto;
+
+  @ApiProperty({
+    description: 'Metadata about chat creation/retrieval',
+    type: ChatCreationMetadataDto,
+  })
+  readonly metadata: ChatCreationMetadataDto;
+}
+
+/**
+ * Data Transfer Object for detailed metadata
+ */
+export class DetailedChatMetadataDto {
+  @ApiProperty({
+    description: 'Whether the chat was created in this request',
+    example: true,
+  })
+  readonly isNewChat: boolean;
+
+  @ApiProperty({
+    description: 'Type of operation performed',
+    example: 'created',
+    enum: ['created', 'retrieved'],
+  })
+  readonly operation: 'created' | 'retrieved';
+
+  @ApiProperty({
+    description: 'When the operation was performed',
+    example: '2025-01-15T10:30:00.000Z',
+  })
+  readonly timestamp: Date;
+
+  @ApiProperty({
+    description: 'Human-readable age of the chat',
+    example: '2 hours ago',
+  })
+  readonly chatAge: string;
+
+  @ApiProperty({
+    description: 'Number of times this chat has been accessed',
+    example: 5,
+  })
+  readonly accessCount: number;
+}
+
+/**
+ * Data Transfer Object for extended chat response with detailed metadata
+ * Alternative response format with more detailed information
+ */
+export class ExtendedChatResponseDto {
+  @ApiProperty({
+    description: 'Chat data',
+    type: ChatResponseDto,
+  })
+  readonly data: ChatResponseDto;
+
+  @ApiProperty({
+    description: 'Detailed metadata about the operation',
+    type: DetailedChatMetadataDto,
+  })
+  readonly metadata: DetailedChatMetadataDto;
 } 
