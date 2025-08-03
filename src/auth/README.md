@@ -1,6 +1,6 @@
 # Auth Module
 
-Authentication and authorization module for "The Little Black Book" system with JWT tokens, password reset, and user registration capabilities.
+Authentication and authorization module for "The Little Black Book" system with JWT tokens, password reset, and user registration capabilities. Supports both admin interface (with authentication) and mobile app (without authentication for certain endpoints).
 
 ## Features
 
@@ -12,8 +12,23 @@ Authentication and authorization module for "The Little Black Book" system with 
 - ✅ Password strength validation
 - ✅ Centralized error handling with Strategy Pattern
 - ✅ Email service for notifications
-- ✅ Role-based authorization
+- ✅ Role-based authorization (Admin/Participant)
 - ✅ Comprehensive logging and monitoring
+- ✅ Support for mobile app without authentication
+
+## User Roles
+
+### Admin
+- Full access to all system features
+- Can create and manage projects
+- Can manage participants
+- Requires JWT authentication for all operations
+
+### Participant
+- Limited access for mobile app usage
+- Can participate in chats without authentication
+- Uses external `participantId` for identification
+- No password or email required
 
 ## Architecture Overview
 
@@ -40,7 +55,8 @@ The module follows **Clean Architecture** principles with **Dependency Inversion
 │  ├── User authentication                                    │
 │  ├── Token generation & validation                          │
 │  ├── Password management                                    │
-│  └── Email notifications                                    │
+│  ├── Email notifications                                    │
+│  └── Role management (Admin/Participant)                    │
 └─────────────────────────────────────────────────────────────┘
                                           │
                                           ▼
@@ -71,6 +87,84 @@ The module follows **Clean Architecture** principles with **Dependency Inversion
 │  PostgreSQL + Prisma ORM                                    │
 └─────────────────────────────────────────────────────────────┘
 ```
+
+## API Endpoints
+
+### Authentication Endpoints (Admin)
+
+#### User Registration
+```bash
+POST /api/auth/register
+{
+  "email": "admin@example.com",
+  "password": "SecurePassword123!",
+  "firstName": "John",
+  "lastName": "Doe"
+}
+```
+
+#### User Login
+```bash
+POST /api/auth/login
+{
+  "email": "admin@example.com",
+  "password": "SecurePassword123!"
+}
+```
+
+Response:
+```json
+{
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": {
+    "id": 1,
+    "email": "admin@example.com",
+    "firstName": "John",
+    "lastName": "Doe",
+    "role": "Admin"
+  }
+}
+```
+
+#### Token Refresh
+```bash
+POST /api/auth/refresh
+{
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+#### User Logout
+```bash
+POST /api/auth/logout
+Authorization: Bearer <access-token>
+```
+
+#### Request Password Reset
+```bash
+POST /api/auth/reset-password/request
+{
+  "email": "admin@example.com"
+}
+```
+
+#### Reset Password
+```bash
+POST /api/auth/reset-password
+{
+  "token": "reset-token-from-email",
+  "newPassword": "NewSecurePassword123!"
+}
+```
+
+### Mobile App Support
+
+The system supports mobile app usage without authentication through:
+
+1. **External Participant IDs** - Mobile users are identified by `participantId` string
+2. **Project-based Access** - Access is granted based on `projectId` and `participantId` combination
+3. **No JWT Required** - Mobile endpoints don't require authentication tokens
 
 ## Error Handling Architecture
 

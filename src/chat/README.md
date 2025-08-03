@@ -1,26 +1,28 @@
 # Chat Module
 
-Модуль чату для системи "The Little Black Book" з підтримкою текстових повідомлень, зображень та файлів.
+Chat module for "The Little Black Book" system with support for text messages, images, and files. Supports both admin interface (with authentication) and mobile app (without authentication).
 
-## Можливості
+## Features
 
-- ✅ Текстові повідомлення
-- ✅ Зображення (нові!)
-- ✅ Файли
-- ✅ Емодзі
-- ✅ Системні повідомлення
-- ✅ WebSocket для real-time комунікації
-- ✅ REST API
-- ✅ Автоматичне визначення типу повідомлення
-- ✅ Валідація файлів зображень
+- ✅ Text messages
+- ✅ Images
+- ✅ Files
+- ✅ Emojis
+- ✅ System messages
+- ✅ WebSocket for real-time communication
+- ✅ REST API for administrators
+- ✅ REST API for mobile app (no authentication required)
+- ✅ Automatic message type detection
+- ✅ Image file validation
+- ✅ Project participant management
 
-## Типи повідомлень
+## Message Types
 
 ### TEXT
-Звичайні текстові повідомлення (максимум 1000 символів).
+Regular text messages (maximum 1000 characters).
 
 ### IMAGE
-Зображення з підтримкою наступних форматів:
+Images with support for the following formats:
 - JPEG (.jpg, .jpeg)
 - PNG (.png)
 - GIF (.gif)
@@ -29,170 +31,256 @@
 - SVG (.svg)
 
 ### FILE
-Інші типи файлів (документи, відео, аудіо тощо).
+Other file types (documents, video, audio, etc.).
 
 ### EMOJI
-Емодзі повідомлення.
+Emoji messages.
 
 ### SYSTEM
-Системні повідомлення.
+System messages.
 
 ## API Endpoints
 
-### REST API
+### REST API for Administrators (with authentication)
 
-#### Отримання списку чатів
+#### Get Chat List
 ```bash
-GET /chat?limit=20&offset=0&role=CUSTOMER
+GET /api/chat?limit=20&offset=0&role=CUSTOMER
+Authorization: Bearer <jwt-token>
 ```
 
-#### Отримання повідомлень чату
+#### Get Project Chats
 ```bash
-GET /chat/{chatId}/messages?limit=20&offset=0
+GET /api/chat/project/{projectId}?limit=20&offset=0
+Authorization: Bearer <jwt-token>
 ```
 
-#### Відправка повідомлення
+#### Get Chat by ID
 ```bash
-POST /chat/{chatId}/messages
+GET /api/chat/{chatId}
+Authorization: Bearer <jwt-token>
+```
+
+#### Create/Get Chat with Participant
+```bash
+POST /api/chat/project/{projectId}/participant/{participantId}
+Authorization: Bearer <jwt-token>
+```
+
+#### Get Chat Messages
+```bash
+GET /api/chat/{chatId}/messages?limit=20&offset=0
+Authorization: Bearer <jwt-token>
+```
+
+#### Send Message
+```bash
+POST /api/chat/{chatId}/messages
+Authorization: Bearer <jwt-token>
 {
-  "content": "Текст повідомлення",
+  "content": "Message text",
   "type": "TEXT"
 }
 ```
 
-#### Відправка зображення
+#### Mark Chat as Read
 ```bash
-POST /chat/{chatId}/messages
+PUT /api/chat/{chatId}/read
+Authorization: Bearer <jwt-token>
+```
+
+#### Deactivate Chat
+```bash
+DELETE /api/chat/{chatId}
+Authorization: Bearer <jwt-token>
+```
+
+#### User Online Status
+```bash
+GET /api/chat/status
+Authorization: Bearer <jwt-token>
+```
+
+### REST API for Mobile App (no authentication required)
+
+#### Create Project Participant
+```bash
+POST /api/project-participants/mobile
 {
-  "content": "https://storage.googleapis.com/bucket/chat/1/uuid.jpg",
-  "type": "IMAGE",
-  "metadata": {
-    "fileUrl": "https://storage.googleapis.com/bucket/chat/1/uuid.jpg",
-    "fileName": "photo.jpg",
-    "fileSize": 1024000,
-    "mimeType": "image/jpeg",
-    "originalName": "my_photo.jpg"
-  }
+  "participantId": "mobile_user_123",
+  "projectId": 1,
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john@example.com"
 }
 ```
 
-### WebSocket
+#### Create/Get Chat
+```bash
+POST /api/chat/mobile/project/{projectId}/participant/{participantId}
+```
 
-#### Підключення
+#### Get Chat Messages
+```bash
+GET /api/chat/mobile/{chatId}/messages?participantId=mobile_user_123&projectId=1&limit=20&offset=0
+```
+
+#### Send Message
+```bash
+POST /api/chat/mobile/{chatId}/messages?participantId=mobile_user_123&projectId=1
+{
+  "content": "Message text",
+  "type": "TEXT"
+}
+```
+
+### WebSocket API
+
+#### Connect for Administrators
 ```javascript
-const socket = io('http://localhost:3000/chat', {
+const socket = io('http://localhost:5000/chat', {
   auth: {
     token: 'your-jwt-token'
   }
 });
 ```
 
-#### Відправка повідомлення
+#### Connect for Mobile App
 ```javascript
-socket.emit('sendMessage', {
-  chatId: 1,
-  content: 'Текст повідомлення',
-  type: 'TEXT'
-});
-```
-
-#### Відправка зображення
-```javascript
-socket.emit('sendMessage', {
-  chatId: 1,
-  content: 'https://storage.googleapis.com/bucket/chat/1/uuid.jpg',
-  type: 'IMAGE',
-  metadata: {
-    fileUrl: 'https://storage.googleapis.com/bucket/chat/1/uuid.jpg',
-    fileName: 'photo.jpg',
-    fileSize: 1024000,
-    mimeType: 'image/jpeg',
-    originalName: 'my_photo.jpg'
+const socket = io('http://localhost:5000/chat', {
+  auth: {
+    participantId: 'mobile_user_123',
+    projectId: 1
   }
 });
 ```
 
-## Завантаження файлів
+#### Send Message (Admin)
+```javascript
+socket.emit('sendMessage', {
+  chatId: 1,
+  content: 'Message text',
+  type: 'TEXT'
+});
+```
 
-### Спеціальний endpoint для чату
+#### Send Message (Mobile)
+```javascript
+socket.emit('mobileSendMessage', {
+  chatId: 1,
+  content: 'Message text',
+  type: 'TEXT',
+  participantId: 'mobile_user_123',
+  projectId: 1
+});
+```
+
+#### Join Chat (Admin)
+```javascript
+socket.emit('joinChat', { chatId: 1 });
+```
+
+#### Join Chat (Mobile)
+```javascript
+socket.emit('mobileJoinChat', {
+  chatId: 1,
+  participantId: 'mobile_user_123',
+  projectId: 1
+});
+```
+
+#### Mark as Read
+```javascript
+socket.emit('markAsRead', { chatId: 1 });
+```
+
+#### Typing Indicator
+```javascript
+socket.emit('typing', { chatId: 1, isTyping: true });
+```
+
+## Project Participant Management
+
+### REST API for Administrators
+
+#### Create Participant
 ```bash
-POST /file-storage/chat/{chatId}/upload-url
+POST /api/project-participants
+Authorization: Bearer <jwt-token>
 {
-  "mimeType": "image/jpeg",
-  "extension": "jpg"
+  "participantId": "user_123",
+  "projectId": 1,
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john@example.com"
 }
 ```
 
-### Загальний endpoint
+#### Get Project Participants
 ```bash
-POST /file-storage/upload-url
-{
-  "mimeType": "image/jpeg",
-  "extension": "jpg",
-  "entity": "chat",
-  "entityId": "1"
-}
+GET /api/project-participants/project/{projectId}?limit=20&offset=0
+Authorization: Bearer <jwt-token>
 ```
 
-## Автоматичне визначення типу
-
-Якщо не вказати тип повідомлення, система автоматично визначить його:
-
-- Якщо `metadata.mimeType` є зображенням → `IMAGE`
-- Якщо `metadata.extension` є зображенням → `IMAGE`
-- Якщо `content` є URL з розширенням зображення → `IMAGE`
-- Якщо є файл, але не зображення → `FILE`
-- За замовчуванням → `TEXT`
-
-## Валідація
-
-### Зображення
-- Перевірка наявності обов'язкових полів (`fileUrl`, `fileName`)
-- Валідація підтримуваних форматів
-- Перевірка відповідності MIME типу до розширення
-
-### Текст
-- Максимум 1000 символів для звичайного тексту
-- Максимум 2000 символів для URL файлів
-
-### Спам захист
-- Максимум 30 повідомлень за 60 секунд
-- Timeout для порушників
-
-## Структура даних
-
-### Message Entity
-```typescript
-interface Message {
-  id: number;
-  chatId: number;
-  senderId: number;
-  content: string;
-  type: MessageType;
-  metadata?: Record<string, any>;
-  createdAt: Date;
-  read: boolean;
-  readAt?: Date;
-}
+#### Get Participant by ID
+```bash
+GET /api/project-participants/{participantId}
+Authorization: Bearer <jwt-token>
 ```
 
-### Image Metadata
-```typescript
-interface ImageMetadata {
-  fileUrl: string;        // Public URL файлу в GCS
-  fileName: string;       // Назва файлу в GCS
-  fileSize?: number;      // Розмір файлу в байтах
-  mimeType?: string;      // MIME тип файлу
-  originalName?: string;  // Оригінальна назва файлу
-  width?: number;         // Ширина зображення (опціонально)
-  height?: number;        // Висота зображення (опціонально)
-}
+#### Delete Participant
+```bash
+DELETE /api/project-participants/{participantId}
+Authorization: Bearer <jwt-token>
 ```
 
-## Приклади використання
+## Architecture
 
-Дивіться файл `examples/image-message-examples.md` для детальних прикладів.
+### Controllers
+- **ChatController** - main chat controller with admin and mobile endpoints
+- **ProjectParticipantController** - project participant management
 
-## Міграції
+### Services
+- **ChatService** - chat business logic
+- **ProjectParticipantService** - participant management
+- **OnlineStatusService** - online status tracking
 
-Новий тип `IMAGE` був доданий до enum `MessageType` в міграції `20250728143651_add_image_message_type`. 
+### WebSocket Gateway
+- **ChatGateway** - unified WebSocket gateway for administrators and mobile app
+
+### Repositories
+- **ChatRepository** - chat data operations
+- **MessageRepository** - message data operations
+- **ProjectParticipantRepository** - participant data operations
+
+## Implementation Details
+
+### Mobile App without Authentication
+- Uses `participantId` (string) instead of internal `userId`
+- Automatically retrieves `adminId` from project
+- All mobile endpoints accessible without JWT token
+
+### Security
+- Admin endpoints protected with JWT authentication
+- Mobile endpoints use `participantId` and `projectId` for validation
+- WebSocket connections verify `participantId` matching
+
+### Scalability
+- Pagination support for all lists
+- Optimized database queries
+- Real-time updates via WebSocket
+
+## Usage Examples
+
+### Creating Chat from Mobile App
+1. Create participant: `POST /api/project-participants/mobile`
+2. Create chat: `POST /api/chat/mobile/project/1/participant/mobile_user_123`
+3. Connect to WebSocket with `participantId` and `projectId`
+4. Send messages via WebSocket or REST API
+
+### Administrative Management
+1. Authenticate as admin
+2. Create participant: `POST /api/project-participants`
+3. Create chat: `POST /api/chat/project/1/participant/2`
+4. Connect to WebSocket with JWT token
+5. Send messages and manage chats 

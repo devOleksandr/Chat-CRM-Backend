@@ -1,18 +1,20 @@
 # Project Module
 
-Project management module for Chat CRM system with comprehensive project operations, unique ID validation, and Clean Architecture implementation.
+Project management module for Chat CRM system with comprehensive project operations, unique ID validation, and Clean Architecture implementation. Supports both admin project management and mobile app integration.
 
 ## Features
 
 - ✅ Project creation and management (CRUD operations)
 - ✅ Unique project ID validation and availability checking
-- ✅ Role-based access control (Admin only)
+- ✅ Role-based access control (Admin only for management)
+- ✅ Support for mobile app integration
 - ✅ Comprehensive error handling with Strategy Pattern
 - ✅ Clean Architecture with dependency inversion
 - ✅ JWT token-based authentication integration
 - ✅ User ownership and access control
 - ✅ Comprehensive logging and monitoring
 - ✅ Cascade deletion for project removal
+- ✅ Integration with chat and participant management
 
 ## Architecture Overview
 
@@ -23,13 +25,13 @@ The module follows **Clean Architecture** principles with **Dependency Inversion
 │                    Presentation Layer                       │
 ├─────────────────────────────────────────────────────────────┤
 │  ProjectController (REST API Endpoints)                     │
-│  ├── POST /projects                                         │
-│  ├── GET /projects                                          │
-│  ├── GET /projects/:id                                      │
-│  ├── GET /projects/unique/:uniqueId                         │
-│  ├── PUT /projects/:id                                      │
-│  ├── DELETE /projects/:id                                   │
-│  └── GET /projects/check-availability/:uniqueId             │
+│  ├── POST /projects (admin only)                            │
+│  ├── GET /projects (admin only)                             │
+│  ├── GET /projects/:id (admin only)                         │
+│  ├── GET /projects/unique/:uniqueId (admin only)            │
+│  ├── PUT /projects/:id (admin only)                         │
+│  ├── DELETE /projects/:id (admin only)                      │
+│  └── GET /projects/check-availability/:uniqueId (public)    │
 └─────────────────────────────────────────────────────────────┘
                                           │
                                           ▼
@@ -37,6 +39,10 @@ The module follows **Clean Architecture** principles with **Dependency Inversion
 │                    Business Logic Layer                     │
 ├─────────────────────────────────────────────────────────────┤
 │  ProjectService (Business Logic)                            │
+│  ├── Project CRUD operations                                │
+│  ├── Admin ID retrieval for mobile app                      │
+│  ├── Unique ID validation                                   │
+│  └── Ownership verification                                 │
 │  ProjectErrorHandler (Error Handling)                       │
 └─────────────────────────────────────────────────────────────┘
                                           │
@@ -68,6 +74,90 @@ The module follows **Clean Architecture** principles with **Dependency Inversion
 └─────────────────────────────────────────────────────────────┘
 ```
 
+## API Endpoints
+
+### Admin Project Management (Requires JWT Authentication)
+
+#### Create Project
+```bash
+POST /api/projects
+Authorization: Bearer <jwt-token>
+{
+  "name": "My Project",
+  "uniqueId": "project-123"
+}
+```
+
+#### Get All Projects (Paginated)
+```bash
+GET /api/projects?limit=20&offset=0
+Authorization: Bearer <jwt-token>
+```
+
+#### Get Project by ID
+```bash
+GET /api/projects/{id}
+Authorization: Bearer <jwt-token>
+```
+
+#### Get Project by Unique ID
+```bash
+GET /api/projects/unique/{uniqueId}
+Authorization: Bearer <jwt-token>
+```
+
+#### Update Project
+```bash
+PUT /api/projects/{id}
+Authorization: Bearer <jwt-token>
+{
+  "name": "Updated Project Name",
+  "uniqueId": "updated-project-123"
+}
+```
+
+#### Delete Project
+```bash
+DELETE /api/projects/{id}
+Authorization: Bearer <jwt-token>
+```
+
+### Public Endpoints
+
+#### Check Unique ID Availability
+```bash
+GET /api/projects/check-availability/{uniqueId}
+```
+
+Response:
+```json
+{
+  "available": true,
+  "uniqueId": "project-123"
+}
+```
+
+## Mobile App Integration
+
+### Admin ID Retrieval
+The Project module provides a method to retrieve the admin ID for a given project, which is essential for mobile app functionality:
+
+```typescript
+// Get the admin ID of a project
+const adminId = await projectService.getProjectAdminId(projectId);
+```
+
+This method is used by the Chat module to:
+- Create chats between admin and participants
+- Validate mobile app access to projects
+- Ensure proper authorization for chat operations
+
+### Project Structure
+Each project contains:
+- **Admin** - The user who created the project (Admin role)
+- **Participants** - Users who can participate in project chats (Participant role)
+- **Chats** - Communication channels between admin and participants
+
 ## Error Handling Architecture
 
 The module implements a **hybrid approach** combining NestJS Exception Filters with Strategy Pattern:
@@ -93,7 +183,7 @@ The module implements a **hybrid approach** combining NestJS Exception Filters w
                               │
                               ▼
                        ┌─────────────────┐
-                       │ Exception       │
+                       │ ProjectException│
                        │ Filter (HTTP)   │
                        └─────────────────┘
                               │
@@ -103,249 +193,85 @@ The module implements a **hybrid approach** combining NestJS Exception Filters w
                        └─────────────────┘
 ```
 
-## API Documentation
+## Integration with Other Modules
 
-### Create Project (Admin Only)
-```http
-POST /projects
-Authorization: Bearer <jwt-token>
-Content-Type: application/json
+### Chat Module
+- Projects serve as containers for chats
+- Each chat is associated with a specific project
+- Mobile app access is validated against project membership
 
-{
-  "name": "My New Project",
-  "uniqueId": "PROJ-001"
-}
-```
+### User Module
+- Admin users can create and manage projects
+- Project ownership is tracked for authorization
+- Participants are associated with projects through ProjectParticipantService
 
-**Response:**
-```json
-{
-  "id": 1,
-  "name": "My New Project",
-  "uniqueId": "PROJ-001",
-  "createdBy": {
-    "id": 1,
-    "firstName": "Admin",
-    "lastName": "User",
-    "email": "admin@chat-crm.com",
-    "role": "Admin"
-  },
-  "createdAt": "2024-01-01T00:00:00.000Z",
-  "updatedAt": "2024-01-01T00:00:00.000Z"
-}
-```
+### Auth Module
+- JWT authentication required for admin operations
+- Role-based access control (Admin/Participant)
+- Project-based authorization for mobile app users
 
-### Get All Projects (Admin Only)
-```http
-GET /projects?page=1&limit=10
-Authorization: Bearer <jwt-token>
-```
+## Project Lifecycle
 
-**Response:**
-```json
-{
-  "projects": [
-    {
-      "id": 1,
-      "name": "My New Project",
-      "uniqueId": "PROJ-001",
-      "createdBy": {
-        "id": 1,
-        "firstName": "Admin",
-        "lastName": "User",
-        "email": "admin@chat-crm.com",
-        "role": "Admin"
-      },
-      "createdAt": "2024-01-01T00:00:00.000Z",
-      "updatedAt": "2024-01-01T00:00:00.000Z"
-    }
-  ],
-  "total": 1,
-  "page": 1,
-  "limit": 10,
-  "totalPages": 1
-}
-```
+### 1. Project Creation
+1. Admin creates project with unique ID
+2. Project is associated with admin user
+3. Project becomes available for participant management
 
-### Get Project by ID (Admin Only)
-```http
-GET /projects/1
-Authorization: Bearer <jwt-token>
-```
+### 2. Participant Management
+1. Admin adds participants to project
+2. Participants can be created via mobile app or admin interface
+3. Each participant gets unique `participantId` for mobile access
 
-**Response:**
-```json
-{
-  "id": 1,
-  "name": "My New Project",
-  "uniqueId": "PROJ-001",
-  "createdBy": {
-    "id": 1,
-    "firstName": "Admin",
-    "lastName": "User",
-    "email": "admin@chat-crm.com",
-    "role": "Admin"
-  },
-  "createdAt": "2024-01-01T00:00:00.000Z",
-  "updatedAt": "2024-01-01T00:00:00.000Z"
-}
-```
+### 3. Chat Creation
+1. Chats are created between admin and participants
+2. Mobile app can create chats using `projectId` and `participantId`
+3. Admin can manage all chats in their projects
 
-### Get Project by Unique ID (Admin Only)
-```http
-GET /projects/unique/PROJ-001
-Authorization: Bearer <jwt-token>
-```
+### 4. Project Deletion
+1. Admin can delete project
+2. Cascade deletion removes all related data:
+   - Project participants
+   - Chats and messages
+   - Project associations
 
-**Response:**
-```json
-{
-  "id": 1,
-  "name": "My New Project",
-  "uniqueId": "PROJ-001",
-  "createdBy": {
-    "id": 1,
-    "firstName": "Admin",
-    "lastName": "User",
-    "email": "admin@chat-crm.com",
-    "role": "Admin"
-  },
-  "createdAt": "2024-01-01T00:00:00.000Z",
-  "updatedAt": "2024-01-01T00:00:00.000Z"
-}
-```
+## Security Features
 
-### Update Project (Admin Only)
-```http
-PUT /projects/1
-Authorization: Bearer <jwt-token>
-Content-Type: application/json
-
-{
-  "name": "Updated Project Name",
-  "uniqueId": "PROJ-002"
-}
-```
-
-**Response:**
-```json
-{
-  "id": 1,
-  "name": "Updated Project Name",
-  "uniqueId": "PROJ-002",
-  "createdBy": {
-    "id": 1,
-    "firstName": "Admin",
-    "lastName": "User",
-    "email": "admin@chat-crm.com",
-    "role": "Admin"
-  },
-  "createdAt": "2024-01-01T00:00:00.000Z",
-  "updatedAt": "2024-01-01T00:00:00.000Z"
-}
-```
-
-### Delete Project (Admin Only)
-```http
-DELETE /projects/1
-Authorization: Bearer <jwt-token>
-```
-
-**Response:**
-```json
-{
-  "message": "Project deleted successfully"
-}
-```
-
-### Check Unique ID Availability
-```http
-GET /projects/check-availability/PROJ-001
-Authorization: Bearer <jwt-token>
-```
-
-**Response:**
-```json
-{
-  "available": false,
-  "uniqueId": "PROJ-001"
-}
-```
-
-## Project Fields
-
-### Core Fields
-- `id` - Unique identifier
-- `name` - Project name
-- `uniqueId` - Unique project ID assigned by admin
-- `createdBy` - User who created the project
-- `createdAt` - Creation timestamp
-- `updatedAt` - Last update timestamp
-
-### Special Fields
-- `userId` - Foreign key to the user who created the project
+- **JWT authentication** for all admin operations
+- **Project ownership verification** for updates and deletions
+- **Unique ID validation** to prevent conflicts
+- **Role-based access control** (Admin only for management)
+- **Cascade deletion** for complete project removal
+- **Audit logging** for project operations
 
 ## Usage Examples
 
 ### Basic Project Management
 ```typescript
-// Create new project
+// Create project
 const project = await projectService.createProject({
-  name: 'My New Project',
-  uniqueId: 'PROJ-001'
-}, userId);
+  name: 'My Project',
+  uniqueId: 'project-123'
+}, adminUserId);
 
 // Get project by ID
-const project = await projectService.getProjectById(1, userId);
-
-// Get project by unique ID
-const project = await projectService.getProjectByUniqueId('PROJ-001', userId);
+const project = await projectService.getProjectById(projectId, adminUserId);
 
 // Update project
-const updatedProject = await projectService.updateProject(1, {
-  name: 'Updated Project Name',
-  uniqueId: 'PROJ-002'
-}, userId);
-
-// Get all projects with pagination
-const projects = await projectService.getUserProjects({ page: 1, limit: 10 }, userId);
+const updatedProject = await projectService.updateProject(projectId, {
+  name: 'Updated Project Name'
+}, adminUserId);
 
 // Delete project
-await projectService.deleteProject(1, userId);
+await projectService.deleteProject(projectId, adminUserId);
+```
+
+### Mobile App Integration
+```typescript
+// Get admin ID for mobile app chat creation
+const adminId = await projectService.getProjectAdminId(projectId);
 
 // Check unique ID availability
-const availability = await projectService.checkUniqueIdAvailability('PROJ-001');
-```
-
-### Project Creation Flow
-```typescript
-// 1. Check if unique ID is available
-const availability = await projectService.checkUniqueIdAvailability('PROJ-001');
-
-if (!availability.available) {
-  throw new Error('Unique ID already exists');
-}
-
-// 2. Create project
-const project = await projectService.createProject({
-  name: 'My New Project',
-  uniqueId: 'PROJ-001'
-}, userId);
-```
-
-### Admin Operations
-```typescript
-// Get all projects (admin only)
-const projects = await projectService.getUserProjects({ page: 1, limit: 10 }, adminId);
-
-// Update any project (admin only)
-const updatedProject = await projectService.updateProject(1, {
-  name: 'Updated Project Name',
-  uniqueId: 'PROJ-002'
-}, adminId);
-
-// Delete any project (admin only)
-await projectService.deleteProject(1, adminId);
+const availability = await projectService.checkUniqueIdAvailability('project-123');
 ```
 
 ## Error Types
@@ -358,7 +284,7 @@ await projectService.deleteProject(1, adminId);
 - Thrown when project with unique ID already exists
 - HTTP Status: `409 Conflict`
 
-### ProjectAccessDeniedError
+### InsufficientPermissionsError
 - Thrown when user doesn't have permission to access project
 - HTTP Status: `403 Forbidden`
 
@@ -368,111 +294,4 @@ await projectService.deleteProject(1, adminId);
 
 ### ProjectOperationFailedError
 - Thrown when project operation fails
-- HTTP Status: `500 Internal Server Error`
-
-## Validation
-
-### Project Name Validation
-- Field is required
-- Must be a string
-- Minimum length validation
-- Maximum length validation
-
-### Unique ID Validation
-- Field is required
-- Must be a string
-- Must be unique across all projects
-- Format validation (alphanumeric with hyphens allowed)
-- Minimum and maximum length validation
-
-### User Ownership Validation
-- Only project creator can modify their projects
-- Admins can access all projects
-- Proper access control enforcement
-
-## Configuration
-
-### Environment Variables
-```env
-# Database Configuration
-DATABASE_URL=postgresql://username:password@localhost:5432/database
-
-# JWT Configuration
-JWT_SECRET=your-jwt-secret-key
-```
-
-### Pagination Settings
-- **Default page size**: 10 projects per page
-- **Maximum page size**: 100 projects per page
-- **Default page**: 1
-
-## Testing
-
-### Unit Tests
-```typescript
-describe('ProjectService', () => {
-  it('should create project successfully', async () => {
-    // Test implementation
-  });
-
-  it('should validate unique ID availability', async () => {
-    // Test implementation
-  });
-
-  it('should enforce user ownership', async () => {
-    // Test implementation
-  });
-
-  it('should delete project with proper cleanup', async () => {
-    // Test implementation
-  });
-});
-```
-
-### Integration Tests
-```typescript
-describe('ProjectController', () => {
-  it('should create project via API', async () => {
-    // Test implementation
-  });
-
-  it('should return project by ID', async () => {
-    // Test implementation
-  });
-
-  it('should update project successfully', async () => {
-    // Test implementation
-  });
-
-  it('should delete project successfully', async () => {
-    // Test implementation
-  });
-});
-```
-
-## Security Features
-
-- **Role-based access control** for admin operations
-- **User ownership validation** for project modifications
-- **JWT token validation** for all operations
-- **Unique ID validation** to prevent conflicts
-- **Input sanitization** and validation
-- **Audit logging** for project operations
-
-## Monitoring and Observability
-
-- **Structured logging** with context information
-- **Error metrics collection** for operational insights
-- **Security event monitoring** for threat detection
-- **Performance monitoring** for project operations
-- **Access control monitoring** for compliance
-- **Creation and modification audit trails**
-
-## Dependencies
-
-- **@nestjs/common**: NestJS core classes
-- **@nestjs/swagger**: API documentation
-- **@nestjs/jwt**: JWT token handling
-- **@nestjs/config**: Configuration management
-- **prisma**: ORM for database operations
-- **class-validator**: DTO validation 
+- HTTP Status: `500 Internal Server Error` 
