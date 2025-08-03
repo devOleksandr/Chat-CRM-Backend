@@ -18,15 +18,25 @@ datasource db {
 
 enum Role {
   Admin
+  Participant
+}
+
+enum MessageType {
+  TEXT
+  EMOJI
+  FILE
+  IMAGE
+  SYSTEM
 }
 
 model User {
   id                        Int       @id @default(autoincrement())
-  email                     String    @unique
-  password                  String
+  email                     String?   @unique // Може бути null для participant
+  password                  String?   // Може бути null для participant
   firstName                 String
   lastName                  String
   role                      Role      @default(Admin)
+  uniqueId                  String?   @unique // Унікальний ID для participant
   refreshToken              String?   @map("refresh_token")
   createdAt                 DateTime  @default(now()) @map("created_at")
   updatedAt                 DateTime  @updatedAt @map("updated_at")
@@ -34,7 +44,15 @@ model User {
   emailChangeToken          String?   @map("email_change_token")
   emailChangeTokenExpiresAt DateTime? @map("email_change_token_expires_at")
   passwordChangeToken       String?   @map("password_change_token")
+  isOnline                  Boolean   @default(false) @map("is_online")
+  lastSeen                  DateTime? @map("last_seen")
+  
+  // Relations
   projects                  Project[] // Projects created by this admin
+  projectParticipants       ProjectParticipant[] // Projects where user is participant
+  sentMessages              Message[] @relation("MessageSender")
+  adminChats                Chat[] @relation("ChatAdmin")
+  participantChats          Chat[] @relation("ChatParticipant")
 
   @@map("users")
 }
@@ -42,11 +60,67 @@ model User {
 model Project {
   id          Int      @id @default(autoincrement())
   name        String
-  uniqueId    String   @unique @map("unique_id") // Unique ID assigned by admin
+  uniqueId    String   @unique @map("unique_id")
   createdBy   User     @relation(fields: [userId], references: [id])
   userId      Int      @map("user_id")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
+  
+  // Relations
+  participants ProjectParticipant[]
+  chats        Chat[]
 
   @@map("projects")
+}
+
+model ProjectParticipant {
+  id        Int      @id @default(autoincrement())
+  projectId Int      @map("project_id")
+  userId    Int      @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  
+  // Relations
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([projectId, userId])
+  @@map("project_participants")
+}
+
+model Chat {
+  id            Int      @id @default(autoincrement())
+  projectId     Int      @map("project_id")
+  adminId       Int      @map("admin_id")
+  participantId Int      @map("participant_id")
+  isActive      Boolean  @default(true) @map("is_active")
+  unreadCount   Int      @default(0) @map("unread_count")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  
+  // Relations
+  project       Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  admin         User      @relation("ChatAdmin", fields: [adminId], references: [id], onDelete: Cascade)
+  participant   User      @relation("ChatParticipant", fields: [participantId], references: [id], onDelete: Cascade)
+  messages      Message[]
+  
+  @@unique([projectId, adminId, participantId])
+  @@map("chats")
+}
+
+model Message {
+  id        Int         @id @default(autoincrement())
+  chatId    Int         @map("chat_id")
+  senderId  Int         @map("sender_id")
+  content   String
+  type      MessageType @default(TEXT)
+  metadata  Json?
+  read      Boolean     @default(false)
+  readAt    DateTime?   @map("read_at")
+  createdAt DateTime    @default(now()) @map("created_at")
+  
+  // Relations
+  chat      Chat        @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  sender    User        @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+  
+  @@map("messages")
 }

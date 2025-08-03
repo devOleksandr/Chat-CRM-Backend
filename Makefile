@@ -1,6 +1,6 @@
 # ========= LOCAL DEVELOPMENT =========
-rebuild_local: down build up wait migrate seed
-rebuild_ubuntu_server: down build up wait migrate seed
+rebuild_local: down build up migrate_dev migrate seed
+rebuild_ubuntu_server: down build up migrate seed
 rebuild_local_clean: down build up migrate_reset
 db_only: down_db up_db
 
@@ -27,13 +27,13 @@ up_db:
 build:
 	docker compose --env-file .env build
 
-wait:
-	@echo "Waiting for containers to be ready..."
-	sleep 10
-
 migrate:
 	@echo "Running migrations..."
 	docker compose --env-file .env exec -T api npx prisma migrate deploy --schema=prisma/schema.prisma
+
+migrate_dev:
+	@echo "Creating new migration..."
+	docker compose --env-file .env exec -T api npx prisma migrate dev --name auto-migration --schema=prisma/schema.prisma
 
 migrate_reset:
 	@echo "⚠️ Resetting database and all migrations..."
@@ -121,6 +121,10 @@ status_stage:
 	docker compose -f docker-compose.prod.yml --env-file .env ps
 
 # ========= DATABASE UTILITIES =========
+db_migrate:
+	@echo "Creating new migration..."
+	docker compose --env-file .env exec -T api npx prisma migrate dev --name auto-migration --schema=prisma/schema.prisma
+
 db_reset:
 	@echo "⚠️ Resetting database..."
 	docker compose --env-file .env exec -T api npx prisma migrate reset --force
@@ -145,6 +149,7 @@ help:
 	@echo "  make rebuild_prod        - Full production rebuild"
 	@echo ""
 	@echo "🔧 DATABASE:"
+	@echo "  make db_migrate          - Create new migration"
 	@echo "  make migrate_reset       - Reset all migrations"
 	@echo "  make generate            - Generate Prisma client"
 	@echo "  make db_reset            - Reset database"

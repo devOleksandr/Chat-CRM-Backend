@@ -263,6 +263,30 @@ export class ProjectService {
   }
 
   /**
+   * Get project admin ID by project ID
+   * @param projectId - Project ID
+   * @returns Promise<number> Admin user ID
+   */
+  async getProjectAdminId(projectId: number): Promise<number> {
+    try {
+      const project = await this.projectRepository.findProjectById(projectId);
+      
+      if (!project) {
+        throw new ProjectNotFoundError(projectId);
+      }
+
+      return project.userId; // userId is the admin who created the project
+    } catch (error) {
+      await this.projectErrorHandler.handle(error, {
+        operation: 'get_project_admin_id',
+        projectId,
+        timestamp: new Date(),
+      });
+      throw error;
+    }
+  }
+
+  /**
    * Validate project name
    * @param name - Project name to validate
    * @private
@@ -312,7 +336,7 @@ export class ProjectService {
         id: project.createdBy.id,
         firstName: project.createdBy.firstName,
         lastName: project.createdBy.lastName,
-        email: project.createdBy.email,
+        email: project.createdBy.email ?? '',
         role: project.createdBy.role,
         createdAt: project.createdBy.createdAt.toISOString(),
         updatedAt: project.createdBy.updatedAt.toISOString(),

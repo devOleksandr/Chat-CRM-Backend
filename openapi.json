@@ -1022,6 +1022,1091 @@
           "projects"
         ]
       }
+    },
+    "/api/chat": {
+      "get": {
+        "description": "Retrieves a paginated list of all chats where the user is either admin or participant",
+        "operationId": "ChatController_getChats",
+        "parameters": [
+          {
+            "name": "projectId",
+            "required": false,
+            "in": "query",
+            "description": "Filter chats by project ID",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Maximum number of chats to return (default: 20)",
+            "schema": {
+              "example": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "Number of chats to skip (default: 0)",
+            "schema": {
+              "example": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "isActive",
+            "required": false,
+            "in": "query",
+            "description": "Filter by active status (default: true)",
+            "schema": {
+              "example": "true",
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved chats",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ChatResponseDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get all chats for the authenticated user",
+        "tags": [
+          "chat"
+        ]
+      }
+    },
+    "/api/chat/project/{projectId}": {
+      "get": {
+        "description": "Retrieves a paginated list of all chats in a specific project",
+        "operationId": "ChatController_getProjectChats",
+        "parameters": [
+          {
+            "name": "projectId",
+            "required": true,
+            "in": "path",
+            "description": "ID of the project",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "adminId",
+            "required": false,
+            "in": "query",
+            "description": "Filter chats by admin ID",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "participantId",
+            "required": false,
+            "in": "query",
+            "description": "Filter chats by participant ID",
+            "schema": {
+              "example": 2,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Maximum number of chats to return (default: 20)",
+            "schema": {
+              "example": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "Number of chats to skip (default: 0)",
+            "schema": {
+              "example": 0,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved project chats",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ChatResponseDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get all chats for a specific project",
+        "tags": [
+          "chat"
+        ]
+      }
+    },
+    "/api/chat/{chatId}": {
+      "get": {
+        "description": "Retrieves information about a specific chat",
+        "operationId": "ChatController_getChatById",
+        "parameters": [
+          {
+            "name": "chatId",
+            "required": true,
+            "in": "path",
+            "description": "ID of the chat",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved chat",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "403": {
+            "description": "User does not have access to this chat"
+          },
+          "404": {
+            "description": "Chat not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get a specific chat by ID",
+        "tags": [
+          "chat"
+        ]
+      },
+      "delete": {
+        "description": "Deactivates a chat (soft delete)",
+        "operationId": "ChatController_deactivateChat",
+        "parameters": [
+          {
+            "name": "chatId",
+            "required": true,
+            "in": "path",
+            "description": "ID of the chat",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully deactivated chat"
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "403": {
+            "description": "User does not have access to this chat"
+          },
+          "404": {
+            "description": "Chat not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Deactivate a chat",
+        "tags": [
+          "chat"
+        ]
+      }
+    },
+    "/api/chat/project/{projectId}/participant/{participantId}": {
+      "post": {
+        "description": "Creates a new chat or returns existing one between admin and participant",
+        "operationId": "ChatController_createOrGetChat",
+        "parameters": [
+          {
+            "name": "projectId",
+            "required": true,
+            "in": "path",
+            "description": "ID of the project",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "participantId",
+            "required": true,
+            "in": "path",
+            "description": "ID of the participant",
+            "schema": {
+              "example": 2,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved or created chat",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create or get chat with participant",
+        "tags": [
+          "chat"
+        ]
+      }
+    },
+    "/api/chat/{chatId}/messages": {
+      "get": {
+        "description": "Retrieves a paginated list of messages for a specific chat",
+        "operationId": "ChatController_getMessages",
+        "parameters": [
+          {
+            "name": "chatId",
+            "required": true,
+            "in": "path",
+            "description": "ID of the chat",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Maximum number of messages to return (default: 20)",
+            "schema": {
+              "example": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "Number of messages to skip (default: 0)",
+            "schema": {
+              "example": 0,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved messages",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedMessagesResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "403": {
+            "description": "User does not have access to this chat"
+          },
+          "404": {
+            "description": "Chat not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get messages for a chat",
+        "tags": [
+          "chat"
+        ]
+      },
+      "post": {
+        "description": "Creates a new message in a specific chat",
+        "operationId": "ChatController_createMessage",
+        "parameters": [
+          {
+            "name": "chatId",
+            "required": true,
+            "in": "path",
+            "description": "ID of the chat",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateMessageViaApiDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successfully created message",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid message content or spam protection triggered"
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "403": {
+            "description": "User does not have access to this chat"
+          },
+          "404": {
+            "description": "Chat not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Send a message to a chat",
+        "tags": [
+          "chat"
+        ]
+      }
+    },
+    "/api/chat/{chatId}/read": {
+      "put": {
+        "description": "Marks all messages in a chat as read for the authenticated user",
+        "operationId": "ChatController_markChatAsRead",
+        "parameters": [
+          {
+            "name": "chatId",
+            "required": true,
+            "in": "path",
+            "description": "ID of the chat",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully marked chat as read"
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "403": {
+            "description": "User does not have access to this chat"
+          },
+          "404": {
+            "description": "Chat not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Mark chat as read",
+        "tags": [
+          "chat"
+        ]
+      }
+    },
+    "/api/chat/status/{userId}": {
+      "get": {
+        "description": "Retrieves the online status of a user",
+        "operationId": "ChatController_getUserOnlineStatus",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": false,
+            "in": "path",
+            "description": "ID of the user to get status for (defaults to authenticated user)",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved online status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "isOnline": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "lastSeen": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2025-01-15T10:00:00.000Z",
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get user online status",
+        "tags": [
+          "chat"
+        ]
+      }
+    },
+    "/api/chat/status": {
+      "get": {
+        "description": "Retrieves the online status of the authenticated user",
+        "operationId": "ChatController_getCurrentUserOnlineStatus",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved online status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "isOnline": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "lastSeen": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2025-01-15T10:00:00.000Z",
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get current user online status",
+        "tags": [
+          "chat"
+        ]
+      }
+    },
+    "/api/project-participants": {
+      "post": {
+        "description": "Creates a new participant for a specific project. Admin authentication required.",
+        "operationId": "ProjectParticipantController_createParticipant",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProjectParticipantDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successfully created participant",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectParticipantResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid participant data or participant ID already exists"
+          },
+          "401": {
+            "description": "User is not authenticated"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a new project participant (Admin)",
+        "tags": [
+          "project-participants"
+        ]
+      }
+    },
+    "/api/project-participants/project/{projectId}": {
+      "get": {
+        "description": "Retrieves a paginated list of all participants for a specific project",
+        "operationId": "ProjectParticipantController_getProjectParticipants",
+        "parameters": [
+          {
+            "name": "projectId",
+            "required": true,
+            "in": "path",
+            "description": "ID of the project",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Maximum number of participants to return (default: 20)",
+            "schema": {
+              "example": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "Number of participants to skip (default: 0)",
+            "schema": {
+              "example": 0,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved participants",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProjectParticipantResponseDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get all participants for a project",
+        "tags": [
+          "project-participants"
+        ]
+      }
+    },
+    "/api/project-participants/{participantId}": {
+      "get": {
+        "description": "Retrieves information about a specific project participant",
+        "operationId": "ProjectParticipantController_getParticipantById",
+        "parameters": [
+          {
+            "name": "participantId",
+            "required": true,
+            "in": "path",
+            "description": "ID of the participant",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved participant",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectParticipantResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "404": {
+            "description": "Participant not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get participant by ID",
+        "tags": [
+          "project-participants"
+        ]
+      },
+      "delete": {
+        "description": "Removes a participant from a project",
+        "operationId": "ProjectParticipantController_deleteParticipant",
+        "parameters": [
+          {
+            "name": "participantId",
+            "required": true,
+            "in": "path",
+            "description": "ID of the participant to delete",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully deleted participant"
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "404": {
+            "description": "Participant not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete project participant",
+        "tags": [
+          "project-participants"
+        ]
+      }
+    },
+    "/api/project-participants/project/{projectId}/unique/{uniqueId}": {
+      "get": {
+        "description": "Retrieves information about a participant using their unique identifier within a project",
+        "operationId": "ProjectParticipantController_getParticipantByUniqueId",
+        "parameters": [
+          {
+            "name": "projectId",
+            "required": true,
+            "in": "path",
+            "description": "ID of the project",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "uniqueId",
+            "required": true,
+            "in": "path",
+            "description": "Unique identifier of the participant",
+            "schema": {
+              "example": "user123",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved participant",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectParticipantResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "404": {
+            "description": "Participant not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get participant by unique ID",
+        "tags": [
+          "project-participants"
+        ]
+      }
+    },
+    "/api/project-participants/project/{projectId}/count": {
+      "get": {
+        "description": "Returns the total number of participants in a project",
+        "operationId": "ProjectParticipantController_getParticipantsCount",
+        "parameters": [
+          {
+            "name": "projectId",
+            "required": true,
+            "in": "path",
+            "description": "ID of the project",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved participants count",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "count": {
+                      "type": "number",
+                      "example": 15
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get participants count",
+        "tags": [
+          "project-participants"
+        ]
+      }
+    },
+    "/api/mobile-participants": {
+      "post": {
+        "description": "Creates a new participant for a specific project with external participant ID. No authentication required for mobile app usage.",
+        "operationId": "MobileParticipantController_createParticipant",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProjectParticipantDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successfully created participant",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectParticipantResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid participant data or participant ID already exists"
+          }
+        },
+        "summary": "Create a new project participant (Mobile App)",
+        "tags": [
+          "mobile-participants"
+        ]
+      }
+    },
+    "/api/mobile-chat/project/{projectId}/participant/{participantId}": {
+      "post": {
+        "description": "Gets or creates a chat between admin and participant. No authentication required for mobile app usage.",
+        "operationId": "MobileChatController_getOrCreateChat",
+        "parameters": [
+          {
+            "name": "projectId",
+            "required": true,
+            "in": "path",
+            "description": "ID of the project",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "participantId",
+            "required": true,
+            "in": "path",
+            "description": "External participant ID (string) provided by mobile app",
+            "schema": {
+              "example": "mobile_user_123",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved or created chat",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid project or participant data"
+          }
+        },
+        "summary": "Get or create chat (Mobile App)",
+        "tags": [
+          "mobile-chat"
+        ]
+      }
+    },
+    "/api/mobile-chat/{chatId}/messages": {
+      "get": {
+        "description": "Retrieves a paginated list of messages for a specific chat. No authentication required for mobile app usage.",
+        "operationId": "MobileChatController_getMessages",
+        "parameters": [
+          {
+            "name": "chatId",
+            "required": true,
+            "in": "path",
+            "description": "ID of the chat",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "participantId",
+            "required": true,
+            "in": "query",
+            "description": "External participant ID (string) provided by mobile app",
+            "schema": {
+              "example": "mobile_user_123",
+              "type": "string"
+            }
+          },
+          {
+            "name": "projectId",
+            "required": true,
+            "in": "query",
+            "description": "ID of the project",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Maximum number of messages to return (default: 20)",
+            "schema": {
+              "example": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "Number of messages to skip (default: 0)",
+            "schema": {
+              "example": 0,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved messages",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedMessagesResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Chat not found"
+          }
+        },
+        "summary": "Get messages for a chat (Mobile App)",
+        "tags": [
+          "mobile-chat"
+        ]
+      },
+      "post": {
+        "description": "Creates a new message in a specific chat. No authentication required for mobile app usage.",
+        "operationId": "MobileChatController_createMessage",
+        "parameters": [
+          {
+            "name": "chatId",
+            "required": true,
+            "in": "path",
+            "description": "ID of the chat",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "participantId",
+            "required": true,
+            "in": "query",
+            "description": "External participant ID (string) provided by mobile app",
+            "schema": {
+              "example": "mobile_user_123",
+              "type": "string"
+            }
+          },
+          {
+            "name": "projectId",
+            "required": true,
+            "in": "query",
+            "description": "ID of the project",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateMessageViaApiDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successfully created message",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid message content or spam protection triggered"
+          },
+          "404": {
+            "description": "Chat not found"
+          }
+        },
+        "summary": "Send a message to a chat (Mobile App)",
+        "tags": [
+          "mobile-chat"
+        ]
+      }
     }
   },
   "info": {
@@ -1100,7 +2185,8 @@
             "type": "string",
             "example": "Admin",
             "enum": [
-              "Admin"
+              "Admin",
+              "Participant"
             ]
           }
         },
@@ -1224,7 +2310,8 @@
             "type": "string",
             "description": "User role (always Admin)",
             "enum": [
-              "Admin"
+              "Admin",
+              "Participant"
             ],
             "example": "Admin"
           },
@@ -1277,7 +2364,8 @@
             "type": "string",
             "description": "User role (always Admin)",
             "enum": [
-              "Admin"
+              "Admin",
+              "Participant"
             ],
             "example": "Admin"
           }
@@ -1416,6 +2504,511 @@
             "maxLength": 50
           }
         }
+      },
+      "ProjectDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Project ID",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "description": "Project name",
+            "example": "My Project"
+          },
+          "uniqueId": {
+            "type": "string",
+            "description": "Project unique ID",
+            "example": "proj123"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "uniqueId"
+        ]
+      },
+      "ChatParticipantDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "User ID",
+            "example": 1
+          },
+          "email": {
+            "type": "object",
+            "description": "User email (optional for participants)",
+            "example": "user@example.com",
+            "nullable": true
+          },
+          "firstName": {
+            "type": "string",
+            "description": "User first name",
+            "example": "John"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "User last name",
+            "example": "Doe"
+          },
+          "uniqueId": {
+            "type": "string",
+            "description": "User unique ID (for participants)",
+            "example": "user123"
+          },
+          "isOnline": {
+            "type": "boolean",
+            "description": "Whether the user is online",
+            "example": false
+          },
+          "lastSeen": {
+            "type": "object",
+            "description": "Last seen timestamp",
+            "example": "2025-01-15T10:00:00.000Z",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "firstName",
+          "lastName",
+          "isOnline",
+          "lastSeen"
+        ]
+      },
+      "LastMessageDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Message ID",
+            "example": 1
+          },
+          "content": {
+            "type": "string",
+            "description": "Message content",
+            "example": "Hello! How can I help you?"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Message creation timestamp",
+            "example": "2025-01-15T10:30:00.000Z"
+          },
+          "senderId": {
+            "type": "number",
+            "description": "ID of the user who sent the message",
+            "example": 1
+          }
+        },
+        "required": [
+          "id",
+          "content",
+          "createdAt",
+          "senderId"
+        ]
+      },
+      "ChatResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Chat ID",
+            "example": 1
+          },
+          "projectId": {
+            "type": "number",
+            "description": "Project ID",
+            "example": 1
+          },
+          "project": {
+            "description": "Project information",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProjectDto"
+              }
+            ]
+          },
+          "admin": {
+            "description": "Admin user information",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ChatParticipantDto"
+              }
+            ]
+          },
+          "participant": {
+            "description": "Participant user information",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ChatParticipantDto"
+              }
+            ]
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Chat creation timestamp",
+            "example": "2025-01-15T10:00:00.000Z"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Chat last update timestamp",
+            "example": "2025-01-15T10:30:00.000Z"
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "Whether the chat is active",
+            "example": true
+          },
+          "lastMessage": {
+            "description": "Last message in the chat",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/LastMessageDto"
+              }
+            ]
+          },
+          "unreadCount": {
+            "type": "number",
+            "description": "Number of unread messages for the requesting user",
+            "example": 3
+          },
+          "lastMessageAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Timestamp of the last message",
+            "example": "2025-01-15T10:30:00.000Z"
+          }
+        },
+        "required": [
+          "id",
+          "projectId",
+          "project",
+          "admin",
+          "participant",
+          "createdAt",
+          "updatedAt",
+          "isActive",
+          "unreadCount"
+        ]
+      },
+      "MessageSenderDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "User ID",
+            "example": 1
+          },
+          "email": {
+            "type": "object",
+            "description": "User email",
+            "example": "user@example.com",
+            "nullable": true
+          },
+          "firstName": {
+            "type": "string",
+            "description": "User first name",
+            "example": "John"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "User last name",
+            "example": "Doe"
+          },
+          "uniqueId": {
+            "type": "string",
+            "description": "User unique identifier (for participants)",
+            "example": "user123"
+          },
+          "isOnline": {
+            "type": "boolean",
+            "description": "Whether the user is currently online",
+            "example": true
+          },
+          "lastSeen": {
+            "type": "object",
+            "description": "Last time the user was seen",
+            "example": "2025-01-15T10:30:00.000Z",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "firstName",
+          "lastName",
+          "isOnline"
+        ]
+      },
+      "MessageResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Message ID",
+            "example": 1
+          },
+          "chatId": {
+            "type": "number",
+            "description": "Chat ID where the message belongs",
+            "example": 1
+          },
+          "senderId": {
+            "type": "number",
+            "description": "ID of the user who sent the message",
+            "example": 1
+          },
+          "content": {
+            "type": "string",
+            "description": "Message content",
+            "example": "Hello! How can I help you today?"
+          },
+          "type": {
+            "type": "string",
+            "description": "Type of the message. IMAGE for image files, FILE for other files, TEXT for text messages",
+            "enum": [
+              "TEXT",
+              "EMOJI",
+              "FILE",
+              "IMAGE",
+              "SYSTEM"
+            ],
+            "example": "TEXT"
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Additional metadata for the message",
+            "example": {
+              "fileUrl": "https://storage.googleapis.com/bucket/chat/1/uuid.jpg",
+              "fileName": "image.jpg",
+              "fileSize": 1024000,
+              "mimeType": "image/jpeg",
+              "originalName": "photo.jpg"
+            }
+          },
+          "read": {
+            "type": "boolean",
+            "description": "Whether the message has been read",
+            "example": false
+          },
+          "readAt": {
+            "type": "object",
+            "description": "Timestamp when the message was read",
+            "example": "2025-01-15T10:35:00.000Z",
+            "nullable": true
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Message creation timestamp",
+            "example": "2025-01-15T10:30:00.000Z"
+          },
+          "sender": {
+            "description": "Information about the message sender",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MessageSenderDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "chatId",
+          "senderId",
+          "content",
+          "type",
+          "read",
+          "createdAt",
+          "sender"
+        ]
+      },
+      "PaginatedMessagesResponseDto": {
+        "type": "object",
+        "properties": {
+          "messages": {
+            "description": "Array of messages",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MessageResponseDto"
+            }
+          },
+          "totalCount": {
+            "type": "number",
+            "description": "Total number of messages in the chat",
+            "example": 50
+          },
+          "limit": {
+            "type": "number",
+            "description": "Number of messages per page",
+            "example": 20
+          },
+          "offset": {
+            "type": "number",
+            "description": "Number of messages skipped",
+            "example": 0
+          }
+        },
+        "required": [
+          "messages",
+          "totalCount",
+          "limit",
+          "offset"
+        ]
+      },
+      "CreateMessageViaApiDto": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string",
+            "description": "Content of the message",
+            "example": "Hello! How can I help you today?",
+            "maxLength": 1000
+          },
+          "type": {
+            "type": "string",
+            "description": "Type of the message. Use IMAGE for image files, FILE for other files, TEXT for text messages",
+            "enum": [
+              "TEXT",
+              "EMOJI",
+              "FILE",
+              "IMAGE",
+              "SYSTEM"
+            ],
+            "example": "TEXT",
+            "default": "TEXT"
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Additional metadata for the message (e.g., file info, emoji data)",
+            "example": {
+              "fileUrl": "https://storage.googleapis.com/bucket/chat/1/uuid.jpg",
+              "fileName": "image.jpg",
+              "fileSize": 1024000,
+              "mimeType": "image/jpeg",
+              "originalName": "photo.jpg"
+            }
+          }
+        },
+        "required": [
+          "content"
+        ]
+      },
+      "CreateProjectParticipantDto": {
+        "type": "object",
+        "properties": {
+          "projectId": {
+            "type": "number",
+            "description": "ID of the project where the participant will be added",
+            "example": 1,
+            "minimum": 1
+          },
+          "participantId": {
+            "type": "string",
+            "description": "External participant ID provided by mobile app",
+            "example": "mobile_user_123",
+            "minLength": 3,
+            "maxLength": 50
+          },
+          "firstName": {
+            "type": "string",
+            "description": "First name of the participant (optional for mobile app)",
+            "example": "John",
+            "maxLength": 50
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Last name of the participant (optional for mobile app)",
+            "example": "Doe",
+            "maxLength": 50
+          },
+          "email": {
+            "type": "string",
+            "description": "Email address of the participant (optional for mobile app)",
+            "example": "john.doe@example.com"
+          }
+        },
+        "required": [
+          "projectId",
+          "participantId"
+        ]
+      },
+      "ProjectParticipantResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Participant ID",
+            "example": 1
+          },
+          "projectId": {
+            "type": "number",
+            "description": "Project ID",
+            "example": 1
+          },
+          "userId": {
+            "type": "number",
+            "description": "User ID",
+            "example": 2
+          },
+          "participantId": {
+            "type": "string",
+            "description": "External participant ID provided by mobile app",
+            "example": "mobile_user_123"
+          },
+          "firstName": {
+            "type": "string",
+            "description": "First name of the participant",
+            "example": "John"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Last name of the participant",
+            "example": "Doe"
+          },
+          "email": {
+            "type": "object",
+            "description": "Email address of the participant (optional)",
+            "example": "john.doe@example.com",
+            "nullable": true
+          },
+          "isOnline": {
+            "type": "boolean",
+            "description": "Whether the participant is online",
+            "example": false
+          },
+          "lastSeen": {
+            "type": "object",
+            "description": "Last seen timestamp",
+            "example": "2025-01-15T10:00:00.000Z",
+            "nullable": true
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When the participant was added to the project",
+            "example": "2025-01-15T10:00:00.000Z"
+          }
+        },
+        "required": [
+          "id",
+          "projectId",
+          "userId",
+          "participantId",
+          "firstName",
+          "lastName",
+          "email",
+          "isOnline",
+          "lastSeen",
+          "createdAt"
+        ]
       }
     }
   }

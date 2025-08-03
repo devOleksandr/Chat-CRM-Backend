@@ -127,13 +127,16 @@ exports.Prisma.UserScalarFieldEnum = {
   firstName: 'firstName',
   lastName: 'lastName',
   role: 'role',
+  uniqueId: 'uniqueId',
   refreshToken: 'refreshToken',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   pendingEmail: 'pendingEmail',
   emailChangeToken: 'emailChangeToken',
   emailChangeTokenExpiresAt: 'emailChangeTokenExpiresAt',
-  passwordChangeToken: 'passwordChangeToken'
+  passwordChangeToken: 'passwordChangeToken',
+  isOnline: 'isOnline',
+  lastSeen: 'lastSeen'
 };
 
 exports.Prisma.ProjectScalarFieldEnum = {
@@ -145,9 +148,44 @@ exports.Prisma.ProjectScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.ProjectParticipantScalarFieldEnum = {
+  id: 'id',
+  projectId: 'projectId',
+  userId: 'userId',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.ChatScalarFieldEnum = {
+  id: 'id',
+  projectId: 'projectId',
+  adminId: 'adminId',
+  participantId: 'participantId',
+  isActive: 'isActive',
+  unreadCount: 'unreadCount',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.MessageScalarFieldEnum = {
+  id: 'id',
+  chatId: 'chatId',
+  senderId: 'senderId',
+  content: 'content',
+  type: 'type',
+  metadata: 'metadata',
+  read: 'read',
+  readAt: 'readAt',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
+};
+
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
 };
 
 exports.Prisma.QueryMode = {
@@ -165,6 +203,7 @@ exports.Prisma.UserOrderByRelevanceFieldEnum = {
   password: 'password',
   firstName: 'firstName',
   lastName: 'lastName',
+  uniqueId: 'uniqueId',
   refreshToken: 'refreshToken',
   pendingEmail: 'pendingEmail',
   emailChangeToken: 'emailChangeToken',
@@ -175,13 +214,35 @@ exports.Prisma.ProjectOrderByRelevanceFieldEnum = {
   name: 'name',
   uniqueId: 'uniqueId'
 };
+
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
+};
+
+exports.Prisma.MessageOrderByRelevanceFieldEnum = {
+  content: 'content'
+};
 exports.Role = exports.$Enums.Role = {
-  Admin: 'Admin'
+  Admin: 'Admin',
+  Participant: 'Participant'
+};
+
+exports.MessageType = exports.$Enums.MessageType = {
+  TEXT: 'TEXT',
+  EMOJI: 'EMOJI',
+  FILE: 'FILE',
+  IMAGE: 'IMAGE',
+  SYSTEM: 'SYSTEM'
 };
 
 exports.Prisma.ModelName = {
   User: 'User',
-  Project: 'Project'
+  Project: 'Project',
+  ProjectParticipant: 'ProjectParticipant',
+  Chat: 'Chat',
+  Message: 'Message'
 };
 
 /**

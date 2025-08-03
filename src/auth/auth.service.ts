@@ -64,7 +64,7 @@ export class AuthService {
       }
 
       // Verify password
-      const passwordMatches = await bcrypt.compare(loginDto.password, user.password);
+      const passwordMatches = await bcrypt.compare(loginDto.password, user.password ?? '');
       if (!passwordMatches) {
         const error = new InvalidCredentialsError(loginDto.email);
         await this.errorHandler.handleError(error, {
@@ -76,7 +76,7 @@ export class AuthService {
       }
 
       // Generate tokens
-      const tokens = await this.generateTokens(user.id, user.email, user.role);
+      const tokens = await this.generateTokens(user.id, user.email ?? '', user.role);
       
       // Update refresh token in database
       await this.authRepository.updateRefreshToken(user.id, tokens.refreshToken);
@@ -87,7 +87,7 @@ export class AuthService {
         ...tokens,
         user: {
           id: user.id,
-          email: user.email,
+          email: user.email ?? '',
           firstName: user.firstName,
           lastName: user.lastName,
           role: user.role,
@@ -134,7 +134,7 @@ export class AuthService {
       }
 
       // Generate new tokens
-      const tokens = await this.generateTokens(user.id, user.email, user.role);
+      const tokens = await this.generateTokens(user.id, user.email ?? '', user.role);
       
       // Update refresh token in database
       await this.authRepository.updateRefreshToken(user.id, tokens.refreshToken);
@@ -334,14 +334,14 @@ export class AuthService {
       });
 
       // Generate tokens
-      const tokens = await this.generateTokens(user.id, user.email, user.role);
+      const tokens = await this.generateTokens(user.id, user.email ?? '', user.role);
       
       // Update refresh token
       await this.authRepository.updateRefreshToken(user.id, tokens.refreshToken);
 
       // Send welcome email
       try {
-        await this.emailService.sendWelcomeEmail(user.email, user.firstName);
+        await this.emailService.sendWelcomeEmail(user.email ?? '', user.firstName);
       } catch (emailError) {
         this.logger.warn(`Failed to send welcome email to ${user.email}: ${emailError.message}`);
       }
@@ -352,7 +352,7 @@ export class AuthService {
         ...tokens,
         user: {
           id: user.id,
-          email: user.email,
+          email: user.email ?? '',
           firstName: user.firstName,
           lastName: user.lastName,
           role: user.role,
