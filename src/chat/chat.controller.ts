@@ -317,7 +317,7 @@ export class ChatController {
    * Get messages for a chat (Mobile App - No Authentication)
    * @param chatId - The chat ID
    * @param participantId - The participant ID string
-   * @param projectId - The project ID
+   * @param projectUniqueId - The project unique ID
    * @param limit - Maximum number of messages to return
    * @param offset - Number of messages to skip
    * @returns Promise<PaginatedMessagesResponseDto> Paginated messages response
@@ -347,10 +347,10 @@ export class ChatController {
     example: 'mobile_user_123',
   })
   @ApiQuery({
-    name: 'projectId',
+    name: 'projectUniqueId',
     required: true,
-    description: 'ID of the project',
-    example: 1,
+    description: 'Unique ID of the project',
+    example: 'PROJ-001',
   })
   @ApiQuery({
     name: 'limit',
@@ -371,12 +371,12 @@ export class ChatController {
   async getMessagesMobile(
     @Param('chatId', ParseIntPipe) chatId: number,
     @Query('participantId') participantId: string,
-    @Query('projectId', ParseIntPipe) projectId: number,
+    @Query('projectUniqueId') projectUniqueId: string,
     @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 20,
     @Query('offset', new ParseIntPipe({ optional: true })) offset: number = 0,
   ): Promise<PaginatedMessagesResponseDto> {
     // Get the participant user ID from the participant ID string
-    const participantUserId = await this.projectParticipantService.getParticipantUserId(participantId, projectId);
+    const participantUserId = await this.projectParticipantService.getParticipantUserIdByProjectUniqueId(participantId, projectUniqueId);
     
     return await this.chatService.getMessagesByChatId(chatId, participantUserId, limit, offset);
   }
@@ -468,10 +468,10 @@ export class ChatController {
     example: 'mobile_user_123',
   })
   @ApiQuery({
-    name: 'projectId',
+    name: 'projectUniqueId',
     required: true,
-    description: 'ID of the project',
-    example: 1,
+    description: 'Unique ID of the project',
+    example: 'PROJ-001',
   })
   @Post('mobile/:chatId/messages')
   @HttpCode(HttpStatus.CREATED)
@@ -479,11 +479,11 @@ export class ChatController {
   async createMessageMobile(
     @Param('chatId', ParseIntPipe) chatId: number,
     @Query('participantId') participantId: string,
-    @Query('projectId', ParseIntPipe) projectId: number,
+    @Query('projectUniqueId') projectUniqueId: string,
     @Body(ValidationPipe) createMessageDto: CreateMessageViaApiDto,
   ): Promise<MessageResponseDto> {
     // Get the participant user ID from the participant ID string
-    const participantUserId = await this.projectParticipantService.getParticipantUserId(participantId, projectId);
+    const participantUserId = await this.projectParticipantService.getParticipantUserIdByProjectUniqueId(participantId, projectUniqueId);
     
     // Add chatId to the DTO to match CreateMessageDto interface
     const fullMessageDto = {
@@ -615,7 +615,7 @@ export class ChatController {
 
   /**
    * Get or create chat between admin and participant (Mobile App - No Authentication)
-   * @param projectId - The project ID
+   * @param projectUniqueId - The project unique ID
    * @param participantId - The participant ID string
    * @returns Promise<ChatResponseDto> Chat response
    */
@@ -633,26 +633,28 @@ export class ChatController {
     description: 'Invalid project or participant data',
   })
   @ApiParam({
-    name: 'projectId',
-    description: 'ID of the project',
-    example: 1,
+    name: 'projectUniqueId',
+    description: 'Unique ID of the project',
+    example: 'PROJ-001',
   })
   @ApiParam({
     name: 'participantId',
     description: 'External participant ID (string) provided by mobile app',
     example: 'mobile_user_123',
   })
-  @Post('mobile/project/:projectId/participant/:participantId')
+  @Post('mobile/project/:projectUniqueId/participant/:participantId')
   @UseGuards() // No authentication guard for mobile app
   async createOrGetChatMobile(
-    @Param('projectId', ParseIntPipe) projectId: number,
+    @Param('projectUniqueId') projectUniqueId: string,
     @Param('participantId') participantId: string,
   ): Promise<ChatResponseDto> {
-    // Get the admin ID of the project
-    const adminId = await this.projectService.getProjectAdminId(projectId);
+    // Get the project and admin ID
+    const project = await this.projectService.getProjectByUniqueIdPublic(projectUniqueId);
+    const projectId = project.id;
+    const adminId = project.createdBy.id;
     
     // Get the participant user ID from the participant ID string
-    const participantUserId = await this.projectParticipantService.getParticipantUserId(participantId, projectId);
+    const participantUserId = await this.projectParticipantService.getParticipantUserIdByProjectUniqueId(participantId, projectUniqueId);
     
     return await this.chatService.getOrCreateChat(projectId, adminId, participantUserId);
   }

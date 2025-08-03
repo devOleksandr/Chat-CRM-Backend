@@ -1475,13 +1475,13 @@
             }
           },
           {
-            "name": "projectId",
+            "name": "projectUniqueId",
             "required": true,
             "in": "query",
-            "description": "ID of the project",
+            "description": "Unique ID of the project",
             "schema": {
-              "example": 1,
-              "type": "number"
+              "example": "PROJ-001",
+              "type": "string"
             }
           },
           {
@@ -1555,13 +1555,13 @@
             }
           },
           {
-            "name": "projectId",
+            "name": "projectUniqueId",
             "required": true,
             "in": "query",
-            "description": "ID of the project",
+            "description": "Unique ID of the project",
             "schema": {
-              "example": 1,
-              "type": "number"
+              "example": "PROJ-001",
+              "type": "string"
             }
           }
         ],
@@ -1688,19 +1688,19 @@
         ]
       }
     },
-    "/api/chat/mobile/project/{projectId}/participant/{participantId}": {
+    "/api/chat/mobile/project/{projectUniqueId}/participant/{participantId}": {
       "post": {
         "description": "Gets or creates a chat between admin and participant. No authentication required for mobile app usage.",
         "operationId": "ChatController_createOrGetChatMobile",
         "parameters": [
           {
-            "name": "projectId",
+            "name": "projectUniqueId",
             "required": true,
             "in": "path",
-            "description": "ID of the project",
+            "description": "Unique ID of the project",
             "schema": {
-              "example": 1,
-              "type": "number"
+              "example": "PROJ-001",
+              "type": "string"
             }
           },
           {
@@ -2767,11 +2767,12 @@
       "CreateProjectParticipantDto": {
         "type": "object",
         "properties": {
-          "projectId": {
-            "type": "number",
-            "description": "ID of the project where the participant will be added",
-            "example": 1,
-            "minimum": 1
+          "projectUniqueId": {
+            "type": "string",
+            "description": "Unique ID of the project where the participant will be added",
+            "example": "PROJ-001",
+            "minLength": 3,
+            "maxLength": 50
           },
           "participantId": {
             "type": "string",
@@ -2799,7 +2800,7 @@
           }
         },
         "required": [
-          "projectId",
+          "projectUniqueId",
           "participantId"
         ]
       },

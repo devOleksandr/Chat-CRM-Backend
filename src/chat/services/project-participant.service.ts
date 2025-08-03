@@ -2,6 +2,7 @@ import { Injectable, Logger, BadRequestException, NotFoundException } from '@nes
 import { ProjectParticipantRepositoryPort } from '../ports/project-participant-repository.port';
 import { CreateProjectParticipantDto } from '../dto/create-project-participant.dto';
 import { ProjectParticipantResponseDto } from '../dto/project-participant-response.dto';
+import { ProjectService } from '../../project/project.service';
 
 /**
  * Service for managing project participants
@@ -13,6 +14,7 @@ export class ProjectParticipantService {
 
   constructor(
     private readonly projectParticipantRepository: ProjectParticipantRepositoryPort,
+    private readonly projectService: ProjectService,
   ) {}
 
   /**
@@ -22,12 +24,16 @@ export class ProjectParticipantService {
    */
   async createParticipant(createParticipantDto: CreateProjectParticipantDto): Promise<ProjectParticipantResponseDto> {
     try {
-      this.logger.log(`Creating participant with participantId: ${createParticipantDto.participantId} for project: ${createParticipantDto.projectId}`);
+      this.logger.log(`Creating participant with participantId: ${createParticipantDto.participantId} for project: ${createParticipantDto.projectUniqueId}`);
+
+      // Get project ID from unique ID
+      const project = await this.projectService.getProjectByUniqueIdPublic(createParticipantDto.projectUniqueId);
+      const projectId = project.id;
 
       // Validate participant ID availability (check if it already exists in this project)
       const isAvailable = await this.projectParticipantRepository.isParticipantIdAvailable(
         createParticipantDto.participantId,
-        createParticipantDto.projectId
+        projectId
       );
 
       if (!isAvailable) {
@@ -36,7 +42,7 @@ export class ProjectParticipantService {
 
       // Create participant
       const participant = await this.projectParticipantRepository.createParticipant({
-        projectId: createParticipantDto.projectId,
+        projectId: projectId,
         participantId: createParticipantDto.participantId,
         firstName: createParticipantDto.firstName || 'Anonymous',
         lastName: createParticipantDto.lastName || 'User',
@@ -214,6 +220,35 @@ export class ProjectParticipantService {
 
       if (!participant) {
         throw new NotFoundException(`Participant with ID '${participantId}' not found in project ${projectId}`);
+      }
+
+      const userId = participant.userId;
+      this.logger.log(`✅ Found user ID: ${userId} for participant: ${participantId}`);
+      return userId;
+    } catch (error) {
+      this.logger.error(`Failed to get participant user ID: ${error.message}`, error.stack);
+      throw error;
+    }
+  }
+
+  /**
+   * Get participant user ID by participant ID string and project unique ID
+   * @param participantId - The participant ID string (external ID)
+   * @param projectUniqueId - The project unique ID
+   * @returns Promise<number> User ID of the participant
+   */
+  async getParticipantUserIdByProjectUniqueId(participantId: string, projectUniqueId: string): Promise<number> {
+    try {
+      this.logger.log(`Getting user ID for participant: ${participantId} in project: ${projectUniqueId}`);
+
+      // Get project ID from unique ID
+      const project = await this.projectService.getProjectByUniqueIdPublic(projectUniqueId);
+      const projectId = project.id;
+
+      const participant = await this.projectParticipantRepository.findParticipantByParticipantId(participantId, projectId);
+
+      if (!participant) {
+        throw new NotFoundException(`Participant with ID '${participantId}' not found in project ${projectUniqueId}`);
       }
 
       const userId = participant.userId;

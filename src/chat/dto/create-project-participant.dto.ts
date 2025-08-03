@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsInt, IsPositive, IsNotEmpty, IsString, IsOptional, MaxLength, MinLength } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, MaxLength, MinLength } from 'class-validator';
 
 /**
  * Data Transfer Object for creating a new project participant
@@ -7,14 +7,16 @@ import { IsInt, IsPositive, IsNotEmpty, IsString, IsOptional, MaxLength, MinLeng
  */
 export class CreateProjectParticipantDto {
   @ApiProperty({
-    description: 'ID of the project where the participant will be added',
-    example: 1,
-    minimum: 1,
+    description: 'Unique ID of the project where the participant will be added',
+    example: 'PROJ-001',
+    minLength: 3,
+    maxLength: 50,
   })
-  @IsInt({ message: 'Project ID must be an integer' })
-  @IsPositive({ message: 'Project ID must be a positive number' })
-  @IsNotEmpty({ message: 'Project ID is required' })
-  readonly projectId: number;
+  @IsString({ message: 'Project unique ID must be a string' })
+  @IsNotEmpty({ message: 'Project unique ID is required' })
+  @MinLength(3, { message: 'Project unique ID must be at least 3 characters long' })
+  @MaxLength(50, { message: 'Project unique ID must not exceed 50 characters' })
+  readonly projectUniqueId: string;
 
   @ApiProperty({
     description: 'External participant ID provided by mobile app',

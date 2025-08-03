@@ -96,7 +96,7 @@ export class ProjectService {
   }
 
   /**
-   * Get project by unique ID
+   * Get project by unique ID (with authorization)
    * @param uniqueId - Project unique ID
    * @param userId - ID of the user requesting the project
    * @returns Promise<ProjectResponseDto> Project response
@@ -120,6 +120,30 @@ export class ProjectService {
         operation: 'get_project_by_unique_id',
         uniqueId,
         userId,
+        timestamp: new Date(),
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * Get project by unique ID (public - no authorization required)
+   * @param uniqueId - Project unique ID
+   * @returns Promise<ProjectResponseDto> Project response
+   */
+  async getProjectByUniqueIdPublic(uniqueId: string): Promise<ProjectResponseDto> {
+    try {
+      const project = await this.projectRepository.findProjectByUniqueId(uniqueId);
+      
+      if (!project) {
+        throw new ProjectNotFoundError(uniqueId);
+      }
+
+      return this.mapToProjectResponse(project);
+    } catch (error) {
+      await this.projectErrorHandler.handle(error, {
+        operation: 'get_project_by_unique_id_public',
+        uniqueId,
         timestamp: new Date(),
       });
       throw error;

@@ -108,7 +108,7 @@ Authorization: Bearer <jwt-token>
 POST /api/project-participants/mobile
 {
   "participantId": "mobile_user_123",
-  "projectId": 1,
+  "projectUniqueId": "PROJ-001",
   "firstName": "John",
   "lastName": "Doe",
   "email": "john@example.com"
@@ -117,17 +117,17 @@ POST /api/project-participants/mobile
 
 #### Create/Get Chat
 ```bash
-POST /api/chat/mobile/project/{projectId}/participant/{participantId}
+POST /api/chat/mobile/project/{projectUniqueId}/participant/{participantId}
 ```
 
 #### Get Chat Messages
 ```bash
-GET /api/chat/mobile/{chatId}/messages?participantId=mobile_user_123&projectId=1&limit=20&offset=0
+GET /api/chat/mobile/{chatId}/messages?participantId=mobile_user_123&projectUniqueId=PROJ-001&limit=20&offset=0
 ```
 
 #### Send Message
 ```bash
-POST /api/chat/mobile/{chatId}/messages?participantId=mobile_user_123&projectId=1
+POST /api/chat/mobile/{chatId}/messages?participantId=mobile_user_123&projectUniqueId=PROJ-001
 {
   "content": "Message text",
   "type": "TEXT"
@@ -274,8 +274,8 @@ Authorization: Bearer <jwt-token>
 
 ### Creating Chat from Mobile App
 1. Create participant: `POST /api/project-participants/mobile`
-2. Create chat: `POST /api/chat/mobile/project/1/participant/mobile_user_123`
-3. Connect to WebSocket with `participantId` and `projectId`
+2. Create chat: `POST /api/chat/mobile/project/PROJ-001/participant/mobile_user_123`
+3. Connect to WebSocket with `participantId` and `projectUniqueId`
 4. Send messages via WebSocket or REST API
 
 ### Administrative Management
