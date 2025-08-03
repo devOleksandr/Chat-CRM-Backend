@@ -709,19 +709,9 @@
         ]
       },
       "get": {
-        "description": "Retrieves all projects for the authenticated user with optional filtering.",
+        "description": "Retrieves all projects for the authenticated user with optional filtering. User ID is automatically extracted from JWT token.",
         "operationId": "ProjectController_getUserProjects",
         "parameters": [
-          {
-            "name": "userId",
-            "required": false,
-            "in": "query",
-            "description": "Filter by user ID",
-            "schema": {
-              "example": 1,
-              "type": "number"
-            }
-          },
           {
             "name": "uniqueId",
             "required": false,
@@ -1025,7 +1015,7 @@
     },
     "/api/chat": {
       "get": {
-        "description": "Retrieves a paginated list of all chats where the user is either admin or participant",
+        "description": "Retrieves a paginated list of all chats where the user is either admin or participant. User ID is automatically extracted from JWT token.",
         "operationId": "ChatController_getChats",
         "parameters": [
           {
@@ -1100,7 +1090,7 @@
     },
     "/api/chat/project/{projectId}": {
       "get": {
-        "description": "Retrieves a paginated list of all chats in a specific project",
+        "description": "Retrieves a paginated list of all chats in a specific project. Admin ID is automatically extracted from JWT token.",
         "operationId": "ChatController_getProjectChats",
         "parameters": [
           {
@@ -1108,16 +1098,6 @@
             "required": true,
             "in": "path",
             "description": "ID of the project",
-            "schema": {
-              "example": 1,
-              "type": "number"
-            }
-          },
-          {
-            "name": "adminId",
-            "required": false,
-            "in": "query",
-            "description": "Filter chats by admin ID",
             "schema": {
               "example": 1,
               "type": "number"
@@ -1185,7 +1165,7 @@
     },
     "/api/chat/{chatId}": {
       "get": {
-        "description": "Retrieves information about a specific chat",
+        "description": "Retrieves information about a specific chat. User ID is automatically extracted from JWT token for access control.",
         "operationId": "ChatController_getChatById",
         "parameters": [
           {
@@ -1231,7 +1211,7 @@
         ]
       },
       "delete": {
-        "description": "Deactivates a chat (soft delete)",
+        "description": "Deactivates a chat (soft delete). User ID is automatically extracted from JWT token for access control.",
         "operationId": "ChatController_deactivateChat",
         "parameters": [
           {
@@ -1272,7 +1252,7 @@
     },
     "/api/chat/project/{projectId}/participant/{participantId}": {
       "post": {
-        "description": "Creates a new chat or returns existing one between admin and participant",
+        "description": "Creates a new chat or returns existing one between admin and participant. Admin ID is automatically extracted from JWT token.",
         "operationId": "ChatController_createOrGetChat",
         "parameters": [
           {
@@ -1324,7 +1304,7 @@
     },
     "/api/chat/{chatId}/messages": {
       "get": {
-        "description": "Retrieves a paginated list of messages for a specific chat",
+        "description": "Retrieves a paginated list of messages for a specific chat. User ID is automatically extracted from JWT token for access control.",
         "operationId": "ChatController_getMessages",
         "parameters": [
           {
@@ -1390,7 +1370,7 @@
         ]
       },
       "post": {
-        "description": "Creates a new message in a specific chat",
+        "description": "Creates a new message in a specific chat. User ID is automatically extracted from JWT token.",
         "operationId": "ChatController_createMessage",
         "parameters": [
           {
@@ -1606,7 +1586,7 @@
     },
     "/api/chat/{chatId}/read": {
       "put": {
-        "description": "Marks all messages in a chat as read for the authenticated user",
+        "description": "Marks all messages in a chat as read for the authenticated user. User ID is automatically extracted from JWT token.",
         "operationId": "ChatController_markChatAsRead",
         "parameters": [
           {

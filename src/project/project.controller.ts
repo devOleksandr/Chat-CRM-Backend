@@ -183,7 +183,7 @@ export class ProjectController {
   @Roles(Role.Admin)
   @ApiOperation({
     summary: 'Get user projects',
-    description: 'Retrieves all projects for the authenticated user with optional filtering.',
+    description: 'Retrieves all projects for the authenticated user with optional filtering. User ID is automatically extracted from JWT token.',
   })
   @ApiQuery({
     name: 'name',
@@ -215,7 +215,9 @@ export class ProjectController {
     @Request() req: any,
   ): Promise<ProjectListResponseDto> {
     const userId = req.user.id;
-    return this.projectService.getUserProjects(userId, filters);
+    // Remove userId from filters since it's automatically extracted from JWT token
+    const { userId: _, ...cleanFilters } = filters as any;
+    return this.projectService.getUserProjects(userId, cleanFilters);
   }
 
   /**

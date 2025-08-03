@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, MinLength, MaxLength, Matches } from 'class-validator';
+import { IsString, IsNotEmpty, MinLength, MaxLength, Matches, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateProjectDto {
@@ -63,17 +63,12 @@ export class UpdateProjectDto {
 
 export class ProjectFiltersDto {
   @ApiProperty({
-    description: 'Filter by user ID',
-    example: 1,
-    required: false,
-  })
-  userId?: number;
-
-  @ApiProperty({
     description: 'Filter by unique ID',
     example: 'PROJ-001',
     required: false,
   })
+  @IsOptional()
+  @IsString()
   uniqueId?: string;
 
   @ApiProperty({
@@ -81,5 +76,7 @@ export class ProjectFiltersDto {
     example: 'Project',
     required: false,
   })
+  @IsOptional()
+  @IsString()
   name?: string;
 } 

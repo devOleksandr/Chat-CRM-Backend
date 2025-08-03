@@ -57,7 +57,7 @@ export class ChatController {
    */
   @ApiOperation({
     summary: 'Get all chats for the authenticated user',
-    description: 'Retrieves a paginated list of all chats where the user is either admin or participant',
+    description: 'Retrieves a paginated list of all chats where the user is either admin or participant. User ID is automatically extracted from JWT token.',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -106,12 +106,12 @@ export class ChatController {
    * Get all chats for a specific project
    * @param projectId - The project ID
    * @param req - The request object containing user information
-   * @param filters - Filter parameters including adminId, participantId, limit, offset
+   * @param filters - Filter parameters including participantId, limit, offset
    * @returns Promise<ChatResponseDto[]> Array of chat responses
    */
   @ApiOperation({
     summary: 'Get all chats for a specific project',
-    description: 'Retrieves a paginated list of all chats in a specific project',
+    description: 'Retrieves a paginated list of all chats in a specific project. Admin ID is automatically extracted from JWT token.',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -127,13 +127,7 @@ export class ChatController {
     description: 'ID of the project',
     example: 1,
   })
-  @ApiQuery({
-    name: 'adminId',
-    required: false,
-    type: Number,
-    description: 'Filter chats by admin ID',
-    example: 1,
-  })
+
   @ApiQuery({
     name: 'participantId',
     required: false,
@@ -159,11 +153,13 @@ export class ChatController {
   async getProjectChats(
     @Param('projectId', ParseIntPipe) projectId: number,
     @Request() req: any,
-    @Query('adminId', new ParseIntPipe({ optional: true })) adminId?: number,
     @Query('participantId', new ParseIntPipe({ optional: true })) participantId?: number,
     @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 20,
     @Query('offset', new ParseIntPipe({ optional: true })) offset: number = 0,
   ): Promise<ChatResponseDto[]> {
+    // Use adminId from JWT token instead of query parameter for security
+    const adminId = req.user.id;
+    
     return await this.chatService.getChatsForProject(
       projectId,
       adminId,
@@ -181,7 +177,7 @@ export class ChatController {
    */
   @ApiOperation({
     summary: 'Get a specific chat by ID',
-    description: 'Retrieves information about a specific chat',
+    description: 'Retrieves information about a specific chat. User ID is automatically extracted from JWT token for access control.',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -222,7 +218,7 @@ export class ChatController {
    */
   @ApiOperation({
     summary: 'Create or get chat with participant',
-    description: 'Creates a new chat or returns existing one between admin and participant',
+    description: 'Creates a new chat or returns existing one between admin and participant. Admin ID is automatically extracted from JWT token.',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -265,7 +261,7 @@ export class ChatController {
    */
   @ApiOperation({
     summary: 'Get messages for a chat',
-    description: 'Retrieves a paginated list of messages for a specific chat',
+    description: 'Retrieves a paginated list of messages for a specific chat. User ID is automatically extracted from JWT token for access control.',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -390,7 +386,7 @@ export class ChatController {
    */
   @ApiOperation({
     summary: 'Send a message to a chat',
-    description: 'Creates a new message in a specific chat',
+    description: 'Creates a new message in a specific chat. User ID is automatically extracted from JWT token.',
   })
   @ApiResponse({
     status: HttpStatus.CREATED,
@@ -502,7 +498,7 @@ export class ChatController {
    */
   @ApiOperation({
     summary: 'Mark chat as read',
-    description: 'Marks all messages in a chat as read for the authenticated user',
+    description: 'Marks all messages in a chat as read for the authenticated user. User ID is automatically extracted from JWT token.',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -541,7 +537,7 @@ export class ChatController {
    */
   @ApiOperation({
     summary: 'Deactivate a chat',
-    description: 'Deactivates a chat (soft delete)',
+    description: 'Deactivates a chat (soft delete). User ID is automatically extracted from JWT token for access control.',
   })
   @ApiResponse({
     status: HttpStatus.OK,
