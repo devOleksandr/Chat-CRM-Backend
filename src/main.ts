@@ -44,17 +44,24 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document);
   const configService = app.get(ConfigService);
   const nodeEnv = configService.get('NODE_ENV', 'development');
+  const frontendUrl = configService.get<string>('FRONTEND_URL');
+  const corsOrigins = frontendUrl 
+    ? [frontendUrl]
+    : ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:5173', 'http://localhost:8080'];
+
   app.enableCors({
-    origin: configService.get<string>('FRONTEND_URL') || 'http://localhost:5173',
+    origin: corsOrigins,
     credentials: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    allowedHeaders: 'Content-Type, Authorization',
+    allowedHeaders: 'Content-Type, Authorization, X-Requested-With',
   });
+
+  logger.log(`🔗 CORS Origins: ${corsOrigins.join(', ')}`);
   const isProduction = nodeEnv === 'production';
   const port = configService.get<number>('API_PORT') || 5000;
   const host = 'localhost';
 
-  await app.listen(process.env.API_PORT ?? 5000);
+  await app.listen(port);
   logger.log(`📍 Environment: ${nodeEnv}`);
   logger.log(`🌐 Server: http://${host}:${port}`);
   if (!isProduction) {
