@@ -26,7 +26,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 import { ChatService } from './chat.service';
 import { ProjectService } from '../project/project.service';
-import { ProjectParticipantService } from './services/project-participant.service';
+import { ProjectParticipantService } from '../project/services/project-participant.service';
 import { OnlineStatusService } from './services/online-status.service';
 import { CreateMessageDto, CreateMessageViaApiDto } from './dto/create-message.dto';
 import { ChatResponseDto } from './dto/chat-response.dto';

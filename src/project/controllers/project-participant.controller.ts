@@ -95,10 +95,7 @@ export class ProjectParticipantController {
     @Body(ValidationPipe) createParticipantDto: CreateProjectParticipantDto,
     @Request() req: any,
   ): Promise<ProjectParticipantResponseDto> {
-    // TODO: Add authorization check - verify that req.user.id owns the project
-    // This should be implemented when project ownership validation is available
-    
-    return await this.projectParticipantService.createParticipant(createParticipantDto);
+    return await this.projectParticipantService.createParticipant(createParticipantDto, req.user.id);
   }
 
   /**
@@ -147,9 +144,6 @@ export class ProjectParticipantController {
     @Query('offset', new ParseIntPipe({ optional: true })) offset: number = 0,
     @Request() req: any,
   ): Promise<ProjectParticipantResponseDto[]> {
-    // TODO: Add authorization check - verify that req.user.id owns the project
-    // This should be implemented when project ownership validation is available
-    
     return await this.projectParticipantService.getProjectParticipants(
       projectId,
       req.user.id,
@@ -190,13 +184,8 @@ export class ProjectParticipantController {
     @Param('participantId', ParseIntPipe) participantId: number,
     @Request() req: any,
   ): Promise<ProjectParticipantResponseDto> {
-    // TODO: Add authorization check - verify that req.user.id owns the project
-    // This should be implemented when project ownership validation is available
-    
     return await this.projectParticipantService.getParticipantById(participantId, req.user.id);
   }
-
-
 
   /**
    * Delete a project participant
@@ -230,10 +219,6 @@ export class ProjectParticipantController {
     @Param('participantId', ParseIntPipe) participantId: number,
     @Request() req: any,
   ): Promise<void> {
-    // TODO: Add authorization check - verify that req.user.id owns the project
-    // This should be implemented when project ownership validation is available
-    
     await this.projectParticipantService.deleteParticipant(participantId, req.user.id);
   }
-
 } 

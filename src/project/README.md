@@ -1,297 +1,117 @@
 # Project Module
 
-Project management module for Chat CRM system with comprehensive project operations, unique ID validation, and Clean Architecture implementation. Supports both admin project management and mobile app integration.
+Модуль для управління проектами та їх учасниками. Реалізує Clean Architecture принципи з використанням dependency inversion principle та strategy pattern для обробки помилок.
 
-## Features
-
-- ✅ Project creation and management (CRUD operations)
-- ✅ Unique project ID validation and availability checking
-- ✅ Role-based access control (Admin only for management)
-- ✅ Support for mobile app integration
-- ✅ Comprehensive error handling with Strategy Pattern
-- ✅ Clean Architecture with dependency inversion
-- ✅ JWT token-based authentication integration
-- ✅ User ownership and access control
-- ✅ Comprehensive logging and monitoring
-- ✅ Cascade deletion for project removal
-- ✅ Integration with chat and participant management
-
-## Architecture Overview
-
-The module follows **Clean Architecture** principles with **Dependency Inversion** and **Strategy Pattern**:
+## Структура модуля
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    Presentation Layer                       │
-├─────────────────────────────────────────────────────────────┤
-│  ProjectController (REST API Endpoints)                     │
-│  ├── POST /projects (admin only)                            │
-│  ├── GET /projects (admin only)                             │
-│  ├── GET /projects/:id (admin only)                         │
-│  ├── GET /projects/unique/:uniqueId (admin only)            │
-│  ├── PUT /projects/:id (admin only)                         │
-│  ├── DELETE /projects/:id (admin only)                      │
-│  └── GET /projects/check-availability/:uniqueId (public)    │
-└─────────────────────────────────────────────────────────────┘
-                                          │
-                                          ▼
-┌─────────────────────────────────────────────────────────────┐
-│                    Business Logic Layer                     │
-├─────────────────────────────────────────────────────────────┤
-│  ProjectService (Business Logic)                            │
-│  ├── Project CRUD operations                                │
-│  ├── Admin ID retrieval for mobile app                      │
-│  ├── Unique ID validation                                   │
-│  └── Ownership verification                                 │
-│  ProjectErrorHandler (Error Handling)                       │
-└─────────────────────────────────────────────────────────────┘
-                                          │
-                                          ▼
-┌─────────────────────────────────────────────────────────────┐
-│                    Error Handling Layer                     │
-├─────────────────────────────────────────────────────────────┤
-│  ProjectExceptionFilter (HTTP Responses)                    │
-│  Error Strategies (Specific Handling)                       │
-│  ├── ProjectNotFoundStrategy                               │
-│  ├── ProjectAlreadyExistsStrategy                          │
-│  ├── InsufficientPermissionsStrategy                       │
-│  └── GeneralProjectErrorStrategy                           │
-└─────────────────────────────────────────────────────────────┘
-                                          │
-                                          ▼
-┌─────────────────────────────────────────────────────────────┐
-│                    Data Access Layer                        │
-├─────────────────────────────────────────────────────────────┤
-│  ProjectRepositoryPort (Interface)                          │
-│  ProjectRepository (Prisma ORM)                             │
-└─────────────────────────────────────────────────────────────┘
-                                          │
-                                          ▼
-┌─────────────────────────────────────────────────────────────┐
-│                    Database Layer                           │
-├─────────────────────────────────────────────────────────────┤
-│  PostgreSQL Database (via Prisma)                           │
-└─────────────────────────────────────────────────────────────┘
+src/project/
+├── controllers/
+│   ├── project-participant.controller.ts  # Контролер для управління учасниками проектів
+│   └── project.controller.ts              # Контролер для управління проектами
+├── services/
+│   ├── project-participant.service.ts     # Сервіс для бізнес-логіки учасників
+│   └── project.service.ts                 # Сервіс для бізнес-логіки проектів
+├── repositories/
+│   ├── project-participant.repository.ts  # Репозиторій для роботи з учасниками
+│   └── project.repository.ts              # Репозиторій для роботи з проектами
+├── ports/
+│   ├── project-participant-repository.port.ts  # Порт для репозиторію учасників
+│   └── project-repository.port.ts             # Порт для репозиторію проектів
+├── dto/
+│   ├── create-project-participant.dto.ts   # DTO для створення учасника
+│   ├── project-participant-response.dto.ts # DTO для відповіді учасника
+│   ├── project.dto.ts                      # DTO для проектів
+│   └── project-response.dto.ts             # DTO для відповідей проектів
+├── errors/
+│   └── project.errors.ts                   # Класи помилок
+├── strategies/
+│   └── project-error.strategies.ts         # Стратегії обробки помилок
+├── handlers/
+│   └── project-error.handler.ts            # Обробник помилок
+├── filters/
+│   └── project-exception.filter.ts         # Фільтр винятків
+├── project.module.ts                       # Модуль
+└── index.ts                                # Експорти
 ```
 
-## API Endpoints
+## Основні компоненти
 
-### Admin Project Management (Requires JWT Authentication)
+### ProjectParticipantController
+Контролер для управління учасниками проектів. Надає REST API ендпоінти:
 
-#### Create Project
-```bash
-POST /api/projects
-Authorization: Bearer <jwt-token>
-{
-  "name": "My Project",
-  "uniqueId": "project-123"
-}
-```
+- `POST /project-participants/mobile` - Створення учасника (для мобільного додатку, без авторизації)
+- `POST /project-participants` - Створення учасника (для адміністраторів)
+- `GET /project-participants/project/:projectId` - Отримання всіх учасників проекту
+- `GET /project-participants/:participantId` - Отримання конкретного учасника
+- `DELETE /project-participants/:participantId` - Видалення учасника
 
-#### Get All Projects (Paginated)
-```bash
-GET /api/projects?limit=20&offset=0
-Authorization: Bearer <jwt-token>
-```
+### ProjectParticipantService
+Сервіс для бізнес-логіки управління учасниками проектів:
 
-#### Get Project by ID
-```bash
-GET /api/projects/{id}
-Authorization: Bearer <jwt-token>
-```
+- Створення учасників з валідацією
+- Перевірка авторизації (власник проекту)
+- Управління учасниками проекту
+- Отримання інформації про учасників
 
-#### Get Project by Unique ID
-```bash
-GET /api/projects/unique/{uniqueId}
-Authorization: Bearer <jwt-token>
-```
+### ProjectParticipantRepository
+Репозиторій для роботи з даними учасників проектів:
 
-#### Update Project
-```bash
-PUT /api/projects/{id}
-Authorization: Bearer <jwt-token>
-{
-  "name": "Updated Project Name",
-  "uniqueId": "updated-project-123"
-}
-```
+- CRUD операції з учасниками
+- Пошук учасників за різними критеріями
+- Перевірка доступності participant ID
 
-#### Delete Project
-```bash
-DELETE /api/projects/{id}
-Authorization: Bearer <jwt-token>
-```
+## Особливості реалізації
 
-### Public Endpoints
+### Авторизація
+- Всі операції (крім мобільного створення) потребують авторизації
+- Перевірка власності проекту через `verifyProjectOwnership`
+- Використання JWT токенів для аутентифікації
 
-#### Check Unique ID Availability
-```bash
-GET /api/projects/check-availability/{uniqueId}
-```
+### Валідація
+- Перевірка унікальності participant ID в межах проекту
+- Валідація даних через DTO з class-validator
+- Обробка помилок через strategy pattern
 
-Response:
-```json
-{
-  "available": true,
-  "uniqueId": "project-123"
-}
-```
+### Мобільний додаток
+- Спеціальний ендпоінт для створення учасників без авторизації
+- Використовується для мобільного додатку
+- Валідація через projectUniqueId
 
-## Mobile App Integration
+## Залежності
 
-### Admin ID Retrieval
-The Project module provides a method to retrieve the admin ID for a given project, which is essential for mobile app functionality:
+- `ProjectService` - для отримання інформації про проекти
+- `PrismaService` - для роботи з базою даних
+- `AuthModule` - для авторизації
 
-```typescript
-// Get the admin ID of a project
-const adminId = await projectService.getProjectAdminId(projectId);
-```
+## Експорти
 
-This method is used by the Chat module to:
-- Create chats between admin and participants
-- Validate mobile app access to projects
-- Ensure proper authorization for chat operations
+Модуль експортує:
+- `ProjectService` - для використання в інших модулях
+- `ProjectParticipantService` - для використання в chat модулі
+- `ProjectRepositoryPort` - порт репозиторію проектів
+- `PROJECT_PARTICIPANT_REPOSITORY_PORT` - токен для dependency injection
 
-### Project Structure
-Each project contains:
-- **Admin** - The user who created the project (Admin role)
-- **Participants** - Users who can participate in project chats (Participant role)
-- **Chats** - Communication channels between admin and participants
-
-## Error Handling Architecture
-
-The module implements a **hybrid approach** combining NestJS Exception Filters with Strategy Pattern:
-
-### Exception Filters (HTTP Layer)
-- **Automatic HTTP status mapping** based on error codes
-- **Consistent error response format** across all endpoints
-- **Built-in NestJS integration**
-
-### Strategy Pattern (Business Logic)
-- **Logging and monitoring** for each error type
-- **Security event detection** for potential threats
-- **Metrics collection** for operational insights
-- **Extensible error handling** with specific strategies
-
-### Error Flow
-```
-┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│   Service       │───▶│ ErrorHandler     │───▶│ Error Strategy  │
-│   (throws)      │    │   (business      │    │   (specific     │
-│                  │    │    logic)        │    │    handling)    │
-└─────────────────┘    └──────────────────┘    └─────────────────┘
-                              │
-                              ▼
-                       ┌─────────────────┐
-                       │ ProjectException│
-                       │ Filter (HTTP)   │
-                       └─────────────────┘
-                              │
-                              ▼
-                       ┌─────────────────┐
-                       │   HTTP Client   │
-                       └─────────────────┘
-```
-
-## Integration with Other Modules
+## Використання в інших модулях
 
 ### Chat Module
-- Projects serve as containers for chats
-- Each chat is associated with a specific project
-- Mobile app access is validated against project membership
+Chat модуль використовує `ProjectParticipantService` для:
+- Отримання user ID учасника за participant ID
+- Валідації учасників в чаті
+- Управління статусом онлайн
 
-### User Module
-- Admin users can create and manage projects
-- Project ownership is tracked for authorization
-- Participants are associated with projects through ProjectParticipantService
-
-### Auth Module
-- JWT authentication required for admin operations
-- Role-based access control (Admin/Participant)
-- Project-based authorization for mobile app users
-
-## Project Lifecycle
-
-### 1. Project Creation
-1. Admin creates project with unique ID
-2. Project is associated with admin user
-3. Project becomes available for participant management
-
-### 2. Participant Management
-1. Admin adds participants to project
-2. Participants can be created via mobile app or admin interface
-3. Each participant gets unique `participantId` for mobile access
-
-### 3. Chat Creation
-1. Chats are created between admin and participants
-2. Mobile app can create chats using `projectId` and `participantId`
-3. Admin can manage all chats in their projects
-
-### 4. Project Deletion
-1. Admin can delete project
-2. Cascade deletion removes all related data:
-   - Project participants
-   - Chats and messages
-   - Project associations
-
-## Security Features
-
-- **JWT authentication** for all admin operations
-- **Project ownership verification** for updates and deletions
-- **Unique ID validation** to prevent conflicts
-- **Role-based access control** (Admin only for management)
-- **Cascade deletion** for complete project removal
-- **Audit logging** for project operations
-
-## Usage Examples
-
-### Basic Project Management
 ```typescript
-// Create project
-const project = await projectService.createProject({
-  name: 'My Project',
-  uniqueId: 'project-123'
-}, adminUserId);
+import { ProjectParticipantService } from '../project/services/project-participant.service';
 
-// Get project by ID
-const project = await projectService.getProjectById(projectId, adminUserId);
-
-// Update project
-const updatedProject = await projectService.updateProject(projectId, {
-  name: 'Updated Project Name'
-}, adminUserId);
-
-// Delete project
-await projectService.deleteProject(projectId, adminUserId);
+constructor(
+  private readonly projectParticipantService: ProjectParticipantService,
+) {}
 ```
 
-### Mobile App Integration
-```typescript
-// Get admin ID for mobile app chat creation
-const adminId = await projectService.getProjectAdminId(projectId);
+## Міграція з Chat Module
 
-// Check unique ID availability
-const availability = await projectService.checkUniqueIdAvailability('project-123');
-```
-
-## Error Types
-
-### ProjectNotFoundError
-- Thrown when project not found
-- HTTP Status: `404 Not Found`
-
-### ProjectAlreadyExistsError
-- Thrown when project with unique ID already exists
-- HTTP Status: `409 Conflict`
-
-### InsufficientPermissionsError
-- Thrown when user doesn't have permission to access project
-- HTTP Status: `403 Forbidden`
-
-### InvalidProjectDataError
-- Thrown when project data validation fails
-- HTTP Status: `400 Bad Request`
-
-### ProjectOperationFailedError
-- Thrown when project operation fails
-- HTTP Status: `500 Internal Server Error` 
+Project participants були перенесені з chat модуля до project модуля для:
+- Кращої когезії (вся логіка проектів в одному місці)
+- Зменшення залежностей між модулями
+- Покращення контролю доступу
+- Чистішої архітектури 

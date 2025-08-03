@@ -1,19 +1,15 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ChatController } from './chat.controller';
-import { ProjectParticipantController } from './controllers/project-participant.controller';
 import { ChatService } from './chat.service';
 import { ChatGateway } from './chat.gateway';
 import { ChatRepositoryPort } from './ports/chat-repository.port';
 import { MessageRepositoryPort } from './ports/message-repository.port';
-import { ProjectParticipantRepositoryPort } from './ports/project-participant-repository.port';
 import { ChatRepository } from './repositories/chat.repository';
 import { MessageRepository } from './repositories/message.repository';
-import { ProjectParticipantRepository } from './repositories/project-participant.repository';
 import { ChatErrorHandler } from './handlers/chat-error.handler';
 import { ChatAccessDeniedStrategy, MessageSpamStrategy, WebSocketConnectionStrategy, GeneralChatErrorStrategy } from './strategies/chat-error.strategies';
 import { OnlineStatusService } from './services/online-status.service';
-import { ProjectParticipantService } from './services/project-participant.service';
 import { PrismaModule } from '../prisma/prisma.module';
 import { AuthModule } from '../auth/auth.module';
 import { ProjectModule } from '../project/project.module';
@@ -26,10 +22,9 @@ import { ProjectModule } from '../project/project.module';
  */
 @Module({
   imports: [ConfigModule, PrismaModule, AuthModule, ProjectModule],
-  controllers: [ChatController, ProjectParticipantController],
+  controllers: [ChatController],
   providers: [
     ChatService,
-    ProjectParticipantService,
     ChatGateway,
     OnlineStatusService,
     ChatErrorHandler,
@@ -42,16 +37,12 @@ import { ProjectModule } from '../project/project.module';
       provide: MessageRepositoryPort,
       useClass: MessageRepository,
     },
-    {
-      provide: ProjectParticipantRepositoryPort,
-      useClass: ProjectParticipantRepository,
-    },
     // Error handling strategies
     ChatAccessDeniedStrategy,
     MessageSpamStrategy,
     WebSocketConnectionStrategy,
     GeneralChatErrorStrategy,
   ],
-  exports: [ChatService, ProjectParticipantService],
+  exports: [ChatService],
 })
 export class ChatModule {} 

@@ -13,7 +13,7 @@ import { Logger, UseGuards } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ChatService } from './chat.service';
 import { ProjectService } from '../project/project.service';
-import { ProjectParticipantService } from './services/project-participant.service';
+import { ProjectParticipantService } from '../project/services/project-participant.service';
 import { ChatErrorHandler } from './handlers/chat-error.handler';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { MessageType } from './ports/message-repository.port';

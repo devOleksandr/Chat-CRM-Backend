@@ -1013,6 +1013,237 @@
         ]
       }
     },
+    "/api/project-participants/mobile": {
+      "post": {
+        "description": "Creates a new participant for a specific project with external participant ID. No authentication required for mobile app usage.",
+        "operationId": "ProjectParticipantController_createParticipantMobile",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProjectParticipantDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successfully created participant",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectParticipantResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid participant data or participant ID already exists"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a new project participant (Mobile App)",
+        "tags": [
+          "project-participants"
+        ]
+      }
+    },
+    "/api/project-participants": {
+      "post": {
+        "description": "Creates a new participant for a specific project. Admin authentication required.",
+        "operationId": "ProjectParticipantController_createParticipant",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProjectParticipantDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successfully created participant",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectParticipantResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid participant data or participant ID already exists"
+          },
+          "401": {
+            "description": "User is not authenticated"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a new project participant (Admin)",
+        "tags": [
+          "project-participants"
+        ]
+      }
+    },
+    "/api/project-participants/project/{projectId}": {
+      "get": {
+        "description": "Retrieves a paginated list of all participants for a specific project",
+        "operationId": "ProjectParticipantController_getProjectParticipants",
+        "parameters": [
+          {
+            "name": "projectId",
+            "required": true,
+            "in": "path",
+            "description": "ID of the project",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Maximum number of participants to return (default: 20)",
+            "schema": {
+              "example": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "Number of participants to skip (default: 0)",
+            "schema": {
+              "example": 0,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved participants",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProjectParticipantResponseDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get all participants for a project",
+        "tags": [
+          "project-participants"
+        ]
+      }
+    },
+    "/api/project-participants/{participantId}": {
+      "get": {
+        "description": "Retrieves information about a specific project participant",
+        "operationId": "ProjectParticipantController_getParticipantById",
+        "parameters": [
+          {
+            "name": "participantId",
+            "required": true,
+            "in": "path",
+            "description": "ID of the participant",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved participant",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectParticipantResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "404": {
+            "description": "Participant not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get participant by ID",
+        "tags": [
+          "project-participants"
+        ]
+      },
+      "delete": {
+        "description": "Removes a participant from a project",
+        "operationId": "ProjectParticipantController_deleteParticipant",
+        "parameters": [
+          {
+            "name": "participantId",
+            "required": true,
+            "in": "path",
+            "description": "ID of the participant to delete",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully deleted participant"
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "404": {
+            "description": "Participant not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete project participant",
+        "tags": [
+          "project-participants"
+        ]
+      }
+    },
     "/api/chat": {
       "get": {
         "description": "Retrieves a paginated list of all chats where the user is either admin or participant. User ID is automatically extracted from JWT token.",
@@ -1719,237 +1950,6 @@
           "chat"
         ]
       }
-    },
-    "/api/project-participants/mobile": {
-      "post": {
-        "description": "Creates a new participant for a specific project with external participant ID. No authentication required for mobile app usage.",
-        "operationId": "ProjectParticipantController_createParticipantMobile",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateProjectParticipantDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Successfully created participant",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProjectParticipantResponseDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid participant data or participant ID already exists"
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Create a new project participant (Mobile App)",
-        "tags": [
-          "project-participants"
-        ]
-      }
-    },
-    "/api/project-participants": {
-      "post": {
-        "description": "Creates a new participant for a specific project. Admin authentication required.",
-        "operationId": "ProjectParticipantController_createParticipant",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateProjectParticipantDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Successfully created participant",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProjectParticipantResponseDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid participant data or participant ID already exists"
-          },
-          "401": {
-            "description": "User is not authenticated"
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Create a new project participant (Admin)",
-        "tags": [
-          "project-participants"
-        ]
-      }
-    },
-    "/api/project-participants/project/{projectId}": {
-      "get": {
-        "description": "Retrieves a paginated list of all participants for a specific project",
-        "operationId": "ProjectParticipantController_getProjectParticipants",
-        "parameters": [
-          {
-            "name": "projectId",
-            "required": true,
-            "in": "path",
-            "description": "ID of the project",
-            "schema": {
-              "example": 1,
-              "type": "number"
-            }
-          },
-          {
-            "name": "limit",
-            "required": false,
-            "in": "query",
-            "description": "Maximum number of participants to return (default: 20)",
-            "schema": {
-              "example": 20,
-              "type": "number"
-            }
-          },
-          {
-            "name": "offset",
-            "required": false,
-            "in": "query",
-            "description": "Number of participants to skip (default: 0)",
-            "schema": {
-              "example": 0,
-              "type": "number"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved participants",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ProjectParticipantResponseDto"
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "User is not authenticated"
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Get all participants for a project",
-        "tags": [
-          "project-participants"
-        ]
-      }
-    },
-    "/api/project-participants/{participantId}": {
-      "get": {
-        "description": "Retrieves information about a specific project participant",
-        "operationId": "ProjectParticipantController_getParticipantById",
-        "parameters": [
-          {
-            "name": "participantId",
-            "required": true,
-            "in": "path",
-            "description": "ID of the participant",
-            "schema": {
-              "example": 1,
-              "type": "number"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved participant",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProjectParticipantResponseDto"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "User is not authenticated"
-          },
-          "404": {
-            "description": "Participant not found"
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Get participant by ID",
-        "tags": [
-          "project-participants"
-        ]
-      },
-      "delete": {
-        "description": "Removes a participant from a project",
-        "operationId": "ProjectParticipantController_deleteParticipant",
-        "parameters": [
-          {
-            "name": "participantId",
-            "required": true,
-            "in": "path",
-            "description": "ID of the participant to delete",
-            "schema": {
-              "example": 1,
-              "type": "number"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Successfully deleted participant"
-          },
-          "401": {
-            "description": "User is not authenticated"
-          },
-          "404": {
-            "description": "Participant not found"
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Delete project participant",
-        "tags": [
-          "project-participants"
-        ]
-      }
     }
   },
   "info": {
@@ -2348,6 +2348,111 @@
           }
         }
       },
+      "CreateProjectParticipantDto": {
+        "type": "object",
+        "properties": {
+          "participantId": {
+            "type": "string",
+            "description": "Unique identifier for the participant within the project",
+            "example": "user123",
+            "minLength": 1,
+            "maxLength": 50
+          },
+          "projectUniqueId": {
+            "type": "string",
+            "description": "Unique identifier of the project",
+            "example": "PROJECT-ABC-123"
+          },
+          "firstName": {
+            "type": "string",
+            "description": "First name of the participant",
+            "example": "John"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Last name of the participant",
+            "example": "Doe"
+          },
+          "email": {
+            "type": "string",
+            "description": "Email address of the participant",
+            "example": "john.doe@example.com"
+          }
+        },
+        "required": [
+          "participantId",
+          "projectUniqueId"
+        ]
+      },
+      "ProjectParticipantResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Unique identifier of the participant record",
+            "example": 1
+          },
+          "projectId": {
+            "type": "number",
+            "description": "ID of the project",
+            "example": 1
+          },
+          "userId": {
+            "type": "number",
+            "description": "ID of the user (participant)",
+            "example": 2
+          },
+          "participantId": {
+            "type": "string",
+            "description": "Unique identifier for the participant within the project",
+            "example": "user123"
+          },
+          "firstName": {
+            "type": "string",
+            "description": "First name of the participant",
+            "example": "John"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Last name of the participant",
+            "example": "Doe"
+          },
+          "email": {
+            "type": "object",
+            "description": "Email address of the participant",
+            "example": "john.doe@example.com",
+            "nullable": true
+          },
+          "isOnline": {
+            "type": "boolean",
+            "description": "Whether the participant is currently online",
+            "example": false
+          },
+          "lastSeen": {
+            "type": "object",
+            "description": "Last time the participant was seen online",
+            "example": "2024-01-15T10:30:00Z",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "When the participant was added to the project",
+            "example": "2024-01-15T10:00:00Z"
+          }
+        },
+        "required": [
+          "id",
+          "projectId",
+          "userId",
+          "participantId",
+          "firstName",
+          "lastName",
+          "email",
+          "isOnline",
+          "lastSeen",
+          "createdAt"
+        ]
+      },
       "ProjectDto": {
         "type": "object",
         "properties": {
@@ -2742,116 +2847,6 @@
         },
         "required": [
           "content"
-        ]
-      },
-      "CreateProjectParticipantDto": {
-        "type": "object",
-        "properties": {
-          "projectUniqueId": {
-            "type": "string",
-            "description": "Unique ID of the project where the participant will be added",
-            "example": "PROJ-001",
-            "minLength": 3,
-            "maxLength": 50
-          },
-          "participantId": {
-            "type": "string",
-            "description": "External participant ID provided by mobile app",
-            "example": "mobile_user_123",
-            "minLength": 3,
-            "maxLength": 50
-          },
-          "firstName": {
-            "type": "string",
-            "description": "First name of the participant (optional for mobile app)",
-            "example": "John",
-            "maxLength": 50
-          },
-          "lastName": {
-            "type": "string",
-            "description": "Last name of the participant (optional for mobile app)",
-            "example": "Doe",
-            "maxLength": 50
-          },
-          "email": {
-            "type": "string",
-            "description": "Email address of the participant (optional for mobile app)",
-            "example": "john.doe@example.com"
-          }
-        },
-        "required": [
-          "projectUniqueId",
-          "participantId"
-        ]
-      },
-      "ProjectParticipantResponseDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "number",
-            "description": "Participant ID",
-            "example": 1
-          },
-          "projectId": {
-            "type": "number",
-            "description": "Project ID",
-            "example": 1
-          },
-          "userId": {
-            "type": "number",
-            "description": "User ID",
-            "example": 2
-          },
-          "participantId": {
-            "type": "string",
-            "description": "External participant ID provided by mobile app",
-            "example": "mobile_user_123"
-          },
-          "firstName": {
-            "type": "string",
-            "description": "First name of the participant",
-            "example": "John"
-          },
-          "lastName": {
-            "type": "string",
-            "description": "Last name of the participant",
-            "example": "Doe"
-          },
-          "email": {
-            "type": "object",
-            "description": "Email address of the participant (optional)",
-            "example": "john.doe@example.com",
-            "nullable": true
-          },
-          "isOnline": {
-            "type": "boolean",
-            "description": "Whether the participant is online",
-            "example": false
-          },
-          "lastSeen": {
-            "type": "object",
-            "description": "Last seen timestamp",
-            "example": "2025-01-15T10:00:00.000Z",
-            "nullable": true
-          },
-          "createdAt": {
-            "format": "date-time",
-            "type": "string",
-            "description": "When the participant was added to the project",
-            "example": "2025-01-15T10:00:00.000Z"
-          }
-        },
-        "required": [
-          "id",
-          "projectId",
-          "userId",
-          "participantId",
-          "firstName",
-          "lastName",
-          "email",
-          "isOnline",
-          "lastSeen",
-          "createdAt"
         ]
       }
     }

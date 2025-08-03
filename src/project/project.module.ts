@@ -2,9 +2,13 @@ import { Module, forwardRef } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 
 import { ProjectController } from './project.controller';
+import { ProjectParticipantController } from './controllers/project-participant.controller';
 import { ProjectService } from './project.service';
+import { ProjectParticipantService } from './services/project-participant.service';
 import { ProjectRepositoryPort } from './ports/project-repository.port';
+import { ProjectParticipantRepositoryPort, PROJECT_PARTICIPANT_REPOSITORY_PORT } from './ports/project-participant-repository.port';
 import { ProjectRepository } from './repositories/project.repository';
+import { ProjectParticipantRepository } from './repositories/project-participant.repository';
 import { ProjectErrorHandler } from './handlers/project-error.handler';
 import { ProjectExceptionFilter } from './filters/project-exception.filter';
 import {
@@ -26,15 +30,23 @@ import { UserModule } from '../user/user.module';
     forwardRef(() => PrismaModule),
     forwardRef(() => UserModule),
   ],
-  controllers: [ProjectController],
+  controllers: [
+    ProjectController,
+    ProjectParticipantController,
+  ],
   providers: [
     ProjectService,
+    ProjectParticipantService,
     ProjectErrorHandler,
     
-    // Repository port implementation
+    // Repository port implementations
     {
       provide: ProjectRepositoryPort,
       useClass: ProjectRepository,
+    },
+    {
+      provide: PROJECT_PARTICIPANT_REPOSITORY_PORT,
+      useClass: ProjectParticipantRepository,
     },
     
     // Exception Filter for HTTP responses
@@ -51,7 +63,9 @@ import { UserModule } from '../user/user.module';
   ],
   exports: [
     ProjectService,
+    ProjectParticipantService,
     ProjectRepositoryPort,
+    PROJECT_PARTICIPANT_REPOSITORY_PORT,
   ],
 })
 export class ProjectModule {} 
