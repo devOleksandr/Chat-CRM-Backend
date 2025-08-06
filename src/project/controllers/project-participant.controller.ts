@@ -40,32 +40,7 @@ export class ProjectParticipantController {
     private readonly projectParticipantService: ProjectParticipantService,
   ) {}
 
-  /**
-   * Create a new project participant (Mobile App - No Authentication)
-   * @param createParticipantDto - Participant creation data
-   * @returns Promise<ProjectParticipantResponseDto> Newly created participant
-   */
-  @ApiOperation({
-    summary: 'Create a new project participant (Mobile App)',
-    description: 'Creates a new participant for a specific project with external participant ID. No authentication required for mobile app usage.',
-  })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-    description: 'Successfully created participant',
-    type: ProjectParticipantResponseDto,
-  })
-  @ApiResponse({
-    status: HttpStatus.BAD_REQUEST,
-    description: 'Invalid participant data or participant ID already exists',
-  })
-  @Post('mobile')
-  @HttpCode(HttpStatus.CREATED)
-  @UseGuards() // No authentication guard for mobile app
-  async createParticipantMobile(
-    @Body(ValidationPipe) createParticipantDto: CreateProjectParticipantDto,
-  ): Promise<ProjectParticipantResponseDto> {
-    return await this.projectParticipantService.createParticipant(createParticipantDto);
-  }
+
 
   /**
    * Create a new project participant (Admin only)

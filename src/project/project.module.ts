@@ -3,6 +3,7 @@ import { APP_FILTER } from '@nestjs/core';
 
 import { ProjectController } from './project.controller';
 import { ProjectParticipantController } from './controllers/project-participant.controller';
+import { MobileProjectParticipantController } from './controllers/mobile-project-participant.controller';
 import { ProjectService } from './project.service';
 import { ProjectParticipantService } from './services/project-participant.service';
 import { ProjectRepositoryPort } from './ports/project-repository.port';
@@ -33,6 +34,7 @@ import { UserModule } from '../user/user.module';
   controllers: [
     ProjectController,
     ProjectParticipantController,
+    MobileProjectParticipantController,
   ],
   providers: [
     ProjectService,

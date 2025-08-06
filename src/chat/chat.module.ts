@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ChatController } from './chat.controller';
+import { MobileChatController } from './controllers/mobile-chat.controller';
 import { ChatService } from './chat.service';
 import { ChatGateway } from './chat.gateway';
 import { ChatRepositoryPort } from './ports/chat-repository.port';
@@ -22,7 +23,7 @@ import { ProjectModule } from '../project/project.module';
  */
 @Module({
   imports: [ConfigModule, PrismaModule, AuthModule, ProjectModule],
-  controllers: [ChatController],
+  controllers: [ChatController, MobileChatController],
   providers: [
     ChatService,
     ChatGateway,
