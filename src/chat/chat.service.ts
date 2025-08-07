@@ -177,8 +177,22 @@ export class ChatService {
    */
   async getOrCreateChat(projectId: number, adminId: number, participantId: number): Promise<{ chat: ChatResponseDto; isNewChat: boolean }> {
     try {
+      console.log(`🔍 ChatService.getOrCreateChat called:`, {
+        projectId,
+        adminId,
+        participantId,
+        timestamp: new Date().toISOString()
+      });
+      
       // Try to find existing chat
       const existingChat = await this.chatRepository.findChatByParticipants(projectId, adminId, participantId);
+      
+      console.log(`🔍 Existing chat search result:`, {
+        found: !!existingChat,
+        chatId: existingChat?.id,
+        existingParticipantId: existingChat?.participant?.id,
+        timestamp: new Date().toISOString()
+      });
       
       if (existingChat) {
         const chatResponse = await this.mapChatToResponseDto(existingChat, adminId);

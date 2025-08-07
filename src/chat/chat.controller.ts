@@ -249,6 +249,13 @@ export class ChatController {
     // TODO: Add authorization check - verify that req.user.id is admin and owns the project
     // This should be implemented when project ownership validation is available
     
+    console.log(`🔍 Admin createOrGetChat called:`, {
+      projectId,
+      adminId: req.user.id,
+      participantId,
+      timestamp: new Date().toISOString()
+    });
+    
     const result = await this.chatService.getOrCreateChat(projectId, req.user.id, participantId);
     const chatAge = calculateChatAge(result.chat.createdAt);
     const message = generateChatMessage(result.isNewChat, chatAge);
