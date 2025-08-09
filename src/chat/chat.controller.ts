@@ -25,6 +25,7 @@ import {
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 import { ChatService } from './chat.service';
+import { ChatGateway } from './chat.gateway';
 import { ProjectService } from '../project/project.service';
 import { ProjectParticipantService } from '../project/services/project-participant.service';
 import { OnlineStatusService } from './services/online-status.service';
@@ -48,6 +49,7 @@ export class ChatController {
     private readonly projectService: ProjectService,
     private readonly projectParticipantService: ProjectParticipantService,
     private readonly onlineStatusService: OnlineStatusService,
+    private readonly chatGateway: ChatGateway,
   ) {}
 
   /**
@@ -380,7 +382,15 @@ export class ChatController {
       chatId,
     };
     
-    return await this.chatService.createMessage(messageDto, req.user.id);
+    const message = await this.chatService.createMessage(messageDto, req.user.id);
+    
+    const payload = { chatId, message };
+    // Emit to the chat room so clients receive updates immediately
+    this.chatGateway.server.to(`chat_${chatId}`).emit('newMessage', payload);
+    this.chatGateway.server.to(`chat_${chatId}`).emit('messageCreated', payload);
+    this.chatGateway.server.to(`chat_${chatId}`).emit('message', payload);
+    
+    return message;
   }
 
 

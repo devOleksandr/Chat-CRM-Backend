@@ -19,6 +19,7 @@ import {
 } from '@nestjs/swagger';
 
 import { ChatService } from '../chat.service';
+import { ChatGateway } from '../chat.gateway';
 import { ProjectService } from '../../project/project.service';
 import { ProjectParticipantService } from '../../project/services/project-participant.service';
 import { CreateMessageViaApiDto } from '../dto/create-message.dto';
@@ -37,6 +38,7 @@ export class MobileChatController {
     private readonly chatService: ChatService,
     private readonly projectService: ProjectService,
     private readonly projectParticipantService: ProjectParticipantService,
+    private readonly chatGateway: ChatGateway,
   ) {}
 
   /**
@@ -222,6 +224,14 @@ export class MobileChatController {
       chatId,
     };
     
-    return await this.chatService.createMessage(fullMessageDto, participantUserId);
+    const message = await this.chatService.createMessage(fullMessageDto, participantUserId);
+    
+    const payload = { chatId, message };
+    // Emit to the chat room so admin clients in `chat_{chatId}` receive updates immediately
+    this.chatGateway.server.to(`chat_${chatId}`).emit('newMessage', payload);
+    this.chatGateway.server.to(`chat_${chatId}`).emit('messageCreated', payload);
+    this.chatGateway.server.to(`chat_${chatId}`).emit('message', payload);
+    
+    return message;
   }
 }
