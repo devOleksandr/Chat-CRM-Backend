@@ -38,6 +38,11 @@ export type Chat = $Result.DefaultSelection<Prisma.$ChatPayload>
  * 
  */
 export type Message = $Result.DefaultSelection<Prisma.$MessagePayload>
+/**
+ * Model DeviceToken
+ * 
+ */
+export type DeviceToken = $Result.DefaultSelection<Prisma.$DeviceTokenPayload>
 
 /**
  * Enums
@@ -61,6 +66,15 @@ export const MessageType: {
 
 export type MessageType = (typeof MessageType)[keyof typeof MessageType]
 
+
+export const Platform: {
+  ios: 'ios',
+  android: 'android',
+  web: 'web'
+};
+
+export type Platform = (typeof Platform)[keyof typeof Platform]
+
 }
 
 export type Role = $Enums.Role
@@ -70,6 +84,10 @@ export const Role: typeof $Enums.Role
 export type MessageType = $Enums.MessageType
 
 export const MessageType: typeof $Enums.MessageType
+
+export type Platform = $Enums.Platform
+
+export const Platform: typeof $Enums.Platform
 
 /**
  * ##  Prisma Client ʲˢ
@@ -245,6 +263,16 @@ export class PrismaClient<
     * ```
     */
   get message(): Prisma.MessageDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.deviceToken`: Exposes CRUD operations for the **DeviceToken** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more DeviceTokens
+    * const deviceTokens = await prisma.deviceToken.findMany()
+    * ```
+    */
+  get deviceToken(): Prisma.DeviceTokenDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -689,7 +717,8 @@ export namespace Prisma {
     Project: 'Project',
     ProjectParticipant: 'ProjectParticipant',
     Chat: 'Chat',
-    Message: 'Message'
+    Message: 'Message',
+    DeviceToken: 'DeviceToken'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -708,7 +737,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "project" | "projectParticipant" | "chat" | "message"
+      modelProps: "user" | "project" | "projectParticipant" | "chat" | "message" | "deviceToken"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1082,6 +1111,80 @@ export namespace Prisma {
           }
         }
       }
+      DeviceToken: {
+        payload: Prisma.$DeviceTokenPayload<ExtArgs>
+        fields: Prisma.DeviceTokenFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.DeviceTokenFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceTokenPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.DeviceTokenFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceTokenPayload>
+          }
+          findFirst: {
+            args: Prisma.DeviceTokenFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceTokenPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.DeviceTokenFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceTokenPayload>
+          }
+          findMany: {
+            args: Prisma.DeviceTokenFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceTokenPayload>[]
+          }
+          create: {
+            args: Prisma.DeviceTokenCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceTokenPayload>
+          }
+          createMany: {
+            args: Prisma.DeviceTokenCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.DeviceTokenCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceTokenPayload>[]
+          }
+          delete: {
+            args: Prisma.DeviceTokenDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceTokenPayload>
+          }
+          update: {
+            args: Prisma.DeviceTokenUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceTokenPayload>
+          }
+          deleteMany: {
+            args: Prisma.DeviceTokenDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.DeviceTokenUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.DeviceTokenUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceTokenPayload>[]
+          }
+          upsert: {
+            args: Prisma.DeviceTokenUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeviceTokenPayload>
+          }
+          aggregate: {
+            args: Prisma.DeviceTokenAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDeviceToken>
+          }
+          groupBy: {
+            args: Prisma.DeviceTokenGroupByArgs<ExtArgs>
+            result: $Utils.Optional<DeviceTokenGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.DeviceTokenCountArgs<ExtArgs>
+            result: $Utils.Optional<DeviceTokenCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1171,6 +1274,7 @@ export namespace Prisma {
     projectParticipant?: ProjectParticipantOmit
     chat?: ChatOmit
     message?: MessageOmit
+    deviceToken?: DeviceTokenOmit
   }
 
   /* Types for Logging */
@@ -1270,6 +1374,7 @@ export namespace Prisma {
     sentMessages: number
     adminChats: number
     participantChats: number
+    deviceTokens: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -1278,6 +1383,7 @@ export namespace Prisma {
     sentMessages?: boolean | UserCountOutputTypeCountSentMessagesArgs
     adminChats?: boolean | UserCountOutputTypeCountAdminChatsArgs
     participantChats?: boolean | UserCountOutputTypeCountParticipantChatsArgs
+    deviceTokens?: boolean | UserCountOutputTypeCountDeviceTokensArgs
   }
 
   // Custom InputTypes
@@ -1324,6 +1430,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountParticipantChatsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ChatWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountDeviceTokensArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DeviceTokenWhereInput
   }
 
 
@@ -1693,6 +1806,7 @@ export namespace Prisma {
     sentMessages?: boolean | User$sentMessagesArgs<ExtArgs>
     adminChats?: boolean | User$adminChatsArgs<ExtArgs>
     participantChats?: boolean | User$participantChatsArgs<ExtArgs>
+    deviceTokens?: boolean | User$deviceTokensArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -1760,6 +1874,7 @@ export namespace Prisma {
     sentMessages?: boolean | User$sentMessagesArgs<ExtArgs>
     adminChats?: boolean | User$adminChatsArgs<ExtArgs>
     participantChats?: boolean | User$participantChatsArgs<ExtArgs>
+    deviceTokens?: boolean | User$deviceTokensArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -1773,6 +1888,7 @@ export namespace Prisma {
       sentMessages: Prisma.$MessagePayload<ExtArgs>[]
       adminChats: Prisma.$ChatPayload<ExtArgs>[]
       participantChats: Prisma.$ChatPayload<ExtArgs>[]
+      deviceTokens: Prisma.$DeviceTokenPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
@@ -2190,6 +2306,7 @@ export namespace Prisma {
     sentMessages<T extends User$sentMessagesArgs<ExtArgs> = {}>(args?: Subset<T, User$sentMessagesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     adminChats<T extends User$adminChatsArgs<ExtArgs> = {}>(args?: Subset<T, User$adminChatsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChatPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     participantChats<T extends User$participantChatsArgs<ExtArgs> = {}>(args?: Subset<T, User$participantChatsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChatPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    deviceTokens<T extends User$deviceTokensArgs<ExtArgs> = {}>(args?: Subset<T, User$deviceTokensArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DeviceTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2740,6 +2857,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ChatScalarFieldEnum | ChatScalarFieldEnum[]
+  }
+
+  /**
+   * User.deviceTokens
+   */
+  export type User$deviceTokensArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceToken
+     */
+    select?: DeviceTokenSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceToken
+     */
+    omit?: DeviceTokenOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DeviceTokenInclude<ExtArgs> | null
+    where?: DeviceTokenWhereInput
+    orderBy?: DeviceTokenOrderByWithRelationInput | DeviceTokenOrderByWithRelationInput[]
+    cursor?: DeviceTokenWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: DeviceTokenScalarFieldEnum | DeviceTokenScalarFieldEnum[]
   }
 
   /**
@@ -7373,6 +7514,1180 @@ export namespace Prisma {
 
 
   /**
+   * Model DeviceToken
+   */
+
+  export type AggregateDeviceToken = {
+    _count: DeviceTokenCountAggregateOutputType | null
+    _avg: DeviceTokenAvgAggregateOutputType | null
+    _sum: DeviceTokenSumAggregateOutputType | null
+    _min: DeviceTokenMinAggregateOutputType | null
+    _max: DeviceTokenMaxAggregateOutputType | null
+  }
+
+  export type DeviceTokenAvgAggregateOutputType = {
+    id: number | null
+    userId: number | null
+  }
+
+  export type DeviceTokenSumAggregateOutputType = {
+    id: number | null
+    userId: number | null
+  }
+
+  export type DeviceTokenMinAggregateOutputType = {
+    id: number | null
+    userId: number | null
+    token: string | null
+    platform: $Enums.Platform | null
+    deviceId: string | null
+    appVersion: string | null
+    locale: string | null
+    isActive: boolean | null
+    lastUsedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type DeviceTokenMaxAggregateOutputType = {
+    id: number | null
+    userId: number | null
+    token: string | null
+    platform: $Enums.Platform | null
+    deviceId: string | null
+    appVersion: string | null
+    locale: string | null
+    isActive: boolean | null
+    lastUsedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type DeviceTokenCountAggregateOutputType = {
+    id: number
+    userId: number
+    token: number
+    platform: number
+    deviceId: number
+    appVersion: number
+    locale: number
+    isActive: number
+    lastUsedAt: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type DeviceTokenAvgAggregateInputType = {
+    id?: true
+    userId?: true
+  }
+
+  export type DeviceTokenSumAggregateInputType = {
+    id?: true
+    userId?: true
+  }
+
+  export type DeviceTokenMinAggregateInputType = {
+    id?: true
+    userId?: true
+    token?: true
+    platform?: true
+    deviceId?: true
+    appVersion?: true
+    locale?: true
+    isActive?: true
+    lastUsedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type DeviceTokenMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    token?: true
+    platform?: true
+    deviceId?: true
+    appVersion?: true
+    locale?: true
+    isActive?: true
+    lastUsedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type DeviceTokenCountAggregateInputType = {
+    id?: true
+    userId?: true
+    token?: true
+    platform?: true
+    deviceId?: true
+    appVersion?: true
+    locale?: true
+    isActive?: true
+    lastUsedAt?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type DeviceTokenAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DeviceToken to aggregate.
+     */
+    where?: DeviceTokenWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DeviceTokens to fetch.
+     */
+    orderBy?: DeviceTokenOrderByWithRelationInput | DeviceTokenOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: DeviceTokenWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DeviceTokens from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DeviceTokens.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned DeviceTokens
+    **/
+    _count?: true | DeviceTokenCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: DeviceTokenAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: DeviceTokenSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: DeviceTokenMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: DeviceTokenMaxAggregateInputType
+  }
+
+  export type GetDeviceTokenAggregateType<T extends DeviceTokenAggregateArgs> = {
+        [P in keyof T & keyof AggregateDeviceToken]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDeviceToken[P]>
+      : GetScalarType<T[P], AggregateDeviceToken[P]>
+  }
+
+
+
+
+  export type DeviceTokenGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DeviceTokenWhereInput
+    orderBy?: DeviceTokenOrderByWithAggregationInput | DeviceTokenOrderByWithAggregationInput[]
+    by: DeviceTokenScalarFieldEnum[] | DeviceTokenScalarFieldEnum
+    having?: DeviceTokenScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: DeviceTokenCountAggregateInputType | true
+    _avg?: DeviceTokenAvgAggregateInputType
+    _sum?: DeviceTokenSumAggregateInputType
+    _min?: DeviceTokenMinAggregateInputType
+    _max?: DeviceTokenMaxAggregateInputType
+  }
+
+  export type DeviceTokenGroupByOutputType = {
+    id: number
+    userId: number
+    token: string
+    platform: $Enums.Platform
+    deviceId: string | null
+    appVersion: string | null
+    locale: string | null
+    isActive: boolean
+    lastUsedAt: Date | null
+    createdAt: Date
+    updatedAt: Date
+    _count: DeviceTokenCountAggregateOutputType | null
+    _avg: DeviceTokenAvgAggregateOutputType | null
+    _sum: DeviceTokenSumAggregateOutputType | null
+    _min: DeviceTokenMinAggregateOutputType | null
+    _max: DeviceTokenMaxAggregateOutputType | null
+  }
+
+  type GetDeviceTokenGroupByPayload<T extends DeviceTokenGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<DeviceTokenGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof DeviceTokenGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], DeviceTokenGroupByOutputType[P]>
+            : GetScalarType<T[P], DeviceTokenGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type DeviceTokenSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    token?: boolean
+    platform?: boolean
+    deviceId?: boolean
+    appVersion?: boolean
+    locale?: boolean
+    isActive?: boolean
+    lastUsedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["deviceToken"]>
+
+  export type DeviceTokenSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    token?: boolean
+    platform?: boolean
+    deviceId?: boolean
+    appVersion?: boolean
+    locale?: boolean
+    isActive?: boolean
+    lastUsedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["deviceToken"]>
+
+  export type DeviceTokenSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    token?: boolean
+    platform?: boolean
+    deviceId?: boolean
+    appVersion?: boolean
+    locale?: boolean
+    isActive?: boolean
+    lastUsedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["deviceToken"]>
+
+  export type DeviceTokenSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    token?: boolean
+    platform?: boolean
+    deviceId?: boolean
+    appVersion?: boolean
+    locale?: boolean
+    isActive?: boolean
+    lastUsedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type DeviceTokenOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "token" | "platform" | "deviceId" | "appVersion" | "locale" | "isActive" | "lastUsedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["deviceToken"]>
+  export type DeviceTokenInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type DeviceTokenIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type DeviceTokenIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $DeviceTokenPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "DeviceToken"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      userId: number
+      token: string
+      platform: $Enums.Platform
+      deviceId: string | null
+      appVersion: string | null
+      locale: string | null
+      isActive: boolean
+      lastUsedAt: Date | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["deviceToken"]>
+    composites: {}
+  }
+
+  type DeviceTokenGetPayload<S extends boolean | null | undefined | DeviceTokenDefaultArgs> = $Result.GetResult<Prisma.$DeviceTokenPayload, S>
+
+  type DeviceTokenCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<DeviceTokenFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: DeviceTokenCountAggregateInputType | true
+    }
+
+  export interface DeviceTokenDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['DeviceToken'], meta: { name: 'DeviceToken' } }
+    /**
+     * Find zero or one DeviceToken that matches the filter.
+     * @param {DeviceTokenFindUniqueArgs} args - Arguments to find a DeviceToken
+     * @example
+     * // Get one DeviceToken
+     * const deviceToken = await prisma.deviceToken.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends DeviceTokenFindUniqueArgs>(args: SelectSubset<T, DeviceTokenFindUniqueArgs<ExtArgs>>): Prisma__DeviceTokenClient<$Result.GetResult<Prisma.$DeviceTokenPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one DeviceToken that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {DeviceTokenFindUniqueOrThrowArgs} args - Arguments to find a DeviceToken
+     * @example
+     * // Get one DeviceToken
+     * const deviceToken = await prisma.deviceToken.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends DeviceTokenFindUniqueOrThrowArgs>(args: SelectSubset<T, DeviceTokenFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DeviceTokenClient<$Result.GetResult<Prisma.$DeviceTokenPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DeviceToken that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceTokenFindFirstArgs} args - Arguments to find a DeviceToken
+     * @example
+     * // Get one DeviceToken
+     * const deviceToken = await prisma.deviceToken.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends DeviceTokenFindFirstArgs>(args?: SelectSubset<T, DeviceTokenFindFirstArgs<ExtArgs>>): Prisma__DeviceTokenClient<$Result.GetResult<Prisma.$DeviceTokenPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DeviceToken that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceTokenFindFirstOrThrowArgs} args - Arguments to find a DeviceToken
+     * @example
+     * // Get one DeviceToken
+     * const deviceToken = await prisma.deviceToken.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends DeviceTokenFindFirstOrThrowArgs>(args?: SelectSubset<T, DeviceTokenFindFirstOrThrowArgs<ExtArgs>>): Prisma__DeviceTokenClient<$Result.GetResult<Prisma.$DeviceTokenPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more DeviceTokens that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceTokenFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all DeviceTokens
+     * const deviceTokens = await prisma.deviceToken.findMany()
+     * 
+     * // Get first 10 DeviceTokens
+     * const deviceTokens = await prisma.deviceToken.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const deviceTokenWithIdOnly = await prisma.deviceToken.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends DeviceTokenFindManyArgs>(args?: SelectSubset<T, DeviceTokenFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DeviceTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a DeviceToken.
+     * @param {DeviceTokenCreateArgs} args - Arguments to create a DeviceToken.
+     * @example
+     * // Create one DeviceToken
+     * const DeviceToken = await prisma.deviceToken.create({
+     *   data: {
+     *     // ... data to create a DeviceToken
+     *   }
+     * })
+     * 
+     */
+    create<T extends DeviceTokenCreateArgs>(args: SelectSubset<T, DeviceTokenCreateArgs<ExtArgs>>): Prisma__DeviceTokenClient<$Result.GetResult<Prisma.$DeviceTokenPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many DeviceTokens.
+     * @param {DeviceTokenCreateManyArgs} args - Arguments to create many DeviceTokens.
+     * @example
+     * // Create many DeviceTokens
+     * const deviceToken = await prisma.deviceToken.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends DeviceTokenCreateManyArgs>(args?: SelectSubset<T, DeviceTokenCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many DeviceTokens and returns the data saved in the database.
+     * @param {DeviceTokenCreateManyAndReturnArgs} args - Arguments to create many DeviceTokens.
+     * @example
+     * // Create many DeviceTokens
+     * const deviceToken = await prisma.deviceToken.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many DeviceTokens and only return the `id`
+     * const deviceTokenWithIdOnly = await prisma.deviceToken.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends DeviceTokenCreateManyAndReturnArgs>(args?: SelectSubset<T, DeviceTokenCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DeviceTokenPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a DeviceToken.
+     * @param {DeviceTokenDeleteArgs} args - Arguments to delete one DeviceToken.
+     * @example
+     * // Delete one DeviceToken
+     * const DeviceToken = await prisma.deviceToken.delete({
+     *   where: {
+     *     // ... filter to delete one DeviceToken
+     *   }
+     * })
+     * 
+     */
+    delete<T extends DeviceTokenDeleteArgs>(args: SelectSubset<T, DeviceTokenDeleteArgs<ExtArgs>>): Prisma__DeviceTokenClient<$Result.GetResult<Prisma.$DeviceTokenPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one DeviceToken.
+     * @param {DeviceTokenUpdateArgs} args - Arguments to update one DeviceToken.
+     * @example
+     * // Update one DeviceToken
+     * const deviceToken = await prisma.deviceToken.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends DeviceTokenUpdateArgs>(args: SelectSubset<T, DeviceTokenUpdateArgs<ExtArgs>>): Prisma__DeviceTokenClient<$Result.GetResult<Prisma.$DeviceTokenPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more DeviceTokens.
+     * @param {DeviceTokenDeleteManyArgs} args - Arguments to filter DeviceTokens to delete.
+     * @example
+     * // Delete a few DeviceTokens
+     * const { count } = await prisma.deviceToken.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends DeviceTokenDeleteManyArgs>(args?: SelectSubset<T, DeviceTokenDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DeviceTokens.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceTokenUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many DeviceTokens
+     * const deviceToken = await prisma.deviceToken.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends DeviceTokenUpdateManyArgs>(args: SelectSubset<T, DeviceTokenUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DeviceTokens and returns the data updated in the database.
+     * @param {DeviceTokenUpdateManyAndReturnArgs} args - Arguments to update many DeviceTokens.
+     * @example
+     * // Update many DeviceTokens
+     * const deviceToken = await prisma.deviceToken.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more DeviceTokens and only return the `id`
+     * const deviceTokenWithIdOnly = await prisma.deviceToken.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends DeviceTokenUpdateManyAndReturnArgs>(args: SelectSubset<T, DeviceTokenUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DeviceTokenPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one DeviceToken.
+     * @param {DeviceTokenUpsertArgs} args - Arguments to update or create a DeviceToken.
+     * @example
+     * // Update or create a DeviceToken
+     * const deviceToken = await prisma.deviceToken.upsert({
+     *   create: {
+     *     // ... data to create a DeviceToken
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the DeviceToken we want to update
+     *   }
+     * })
+     */
+    upsert<T extends DeviceTokenUpsertArgs>(args: SelectSubset<T, DeviceTokenUpsertArgs<ExtArgs>>): Prisma__DeviceTokenClient<$Result.GetResult<Prisma.$DeviceTokenPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of DeviceTokens.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceTokenCountArgs} args - Arguments to filter DeviceTokens to count.
+     * @example
+     * // Count the number of DeviceTokens
+     * const count = await prisma.deviceToken.count({
+     *   where: {
+     *     // ... the filter for the DeviceTokens we want to count
+     *   }
+     * })
+    **/
+    count<T extends DeviceTokenCountArgs>(
+      args?: Subset<T, DeviceTokenCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], DeviceTokenCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a DeviceToken.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceTokenAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends DeviceTokenAggregateArgs>(args: Subset<T, DeviceTokenAggregateArgs>): Prisma.PrismaPromise<GetDeviceTokenAggregateType<T>>
+
+    /**
+     * Group by DeviceToken.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeviceTokenGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends DeviceTokenGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: DeviceTokenGroupByArgs['orderBy'] }
+        : { orderBy?: DeviceTokenGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, DeviceTokenGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDeviceTokenGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the DeviceToken model
+   */
+  readonly fields: DeviceTokenFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for DeviceToken.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__DeviceTokenClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the DeviceToken model
+   */
+  interface DeviceTokenFieldRefs {
+    readonly id: FieldRef<"DeviceToken", 'Int'>
+    readonly userId: FieldRef<"DeviceToken", 'Int'>
+    readonly token: FieldRef<"DeviceToken", 'String'>
+    readonly platform: FieldRef<"DeviceToken", 'Platform'>
+    readonly deviceId: FieldRef<"DeviceToken", 'String'>
+    readonly appVersion: FieldRef<"DeviceToken", 'String'>
+    readonly locale: FieldRef<"DeviceToken", 'String'>
+    readonly isActive: FieldRef<"DeviceToken", 'Boolean'>
+    readonly lastUsedAt: FieldRef<"DeviceToken", 'DateTime'>
+    readonly createdAt: FieldRef<"DeviceToken", 'DateTime'>
+    readonly updatedAt: FieldRef<"DeviceToken", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * DeviceToken findUnique
+   */
+  export type DeviceTokenFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceToken
+     */
+    select?: DeviceTokenSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceToken
+     */
+    omit?: DeviceTokenOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DeviceTokenInclude<ExtArgs> | null
+    /**
+     * Filter, which DeviceToken to fetch.
+     */
+    where: DeviceTokenWhereUniqueInput
+  }
+
+  /**
+   * DeviceToken findUniqueOrThrow
+   */
+  export type DeviceTokenFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceToken
+     */
+    select?: DeviceTokenSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceToken
+     */
+    omit?: DeviceTokenOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DeviceTokenInclude<ExtArgs> | null
+    /**
+     * Filter, which DeviceToken to fetch.
+     */
+    where: DeviceTokenWhereUniqueInput
+  }
+
+  /**
+   * DeviceToken findFirst
+   */
+  export type DeviceTokenFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceToken
+     */
+    select?: DeviceTokenSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceToken
+     */
+    omit?: DeviceTokenOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DeviceTokenInclude<ExtArgs> | null
+    /**
+     * Filter, which DeviceToken to fetch.
+     */
+    where?: DeviceTokenWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DeviceTokens to fetch.
+     */
+    orderBy?: DeviceTokenOrderByWithRelationInput | DeviceTokenOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DeviceTokens.
+     */
+    cursor?: DeviceTokenWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DeviceTokens from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DeviceTokens.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DeviceTokens.
+     */
+    distinct?: DeviceTokenScalarFieldEnum | DeviceTokenScalarFieldEnum[]
+  }
+
+  /**
+   * DeviceToken findFirstOrThrow
+   */
+  export type DeviceTokenFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceToken
+     */
+    select?: DeviceTokenSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceToken
+     */
+    omit?: DeviceTokenOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DeviceTokenInclude<ExtArgs> | null
+    /**
+     * Filter, which DeviceToken to fetch.
+     */
+    where?: DeviceTokenWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DeviceTokens to fetch.
+     */
+    orderBy?: DeviceTokenOrderByWithRelationInput | DeviceTokenOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DeviceTokens.
+     */
+    cursor?: DeviceTokenWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DeviceTokens from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DeviceTokens.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DeviceTokens.
+     */
+    distinct?: DeviceTokenScalarFieldEnum | DeviceTokenScalarFieldEnum[]
+  }
+
+  /**
+   * DeviceToken findMany
+   */
+  export type DeviceTokenFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceToken
+     */
+    select?: DeviceTokenSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceToken
+     */
+    omit?: DeviceTokenOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DeviceTokenInclude<ExtArgs> | null
+    /**
+     * Filter, which DeviceTokens to fetch.
+     */
+    where?: DeviceTokenWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DeviceTokens to fetch.
+     */
+    orderBy?: DeviceTokenOrderByWithRelationInput | DeviceTokenOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing DeviceTokens.
+     */
+    cursor?: DeviceTokenWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DeviceTokens from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DeviceTokens.
+     */
+    skip?: number
+    distinct?: DeviceTokenScalarFieldEnum | DeviceTokenScalarFieldEnum[]
+  }
+
+  /**
+   * DeviceToken create
+   */
+  export type DeviceTokenCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceToken
+     */
+    select?: DeviceTokenSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceToken
+     */
+    omit?: DeviceTokenOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DeviceTokenInclude<ExtArgs> | null
+    /**
+     * The data needed to create a DeviceToken.
+     */
+    data: XOR<DeviceTokenCreateInput, DeviceTokenUncheckedCreateInput>
+  }
+
+  /**
+   * DeviceToken createMany
+   */
+  export type DeviceTokenCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many DeviceTokens.
+     */
+    data: DeviceTokenCreateManyInput | DeviceTokenCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * DeviceToken createManyAndReturn
+   */
+  export type DeviceTokenCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceToken
+     */
+    select?: DeviceTokenSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceToken
+     */
+    omit?: DeviceTokenOmit<ExtArgs> | null
+    /**
+     * The data used to create many DeviceTokens.
+     */
+    data: DeviceTokenCreateManyInput | DeviceTokenCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DeviceTokenIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * DeviceToken update
+   */
+  export type DeviceTokenUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceToken
+     */
+    select?: DeviceTokenSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceToken
+     */
+    omit?: DeviceTokenOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DeviceTokenInclude<ExtArgs> | null
+    /**
+     * The data needed to update a DeviceToken.
+     */
+    data: XOR<DeviceTokenUpdateInput, DeviceTokenUncheckedUpdateInput>
+    /**
+     * Choose, which DeviceToken to update.
+     */
+    where: DeviceTokenWhereUniqueInput
+  }
+
+  /**
+   * DeviceToken updateMany
+   */
+  export type DeviceTokenUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update DeviceTokens.
+     */
+    data: XOR<DeviceTokenUpdateManyMutationInput, DeviceTokenUncheckedUpdateManyInput>
+    /**
+     * Filter which DeviceTokens to update
+     */
+    where?: DeviceTokenWhereInput
+    /**
+     * Limit how many DeviceTokens to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * DeviceToken updateManyAndReturn
+   */
+  export type DeviceTokenUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceToken
+     */
+    select?: DeviceTokenSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceToken
+     */
+    omit?: DeviceTokenOmit<ExtArgs> | null
+    /**
+     * The data used to update DeviceTokens.
+     */
+    data: XOR<DeviceTokenUpdateManyMutationInput, DeviceTokenUncheckedUpdateManyInput>
+    /**
+     * Filter which DeviceTokens to update
+     */
+    where?: DeviceTokenWhereInput
+    /**
+     * Limit how many DeviceTokens to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DeviceTokenIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * DeviceToken upsert
+   */
+  export type DeviceTokenUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceToken
+     */
+    select?: DeviceTokenSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceToken
+     */
+    omit?: DeviceTokenOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DeviceTokenInclude<ExtArgs> | null
+    /**
+     * The filter to search for the DeviceToken to update in case it exists.
+     */
+    where: DeviceTokenWhereUniqueInput
+    /**
+     * In case the DeviceToken found by the `where` argument doesn't exist, create a new DeviceToken with this data.
+     */
+    create: XOR<DeviceTokenCreateInput, DeviceTokenUncheckedCreateInput>
+    /**
+     * In case the DeviceToken was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DeviceTokenUpdateInput, DeviceTokenUncheckedUpdateInput>
+  }
+
+  /**
+   * DeviceToken delete
+   */
+  export type DeviceTokenDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceToken
+     */
+    select?: DeviceTokenSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceToken
+     */
+    omit?: DeviceTokenOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DeviceTokenInclude<ExtArgs> | null
+    /**
+     * Filter which DeviceToken to delete.
+     */
+    where: DeviceTokenWhereUniqueInput
+  }
+
+  /**
+   * DeviceToken deleteMany
+   */
+  export type DeviceTokenDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DeviceTokens to delete
+     */
+    where?: DeviceTokenWhereInput
+    /**
+     * Limit how many DeviceTokens to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * DeviceToken without action
+   */
+  export type DeviceTokenDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeviceToken
+     */
+    select?: DeviceTokenSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DeviceToken
+     */
+    omit?: DeviceTokenOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DeviceTokenInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -7459,6 +8774,23 @@ export namespace Prisma {
   export type MessageScalarFieldEnum = (typeof MessageScalarFieldEnum)[keyof typeof MessageScalarFieldEnum]
 
 
+  export const DeviceTokenScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    token: 'token',
+    platform: 'platform',
+    deviceId: 'deviceId',
+    appVersion: 'appVersion',
+    locale: 'locale',
+    isActive: 'isActive',
+    lastUsedAt: 'lastUsedAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type DeviceTokenScalarFieldEnum = (typeof DeviceTokenScalarFieldEnum)[keyof typeof DeviceTokenScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -7528,6 +8860,16 @@ export namespace Prisma {
   };
 
   export type MessageOrderByRelevanceFieldEnum = (typeof MessageOrderByRelevanceFieldEnum)[keyof typeof MessageOrderByRelevanceFieldEnum]
+
+
+  export const DeviceTokenOrderByRelevanceFieldEnum: {
+    token: 'token',
+    deviceId: 'deviceId',
+    appVersion: 'appVersion',
+    locale: 'locale'
+  };
+
+  export type DeviceTokenOrderByRelevanceFieldEnum = (typeof DeviceTokenOrderByRelevanceFieldEnum)[keyof typeof DeviceTokenOrderByRelevanceFieldEnum]
 
 
   /**
@@ -7627,6 +8969,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Platform'
+   */
+  export type EnumPlatformFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Platform'>
+    
+
+
+  /**
+   * Reference to a field of type 'Platform[]'
+   */
+  export type ListEnumPlatformFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Platform[]'>
+    
+
+
+  /**
    * Reference to a field of type 'Float'
    */
   export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -7668,6 +9024,7 @@ export namespace Prisma {
     sentMessages?: MessageListRelationFilter
     adminChats?: ChatListRelationFilter
     participantChats?: ChatListRelationFilter
+    deviceTokens?: DeviceTokenListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -7692,6 +9049,7 @@ export namespace Prisma {
     sentMessages?: MessageOrderByRelationAggregateInput
     adminChats?: ChatOrderByRelationAggregateInput
     participantChats?: ChatOrderByRelationAggregateInput
+    deviceTokens?: DeviceTokenOrderByRelationAggregateInput
     _relevance?: UserOrderByRelevanceInput
   }
 
@@ -7720,6 +9078,7 @@ export namespace Prisma {
     sentMessages?: MessageListRelationFilter
     adminChats?: ChatListRelationFilter
     participantChats?: ChatListRelationFilter
+    deviceTokens?: DeviceTokenListRelationFilter
   }, "id" | "email" | "uniqueId">
 
   export type UserOrderByWithAggregationInput = {
@@ -8056,6 +9415,94 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"Message"> | Date | string
   }
 
+  export type DeviceTokenWhereInput = {
+    AND?: DeviceTokenWhereInput | DeviceTokenWhereInput[]
+    OR?: DeviceTokenWhereInput[]
+    NOT?: DeviceTokenWhereInput | DeviceTokenWhereInput[]
+    id?: IntFilter<"DeviceToken"> | number
+    userId?: IntFilter<"DeviceToken"> | number
+    token?: StringFilter<"DeviceToken"> | string
+    platform?: EnumPlatformFilter<"DeviceToken"> | $Enums.Platform
+    deviceId?: StringNullableFilter<"DeviceToken"> | string | null
+    appVersion?: StringNullableFilter<"DeviceToken"> | string | null
+    locale?: StringNullableFilter<"DeviceToken"> | string | null
+    isActive?: BoolFilter<"DeviceToken"> | boolean
+    lastUsedAt?: DateTimeNullableFilter<"DeviceToken"> | Date | string | null
+    createdAt?: DateTimeFilter<"DeviceToken"> | Date | string
+    updatedAt?: DateTimeFilter<"DeviceToken"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type DeviceTokenOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    token?: SortOrder
+    platform?: SortOrder
+    deviceId?: SortOrderInput | SortOrder
+    appVersion?: SortOrderInput | SortOrder
+    locale?: SortOrderInput | SortOrder
+    isActive?: SortOrder
+    lastUsedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+    _relevance?: DeviceTokenOrderByRelevanceInput
+  }
+
+  export type DeviceTokenWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    token?: string
+    AND?: DeviceTokenWhereInput | DeviceTokenWhereInput[]
+    OR?: DeviceTokenWhereInput[]
+    NOT?: DeviceTokenWhereInput | DeviceTokenWhereInput[]
+    userId?: IntFilter<"DeviceToken"> | number
+    platform?: EnumPlatformFilter<"DeviceToken"> | $Enums.Platform
+    deviceId?: StringNullableFilter<"DeviceToken"> | string | null
+    appVersion?: StringNullableFilter<"DeviceToken"> | string | null
+    locale?: StringNullableFilter<"DeviceToken"> | string | null
+    isActive?: BoolFilter<"DeviceToken"> | boolean
+    lastUsedAt?: DateTimeNullableFilter<"DeviceToken"> | Date | string | null
+    createdAt?: DateTimeFilter<"DeviceToken"> | Date | string
+    updatedAt?: DateTimeFilter<"DeviceToken"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id" | "token">
+
+  export type DeviceTokenOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    token?: SortOrder
+    platform?: SortOrder
+    deviceId?: SortOrderInput | SortOrder
+    appVersion?: SortOrderInput | SortOrder
+    locale?: SortOrderInput | SortOrder
+    isActive?: SortOrder
+    lastUsedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: DeviceTokenCountOrderByAggregateInput
+    _avg?: DeviceTokenAvgOrderByAggregateInput
+    _max?: DeviceTokenMaxOrderByAggregateInput
+    _min?: DeviceTokenMinOrderByAggregateInput
+    _sum?: DeviceTokenSumOrderByAggregateInput
+  }
+
+  export type DeviceTokenScalarWhereWithAggregatesInput = {
+    AND?: DeviceTokenScalarWhereWithAggregatesInput | DeviceTokenScalarWhereWithAggregatesInput[]
+    OR?: DeviceTokenScalarWhereWithAggregatesInput[]
+    NOT?: DeviceTokenScalarWhereWithAggregatesInput | DeviceTokenScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"DeviceToken"> | number
+    userId?: IntWithAggregatesFilter<"DeviceToken"> | number
+    token?: StringWithAggregatesFilter<"DeviceToken"> | string
+    platform?: EnumPlatformWithAggregatesFilter<"DeviceToken"> | $Enums.Platform
+    deviceId?: StringNullableWithAggregatesFilter<"DeviceToken"> | string | null
+    appVersion?: StringNullableWithAggregatesFilter<"DeviceToken"> | string | null
+    locale?: StringNullableWithAggregatesFilter<"DeviceToken"> | string | null
+    isActive?: BoolWithAggregatesFilter<"DeviceToken"> | boolean
+    lastUsedAt?: DateTimeNullableWithAggregatesFilter<"DeviceToken"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"DeviceToken"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"DeviceToken"> | Date | string
+  }
+
   export type UserCreateInput = {
     email?: string | null
     password?: string | null
@@ -8077,6 +9524,7 @@ export namespace Prisma {
     sentMessages?: MessageCreateNestedManyWithoutSenderInput
     adminChats?: ChatCreateNestedManyWithoutAdminInput
     participantChats?: ChatCreateNestedManyWithoutParticipantInput
+    deviceTokens?: DeviceTokenCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -8101,6 +9549,7 @@ export namespace Prisma {
     sentMessages?: MessageUncheckedCreateNestedManyWithoutSenderInput
     adminChats?: ChatUncheckedCreateNestedManyWithoutAdminInput
     participantChats?: ChatUncheckedCreateNestedManyWithoutParticipantInput
+    deviceTokens?: DeviceTokenUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -8124,6 +9573,7 @@ export namespace Prisma {
     sentMessages?: MessageUpdateManyWithoutSenderNestedInput
     adminChats?: ChatUpdateManyWithoutAdminNestedInput
     participantChats?: ChatUpdateManyWithoutParticipantNestedInput
+    deviceTokens?: DeviceTokenUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -8148,6 +9598,7 @@ export namespace Prisma {
     sentMessages?: MessageUncheckedUpdateManyWithoutSenderNestedInput
     adminChats?: ChatUncheckedUpdateManyWithoutAdminNestedInput
     participantChats?: ChatUncheckedUpdateManyWithoutParticipantNestedInput
+    deviceTokens?: DeviceTokenUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -8471,6 +9922,100 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type DeviceTokenCreateInput = {
+    token: string
+    platform: $Enums.Platform
+    deviceId?: string | null
+    appVersion?: string | null
+    locale?: string | null
+    isActive?: boolean
+    lastUsedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutDeviceTokensInput
+  }
+
+  export type DeviceTokenUncheckedCreateInput = {
+    id?: number
+    userId: number
+    token: string
+    platform: $Enums.Platform
+    deviceId?: string | null
+    appVersion?: string | null
+    locale?: string | null
+    isActive?: boolean
+    lastUsedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DeviceTokenUpdateInput = {
+    token?: StringFieldUpdateOperationsInput | string
+    platform?: EnumPlatformFieldUpdateOperationsInput | $Enums.Platform
+    deviceId?: NullableStringFieldUpdateOperationsInput | string | null
+    appVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    lastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutDeviceTokensNestedInput
+  }
+
+  export type DeviceTokenUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    userId?: IntFieldUpdateOperationsInput | number
+    token?: StringFieldUpdateOperationsInput | string
+    platform?: EnumPlatformFieldUpdateOperationsInput | $Enums.Platform
+    deviceId?: NullableStringFieldUpdateOperationsInput | string | null
+    appVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    lastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DeviceTokenCreateManyInput = {
+    id?: number
+    userId: number
+    token: string
+    platform: $Enums.Platform
+    deviceId?: string | null
+    appVersion?: string | null
+    locale?: string | null
+    isActive?: boolean
+    lastUsedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DeviceTokenUpdateManyMutationInput = {
+    token?: StringFieldUpdateOperationsInput | string
+    platform?: EnumPlatformFieldUpdateOperationsInput | $Enums.Platform
+    deviceId?: NullableStringFieldUpdateOperationsInput | string | null
+    appVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    lastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DeviceTokenUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    userId?: IntFieldUpdateOperationsInput | number
+    token?: StringFieldUpdateOperationsInput | string
+    platform?: EnumPlatformFieldUpdateOperationsInput | $Enums.Platform
+    deviceId?: NullableStringFieldUpdateOperationsInput | string | null
+    appVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    lastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type IntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -8572,6 +10117,12 @@ export namespace Prisma {
     none?: ChatWhereInput
   }
 
+  export type DeviceTokenListRelationFilter = {
+    every?: DeviceTokenWhereInput
+    some?: DeviceTokenWhereInput
+    none?: DeviceTokenWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -8590,6 +10141,10 @@ export namespace Prisma {
   }
 
   export type ChatOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type DeviceTokenOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -9033,6 +10588,81 @@ export namespace Prisma {
     _max?: NestedJsonNullableFilter<$PrismaModel>
   }
 
+  export type EnumPlatformFilter<$PrismaModel = never> = {
+    equals?: $Enums.Platform | EnumPlatformFieldRefInput<$PrismaModel>
+    in?: $Enums.Platform[] | ListEnumPlatformFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Platform[] | ListEnumPlatformFieldRefInput<$PrismaModel>
+    not?: NestedEnumPlatformFilter<$PrismaModel> | $Enums.Platform
+  }
+
+  export type DeviceTokenOrderByRelevanceInput = {
+    fields: DeviceTokenOrderByRelevanceFieldEnum | DeviceTokenOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
+  }
+
+  export type DeviceTokenCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    token?: SortOrder
+    platform?: SortOrder
+    deviceId?: SortOrder
+    appVersion?: SortOrder
+    locale?: SortOrder
+    isActive?: SortOrder
+    lastUsedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DeviceTokenAvgOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+  }
+
+  export type DeviceTokenMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    token?: SortOrder
+    platform?: SortOrder
+    deviceId?: SortOrder
+    appVersion?: SortOrder
+    locale?: SortOrder
+    isActive?: SortOrder
+    lastUsedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DeviceTokenMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    token?: SortOrder
+    platform?: SortOrder
+    deviceId?: SortOrder
+    appVersion?: SortOrder
+    locale?: SortOrder
+    isActive?: SortOrder
+    lastUsedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DeviceTokenSumOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+  }
+
+  export type EnumPlatformWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.Platform | EnumPlatformFieldRefInput<$PrismaModel>
+    in?: $Enums.Platform[] | ListEnumPlatformFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Platform[] | ListEnumPlatformFieldRefInput<$PrismaModel>
+    not?: NestedEnumPlatformWithAggregatesFilter<$PrismaModel> | $Enums.Platform
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumPlatformFilter<$PrismaModel>
+    _max?: NestedEnumPlatformFilter<$PrismaModel>
+  }
+
   export type ProjectCreateNestedManyWithoutCreatedByInput = {
     create?: XOR<ProjectCreateWithoutCreatedByInput, ProjectUncheckedCreateWithoutCreatedByInput> | ProjectCreateWithoutCreatedByInput[] | ProjectUncheckedCreateWithoutCreatedByInput[]
     connectOrCreate?: ProjectCreateOrConnectWithoutCreatedByInput | ProjectCreateOrConnectWithoutCreatedByInput[]
@@ -9068,6 +10698,13 @@ export namespace Prisma {
     connect?: ChatWhereUniqueInput | ChatWhereUniqueInput[]
   }
 
+  export type DeviceTokenCreateNestedManyWithoutUserInput = {
+    create?: XOR<DeviceTokenCreateWithoutUserInput, DeviceTokenUncheckedCreateWithoutUserInput> | DeviceTokenCreateWithoutUserInput[] | DeviceTokenUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: DeviceTokenCreateOrConnectWithoutUserInput | DeviceTokenCreateOrConnectWithoutUserInput[]
+    createMany?: DeviceTokenCreateManyUserInputEnvelope
+    connect?: DeviceTokenWhereUniqueInput | DeviceTokenWhereUniqueInput[]
+  }
+
   export type ProjectUncheckedCreateNestedManyWithoutCreatedByInput = {
     create?: XOR<ProjectCreateWithoutCreatedByInput, ProjectUncheckedCreateWithoutCreatedByInput> | ProjectCreateWithoutCreatedByInput[] | ProjectUncheckedCreateWithoutCreatedByInput[]
     connectOrCreate?: ProjectCreateOrConnectWithoutCreatedByInput | ProjectCreateOrConnectWithoutCreatedByInput[]
@@ -9101,6 +10738,13 @@ export namespace Prisma {
     connectOrCreate?: ChatCreateOrConnectWithoutParticipantInput | ChatCreateOrConnectWithoutParticipantInput[]
     createMany?: ChatCreateManyParticipantInputEnvelope
     connect?: ChatWhereUniqueInput | ChatWhereUniqueInput[]
+  }
+
+  export type DeviceTokenUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<DeviceTokenCreateWithoutUserInput, DeviceTokenUncheckedCreateWithoutUserInput> | DeviceTokenCreateWithoutUserInput[] | DeviceTokenUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: DeviceTokenCreateOrConnectWithoutUserInput | DeviceTokenCreateOrConnectWithoutUserInput[]
+    createMany?: DeviceTokenCreateManyUserInputEnvelope
+    connect?: DeviceTokenWhereUniqueInput | DeviceTokenWhereUniqueInput[]
   }
 
   export type NullableStringFieldUpdateOperationsInput = {
@@ -9197,6 +10841,20 @@ export namespace Prisma {
     deleteMany?: ChatScalarWhereInput | ChatScalarWhereInput[]
   }
 
+  export type DeviceTokenUpdateManyWithoutUserNestedInput = {
+    create?: XOR<DeviceTokenCreateWithoutUserInput, DeviceTokenUncheckedCreateWithoutUserInput> | DeviceTokenCreateWithoutUserInput[] | DeviceTokenUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: DeviceTokenCreateOrConnectWithoutUserInput | DeviceTokenCreateOrConnectWithoutUserInput[]
+    upsert?: DeviceTokenUpsertWithWhereUniqueWithoutUserInput | DeviceTokenUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: DeviceTokenCreateManyUserInputEnvelope
+    set?: DeviceTokenWhereUniqueInput | DeviceTokenWhereUniqueInput[]
+    disconnect?: DeviceTokenWhereUniqueInput | DeviceTokenWhereUniqueInput[]
+    delete?: DeviceTokenWhereUniqueInput | DeviceTokenWhereUniqueInput[]
+    connect?: DeviceTokenWhereUniqueInput | DeviceTokenWhereUniqueInput[]
+    update?: DeviceTokenUpdateWithWhereUniqueWithoutUserInput | DeviceTokenUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: DeviceTokenUpdateManyWithWhereWithoutUserInput | DeviceTokenUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: DeviceTokenScalarWhereInput | DeviceTokenScalarWhereInput[]
+  }
+
   export type IntFieldUpdateOperationsInput = {
     set?: number
     increment?: number
@@ -9273,6 +10931,20 @@ export namespace Prisma {
     update?: ChatUpdateWithWhereUniqueWithoutParticipantInput | ChatUpdateWithWhereUniqueWithoutParticipantInput[]
     updateMany?: ChatUpdateManyWithWhereWithoutParticipantInput | ChatUpdateManyWithWhereWithoutParticipantInput[]
     deleteMany?: ChatScalarWhereInput | ChatScalarWhereInput[]
+  }
+
+  export type DeviceTokenUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<DeviceTokenCreateWithoutUserInput, DeviceTokenUncheckedCreateWithoutUserInput> | DeviceTokenCreateWithoutUserInput[] | DeviceTokenUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: DeviceTokenCreateOrConnectWithoutUserInput | DeviceTokenCreateOrConnectWithoutUserInput[]
+    upsert?: DeviceTokenUpsertWithWhereUniqueWithoutUserInput | DeviceTokenUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: DeviceTokenCreateManyUserInputEnvelope
+    set?: DeviceTokenWhereUniqueInput | DeviceTokenWhereUniqueInput[]
+    disconnect?: DeviceTokenWhereUniqueInput | DeviceTokenWhereUniqueInput[]
+    delete?: DeviceTokenWhereUniqueInput | DeviceTokenWhereUniqueInput[]
+    connect?: DeviceTokenWhereUniqueInput | DeviceTokenWhereUniqueInput[]
+    update?: DeviceTokenUpdateWithWhereUniqueWithoutUserInput | DeviceTokenUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: DeviceTokenUpdateManyWithWhereWithoutUserInput | DeviceTokenUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: DeviceTokenScalarWhereInput | DeviceTokenScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutProjectsInput = {
@@ -9517,6 +11189,24 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutSentMessagesInput, UserUpdateWithoutSentMessagesInput>, UserUncheckedUpdateWithoutSentMessagesInput>
   }
 
+  export type UserCreateNestedOneWithoutDeviceTokensInput = {
+    create?: XOR<UserCreateWithoutDeviceTokensInput, UserUncheckedCreateWithoutDeviceTokensInput>
+    connectOrCreate?: UserCreateOrConnectWithoutDeviceTokensInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type EnumPlatformFieldUpdateOperationsInput = {
+    set?: $Enums.Platform
+  }
+
+  export type UserUpdateOneRequiredWithoutDeviceTokensNestedInput = {
+    create?: XOR<UserCreateWithoutDeviceTokensInput, UserUncheckedCreateWithoutDeviceTokensInput>
+    connectOrCreate?: UserCreateOrConnectWithoutDeviceTokensInput
+    upsert?: UserUpsertWithoutDeviceTokensInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutDeviceTokensInput, UserUpdateWithoutDeviceTokensInput>, UserUncheckedUpdateWithoutDeviceTokensInput>
+  }
+
   export type NestedIntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -9752,6 +11442,23 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
+  export type NestedEnumPlatformFilter<$PrismaModel = never> = {
+    equals?: $Enums.Platform | EnumPlatformFieldRefInput<$PrismaModel>
+    in?: $Enums.Platform[] | ListEnumPlatformFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Platform[] | ListEnumPlatformFieldRefInput<$PrismaModel>
+    not?: NestedEnumPlatformFilter<$PrismaModel> | $Enums.Platform
+  }
+
+  export type NestedEnumPlatformWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.Platform | EnumPlatformFieldRefInput<$PrismaModel>
+    in?: $Enums.Platform[] | ListEnumPlatformFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Platform[] | ListEnumPlatformFieldRefInput<$PrismaModel>
+    not?: NestedEnumPlatformWithAggregatesFilter<$PrismaModel> | $Enums.Platform
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumPlatformFilter<$PrismaModel>
+    _max?: NestedEnumPlatformFilter<$PrismaModel>
+  }
+
   export type ProjectCreateWithoutCreatedByInput = {
     name: string
     uniqueId: string
@@ -9895,6 +11602,41 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type DeviceTokenCreateWithoutUserInput = {
+    token: string
+    platform: $Enums.Platform
+    deviceId?: string | null
+    appVersion?: string | null
+    locale?: string | null
+    isActive?: boolean
+    lastUsedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DeviceTokenUncheckedCreateWithoutUserInput = {
+    id?: number
+    token: string
+    platform: $Enums.Platform
+    deviceId?: string | null
+    appVersion?: string | null
+    locale?: string | null
+    isActive?: boolean
+    lastUsedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DeviceTokenCreateOrConnectWithoutUserInput = {
+    where: DeviceTokenWhereUniqueInput
+    create: XOR<DeviceTokenCreateWithoutUserInput, DeviceTokenUncheckedCreateWithoutUserInput>
+  }
+
+  export type DeviceTokenCreateManyUserInputEnvelope = {
+    data: DeviceTokenCreateManyUserInput | DeviceTokenCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
   export type ProjectUpsertWithWhereUniqueWithoutCreatedByInput = {
     where: ProjectWhereUniqueInput
     update: XOR<ProjectUpdateWithoutCreatedByInput, ProjectUncheckedUpdateWithoutCreatedByInput>
@@ -10026,6 +11768,39 @@ export namespace Prisma {
     data: XOR<ChatUpdateManyMutationInput, ChatUncheckedUpdateManyWithoutParticipantInput>
   }
 
+  export type DeviceTokenUpsertWithWhereUniqueWithoutUserInput = {
+    where: DeviceTokenWhereUniqueInput
+    update: XOR<DeviceTokenUpdateWithoutUserInput, DeviceTokenUncheckedUpdateWithoutUserInput>
+    create: XOR<DeviceTokenCreateWithoutUserInput, DeviceTokenUncheckedCreateWithoutUserInput>
+  }
+
+  export type DeviceTokenUpdateWithWhereUniqueWithoutUserInput = {
+    where: DeviceTokenWhereUniqueInput
+    data: XOR<DeviceTokenUpdateWithoutUserInput, DeviceTokenUncheckedUpdateWithoutUserInput>
+  }
+
+  export type DeviceTokenUpdateManyWithWhereWithoutUserInput = {
+    where: DeviceTokenScalarWhereInput
+    data: XOR<DeviceTokenUpdateManyMutationInput, DeviceTokenUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type DeviceTokenScalarWhereInput = {
+    AND?: DeviceTokenScalarWhereInput | DeviceTokenScalarWhereInput[]
+    OR?: DeviceTokenScalarWhereInput[]
+    NOT?: DeviceTokenScalarWhereInput | DeviceTokenScalarWhereInput[]
+    id?: IntFilter<"DeviceToken"> | number
+    userId?: IntFilter<"DeviceToken"> | number
+    token?: StringFilter<"DeviceToken"> | string
+    platform?: EnumPlatformFilter<"DeviceToken"> | $Enums.Platform
+    deviceId?: StringNullableFilter<"DeviceToken"> | string | null
+    appVersion?: StringNullableFilter<"DeviceToken"> | string | null
+    locale?: StringNullableFilter<"DeviceToken"> | string | null
+    isActive?: BoolFilter<"DeviceToken"> | boolean
+    lastUsedAt?: DateTimeNullableFilter<"DeviceToken"> | Date | string | null
+    createdAt?: DateTimeFilter<"DeviceToken"> | Date | string
+    updatedAt?: DateTimeFilter<"DeviceToken"> | Date | string
+  }
+
   export type UserCreateWithoutProjectsInput = {
     email?: string | null
     password?: string | null
@@ -10046,6 +11821,7 @@ export namespace Prisma {
     sentMessages?: MessageCreateNestedManyWithoutSenderInput
     adminChats?: ChatCreateNestedManyWithoutAdminInput
     participantChats?: ChatCreateNestedManyWithoutParticipantInput
+    deviceTokens?: DeviceTokenCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutProjectsInput = {
@@ -10069,6 +11845,7 @@ export namespace Prisma {
     sentMessages?: MessageUncheckedCreateNestedManyWithoutSenderInput
     adminChats?: ChatUncheckedCreateNestedManyWithoutAdminInput
     participantChats?: ChatUncheckedCreateNestedManyWithoutParticipantInput
+    deviceTokens?: DeviceTokenUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutProjectsInput = {
@@ -10159,6 +11936,7 @@ export namespace Prisma {
     sentMessages?: MessageUpdateManyWithoutSenderNestedInput
     adminChats?: ChatUpdateManyWithoutAdminNestedInput
     participantChats?: ChatUpdateManyWithoutParticipantNestedInput
+    deviceTokens?: DeviceTokenUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutProjectsInput = {
@@ -10182,6 +11960,7 @@ export namespace Prisma {
     sentMessages?: MessageUncheckedUpdateManyWithoutSenderNestedInput
     adminChats?: ChatUncheckedUpdateManyWithoutAdminNestedInput
     participantChats?: ChatUncheckedUpdateManyWithoutParticipantNestedInput
+    deviceTokens?: DeviceTokenUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ProjectParticipantUpsertWithWhereUniqueWithoutProjectInput = {
@@ -10260,6 +12039,7 @@ export namespace Prisma {
     sentMessages?: MessageCreateNestedManyWithoutSenderInput
     adminChats?: ChatCreateNestedManyWithoutAdminInput
     participantChats?: ChatCreateNestedManyWithoutParticipantInput
+    deviceTokens?: DeviceTokenCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutProjectParticipantsInput = {
@@ -10283,6 +12063,7 @@ export namespace Prisma {
     sentMessages?: MessageUncheckedCreateNestedManyWithoutSenderInput
     adminChats?: ChatUncheckedCreateNestedManyWithoutAdminInput
     participantChats?: ChatUncheckedCreateNestedManyWithoutParticipantInput
+    deviceTokens?: DeviceTokenUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutProjectParticipantsInput = {
@@ -10351,6 +12132,7 @@ export namespace Prisma {
     sentMessages?: MessageUpdateManyWithoutSenderNestedInput
     adminChats?: ChatUpdateManyWithoutAdminNestedInput
     participantChats?: ChatUpdateManyWithoutParticipantNestedInput
+    deviceTokens?: DeviceTokenUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutProjectParticipantsInput = {
@@ -10374,6 +12156,7 @@ export namespace Prisma {
     sentMessages?: MessageUncheckedUpdateManyWithoutSenderNestedInput
     adminChats?: ChatUncheckedUpdateManyWithoutAdminNestedInput
     participantChats?: ChatUncheckedUpdateManyWithoutParticipantNestedInput
+    deviceTokens?: DeviceTokenUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ProjectCreateWithoutChatsInput = {
@@ -10420,6 +12203,7 @@ export namespace Prisma {
     projectParticipants?: ProjectParticipantCreateNestedManyWithoutUserInput
     sentMessages?: MessageCreateNestedManyWithoutSenderInput
     participantChats?: ChatCreateNestedManyWithoutParticipantInput
+    deviceTokens?: DeviceTokenCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAdminChatsInput = {
@@ -10443,6 +12227,7 @@ export namespace Prisma {
     projectParticipants?: ProjectParticipantUncheckedCreateNestedManyWithoutUserInput
     sentMessages?: MessageUncheckedCreateNestedManyWithoutSenderInput
     participantChats?: ChatUncheckedCreateNestedManyWithoutParticipantInput
+    deviceTokens?: DeviceTokenUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAdminChatsInput = {
@@ -10470,6 +12255,7 @@ export namespace Prisma {
     projectParticipants?: ProjectParticipantCreateNestedManyWithoutUserInput
     sentMessages?: MessageCreateNestedManyWithoutSenderInput
     adminChats?: ChatCreateNestedManyWithoutAdminInput
+    deviceTokens?: DeviceTokenCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutParticipantChatsInput = {
@@ -10493,6 +12279,7 @@ export namespace Prisma {
     projectParticipants?: ProjectParticipantUncheckedCreateNestedManyWithoutUserInput
     sentMessages?: MessageUncheckedCreateNestedManyWithoutSenderInput
     adminChats?: ChatUncheckedCreateNestedManyWithoutAdminInput
+    deviceTokens?: DeviceTokenUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutParticipantChatsInput = {
@@ -10592,6 +12379,7 @@ export namespace Prisma {
     projectParticipants?: ProjectParticipantUpdateManyWithoutUserNestedInput
     sentMessages?: MessageUpdateManyWithoutSenderNestedInput
     participantChats?: ChatUpdateManyWithoutParticipantNestedInput
+    deviceTokens?: DeviceTokenUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAdminChatsInput = {
@@ -10615,6 +12403,7 @@ export namespace Prisma {
     projectParticipants?: ProjectParticipantUncheckedUpdateManyWithoutUserNestedInput
     sentMessages?: MessageUncheckedUpdateManyWithoutSenderNestedInput
     participantChats?: ChatUncheckedUpdateManyWithoutParticipantNestedInput
+    deviceTokens?: DeviceTokenUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserUpsertWithoutParticipantChatsInput = {
@@ -10648,6 +12437,7 @@ export namespace Prisma {
     projectParticipants?: ProjectParticipantUpdateManyWithoutUserNestedInput
     sentMessages?: MessageUpdateManyWithoutSenderNestedInput
     adminChats?: ChatUpdateManyWithoutAdminNestedInput
+    deviceTokens?: DeviceTokenUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutParticipantChatsInput = {
@@ -10671,6 +12461,7 @@ export namespace Prisma {
     projectParticipants?: ProjectParticipantUncheckedUpdateManyWithoutUserNestedInput
     sentMessages?: MessageUncheckedUpdateManyWithoutSenderNestedInput
     adminChats?: ChatUncheckedUpdateManyWithoutAdminNestedInput
+    deviceTokens?: DeviceTokenUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type MessageUpsertWithWhereUniqueWithoutChatInput = {
@@ -10735,6 +12526,7 @@ export namespace Prisma {
     projectParticipants?: ProjectParticipantCreateNestedManyWithoutUserInput
     adminChats?: ChatCreateNestedManyWithoutAdminInput
     participantChats?: ChatCreateNestedManyWithoutParticipantInput
+    deviceTokens?: DeviceTokenCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSentMessagesInput = {
@@ -10758,6 +12550,7 @@ export namespace Prisma {
     projectParticipants?: ProjectParticipantUncheckedCreateNestedManyWithoutUserInput
     adminChats?: ChatUncheckedCreateNestedManyWithoutAdminInput
     participantChats?: ChatUncheckedCreateNestedManyWithoutParticipantInput
+    deviceTokens?: DeviceTokenUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSentMessagesInput = {
@@ -10828,6 +12621,7 @@ export namespace Prisma {
     projectParticipants?: ProjectParticipantUpdateManyWithoutUserNestedInput
     adminChats?: ChatUpdateManyWithoutAdminNestedInput
     participantChats?: ChatUpdateManyWithoutParticipantNestedInput
+    deviceTokens?: DeviceTokenUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSentMessagesInput = {
@@ -10849,6 +12643,117 @@ export namespace Prisma {
     lastSeen?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     projects?: ProjectUncheckedUpdateManyWithoutCreatedByNestedInput
     projectParticipants?: ProjectParticipantUncheckedUpdateManyWithoutUserNestedInput
+    adminChats?: ChatUncheckedUpdateManyWithoutAdminNestedInput
+    participantChats?: ChatUncheckedUpdateManyWithoutParticipantNestedInput
+    deviceTokens?: DeviceTokenUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutDeviceTokensInput = {
+    email?: string | null
+    password?: string | null
+    firstName: string
+    lastName: string
+    role?: $Enums.Role
+    uniqueId?: string | null
+    refreshToken?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    pendingEmail?: string | null
+    emailChangeToken?: string | null
+    emailChangeTokenExpiresAt?: Date | string | null
+    passwordChangeToken?: string | null
+    isOnline?: boolean
+    lastSeen?: Date | string | null
+    projects?: ProjectCreateNestedManyWithoutCreatedByInput
+    projectParticipants?: ProjectParticipantCreateNestedManyWithoutUserInput
+    sentMessages?: MessageCreateNestedManyWithoutSenderInput
+    adminChats?: ChatCreateNestedManyWithoutAdminInput
+    participantChats?: ChatCreateNestedManyWithoutParticipantInput
+  }
+
+  export type UserUncheckedCreateWithoutDeviceTokensInput = {
+    id?: number
+    email?: string | null
+    password?: string | null
+    firstName: string
+    lastName: string
+    role?: $Enums.Role
+    uniqueId?: string | null
+    refreshToken?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    pendingEmail?: string | null
+    emailChangeToken?: string | null
+    emailChangeTokenExpiresAt?: Date | string | null
+    passwordChangeToken?: string | null
+    isOnline?: boolean
+    lastSeen?: Date | string | null
+    projects?: ProjectUncheckedCreateNestedManyWithoutCreatedByInput
+    projectParticipants?: ProjectParticipantUncheckedCreateNestedManyWithoutUserInput
+    sentMessages?: MessageUncheckedCreateNestedManyWithoutSenderInput
+    adminChats?: ChatUncheckedCreateNestedManyWithoutAdminInput
+    participantChats?: ChatUncheckedCreateNestedManyWithoutParticipantInput
+  }
+
+  export type UserCreateOrConnectWithoutDeviceTokensInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutDeviceTokensInput, UserUncheckedCreateWithoutDeviceTokensInput>
+  }
+
+  export type UserUpsertWithoutDeviceTokensInput = {
+    update: XOR<UserUpdateWithoutDeviceTokensInput, UserUncheckedUpdateWithoutDeviceTokensInput>
+    create: XOR<UserCreateWithoutDeviceTokensInput, UserUncheckedCreateWithoutDeviceTokensInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutDeviceTokensInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutDeviceTokensInput, UserUncheckedUpdateWithoutDeviceTokensInput>
+  }
+
+  export type UserUpdateWithoutDeviceTokensInput = {
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    uniqueId?: NullableStringFieldUpdateOperationsInput | string | null
+    refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    pendingEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    emailChangeToken?: NullableStringFieldUpdateOperationsInput | string | null
+    emailChangeTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    passwordChangeToken?: NullableStringFieldUpdateOperationsInput | string | null
+    isOnline?: BoolFieldUpdateOperationsInput | boolean
+    lastSeen?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    projects?: ProjectUpdateManyWithoutCreatedByNestedInput
+    projectParticipants?: ProjectParticipantUpdateManyWithoutUserNestedInput
+    sentMessages?: MessageUpdateManyWithoutSenderNestedInput
+    adminChats?: ChatUpdateManyWithoutAdminNestedInput
+    participantChats?: ChatUpdateManyWithoutParticipantNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutDeviceTokensInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    uniqueId?: NullableStringFieldUpdateOperationsInput | string | null
+    refreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    pendingEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    emailChangeToken?: NullableStringFieldUpdateOperationsInput | string | null
+    emailChangeTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    passwordChangeToken?: NullableStringFieldUpdateOperationsInput | string | null
+    isOnline?: BoolFieldUpdateOperationsInput | boolean
+    lastSeen?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    projects?: ProjectUncheckedUpdateManyWithoutCreatedByNestedInput
+    projectParticipants?: ProjectParticipantUncheckedUpdateManyWithoutUserNestedInput
+    sentMessages?: MessageUncheckedUpdateManyWithoutSenderNestedInput
     adminChats?: ChatUncheckedUpdateManyWithoutAdminNestedInput
     participantChats?: ChatUncheckedUpdateManyWithoutParticipantNestedInput
   }
@@ -10894,6 +12799,19 @@ export namespace Prisma {
     adminId: number
     isActive?: boolean
     unreadCount?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DeviceTokenCreateManyUserInput = {
+    id?: number
+    token: string
+    platform: $Enums.Platform
+    deviceId?: string | null
+    appVersion?: string | null
+    locale?: string | null
+    isActive?: boolean
+    lastUsedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -11032,6 +12950,44 @@ export namespace Prisma {
     adminId?: IntFieldUpdateOperationsInput | number
     isActive?: BoolFieldUpdateOperationsInput | boolean
     unreadCount?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DeviceTokenUpdateWithoutUserInput = {
+    token?: StringFieldUpdateOperationsInput | string
+    platform?: EnumPlatformFieldUpdateOperationsInput | $Enums.Platform
+    deviceId?: NullableStringFieldUpdateOperationsInput | string | null
+    appVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    lastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DeviceTokenUncheckedUpdateWithoutUserInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    token?: StringFieldUpdateOperationsInput | string
+    platform?: EnumPlatformFieldUpdateOperationsInput | $Enums.Platform
+    deviceId?: NullableStringFieldUpdateOperationsInput | string | null
+    appVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    lastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DeviceTokenUncheckedUpdateManyWithoutUserInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    token?: StringFieldUpdateOperationsInput | string
+    platform?: EnumPlatformFieldUpdateOperationsInput | $Enums.Platform
+    deviceId?: NullableStringFieldUpdateOperationsInput | string | null
+    appVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    locale?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    lastUsedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

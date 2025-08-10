@@ -14,6 +14,7 @@ import { OnlineStatusService } from './services/online-status.service';
 import { PrismaModule } from '../prisma/prisma.module';
 import { AuthModule } from '../auth/auth.module';
 import { ProjectModule } from '../project/project.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 /**
  * Chat module implementing dependency inversion principle
@@ -22,7 +23,7 @@ import { ProjectModule } from '../project/project.module';
  * Supports project-based chat system with participants
  */
 @Module({
-  imports: [ConfigModule, PrismaModule, AuthModule, ProjectModule],
+  imports: [ConfigModule, PrismaModule, AuthModule, ProjectModule, NotificationsModule],
   controllers: [ChatController, MobileChatController],
   providers: [
     ChatService,

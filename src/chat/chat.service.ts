@@ -12,6 +12,7 @@ import { MessageFilters } from './ports/message-repository.port';
 import { determineMessageType, validateImageMetadata } from './utils/message-validation.util';
 import { BroadcastMessageDto } from './dto/broadcast-message.dto';
 import { ProjectParticipantService } from '../project/services/project-participant.service';
+import { PushNotificationsService } from '../notifications/services/push-notifications.service';
 
 /**
  * Chat service containing business logic for chat operations
@@ -28,6 +29,7 @@ export class ChatService {
     private readonly errorHandler: ChatErrorHandler,
     private readonly messageSpamStrategy: MessageSpamStrategy,
     private readonly projectParticipantService: ProjectParticipantService,
+    private readonly pushNotificationsService: PushNotificationsService,
   ) {}
 
   /**
@@ -345,6 +347,23 @@ export class ChatService {
       await this.chatRepository.updateChatLastMessage(createMessageDto.chatId, message.id);
 
       this.logger.log(`✅ Message ${message.id} created in chat ${createMessageDto.chatId} by user ${senderId}`);
+
+      // Push notification to offline recipient
+      const recipientUserId = chat.admin.id === senderId ? chat.participant.id : chat.admin.id;
+      const recipientOnline = chat.admin.id === senderId ? chat.participant.isOnline : chat.admin.isOnline;
+      if (!recipientOnline) {
+        const senderName = `${message.sender.firstName} ${message.sender.lastName}`.trim();
+        const preview = (message.content || '').slice(0, 120);
+        await this.pushNotificationsService.sendChatMessagePush({
+          recipientUserId,
+          chatId: chat.id,
+          messageId: message.id,
+          projectId: chat.projectId,
+          preview,
+          senderName: senderName || 'New message',
+          senderId: message.sender.id,
+        });
+      }
 
       return this.mapMessageToResponseDto(message);
     } catch (error) {

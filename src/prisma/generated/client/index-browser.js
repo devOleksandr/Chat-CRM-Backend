@@ -178,6 +178,20 @@ exports.Prisma.MessageScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.DeviceTokenScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  token: 'token',
+  platform: 'platform',
+  deviceId: 'deviceId',
+  appVersion: 'appVersion',
+  locale: 'locale',
+  isActive: 'isActive',
+  lastUsedAt: 'lastUsedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -224,6 +238,13 @@ exports.Prisma.JsonNullValueFilter = {
 exports.Prisma.MessageOrderByRelevanceFieldEnum = {
   content: 'content'
 };
+
+exports.Prisma.DeviceTokenOrderByRelevanceFieldEnum = {
+  token: 'token',
+  deviceId: 'deviceId',
+  appVersion: 'appVersion',
+  locale: 'locale'
+};
 exports.Role = exports.$Enums.Role = {
   Admin: 'Admin',
   Participant: 'Participant'
@@ -237,12 +258,19 @@ exports.MessageType = exports.$Enums.MessageType = {
   SYSTEM: 'SYSTEM'
 };
 
+exports.Platform = exports.$Enums.Platform = {
+  ios: 'ios',
+  android: 'android',
+  web: 'web'
+};
+
 exports.Prisma.ModelName = {
   User: 'User',
   Project: 'Project',
   ProjectParticipant: 'ProjectParticipant',
   Chat: 'Chat',
-  Message: 'Message'
+  Message: 'Message',
+  DeviceToken: 'DeviceToken'
 };
 
 /**

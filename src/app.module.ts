@@ -4,6 +4,7 @@ import { UserModule } from './user/user.module';
 import { ProjectModule } from './project/project.module';
 import { ChatModule } from './chat/chat.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { NotificationsModule } from './notifications/notifications.module';
 import { ConfigModule } from '@nestjs/config';
 import { ChatAnalyticsModule } from './chat-analytics/chat-analytics.module';
 
@@ -13,6 +14,7 @@ import { ChatAnalyticsModule } from './chat-analytics/chat-analytics.module';
     UserModule,
     ProjectModule,
     ChatModule,
+    NotificationsModule,
     ChatAnalyticsModule,
     PrismaModule,
     ConfigModule.forRoot({

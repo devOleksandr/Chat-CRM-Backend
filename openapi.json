@@ -1983,6 +1983,76 @@
         ]
       }
     },
+    "/api/notifications/device/register-mobile": {
+      "post": {
+        "operationId": "NotificationsController_registerMobile",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterMobileDeviceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Token registered"
+          }
+        },
+        "summary": "Register device token for mobile (no auth)",
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/api/notifications/device/unregister": {
+      "delete": {
+        "operationId": "NotificationsController_unregister",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UnregisterDeviceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Token deactivated"
+          }
+        },
+        "summary": "Unregister device token (no auth)",
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/api/notifications/admin/test": {
+      "post": {
+        "operationId": "NotificationsController_adminTest",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Test push queued"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Admin test push to self",
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
     "/api/chat-analytics/project/{projectId}/overview": {
       "get": {
         "description": "Returns key performance indicators for the specified project over a date range. Admin is taken from JWT.",
@@ -3327,6 +3397,14 @@
         "required": [
           "content"
         ]
+      },
+      "RegisterMobileDeviceDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "UnregisterDeviceDto": {
+        "type": "object",
+        "properties": {}
       }
     }
   }
