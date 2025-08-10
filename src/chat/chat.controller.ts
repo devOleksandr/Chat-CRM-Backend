@@ -23,6 +23,9 @@ import {
   ApiQuery,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '#db';
 
 import { ChatService } from './chat.service';
 import { ChatGateway } from './chat.gateway';
@@ -30,6 +33,7 @@ import { ProjectService } from '../project/project.service';
 import { ProjectParticipantService } from '../project/services/project-participant.service';
 import { OnlineStatusService } from './services/online-status.service';
 import { CreateMessageDto, CreateMessageViaApiDto } from './dto/create-message.dto';
+import { BroadcastMessageDto } from './dto/broadcast-message.dto';
 import { ChatResponseDto, ChatWithMetadataResponseDto } from './dto/chat-response.dto';
 import { MessageResponseDto, PaginatedMessagesResponseDto } from './dto/message-response.dto';
 import { ProjectChatFilterDto } from './dto/project-chat-filter.dto';
@@ -393,6 +397,38 @@ export class ChatController {
     return message;
   }
 
+
+  /**
+   * Send broadcast message to all participants of project (admin -> all)
+   */
+  @ApiOperation({
+    summary: 'Broadcast message to all project participants',
+    description:
+      'Sends a message from admin to every participant in the project. Creates a personal chat if it does not exist.',
+  })
+  @ApiResponse({ status: HttpStatus.CREATED, type: [MessageResponseDto] })
+  @ApiParam({ name: 'projectId', description: 'ID of the project', example: 1 })
+  @Post('project/:projectId/broadcast')
+  @HttpCode(HttpStatus.CREATED)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Admin)
+  async sendBroadcast(
+    @Param('projectId', ParseIntPipe) projectId: number,
+    @Body(ValidationPipe) dto: BroadcastMessageDto,
+    @Request() req: any,
+  ): Promise<MessageResponseDto[]> {
+    const messages = await this.chatService.sendBroadcastMessage(projectId, req.user.id, dto);
+
+    // Emit socket events per message/chat
+    for (const message of messages) {
+      const payload = { chatId: message.chatId, message };
+      this.chatGateway.server.to(`chat_${message.chatId}`).emit('newMessage', payload);
+      this.chatGateway.server.to(`chat_${message.chatId}`).emit('messageCreated', payload);
+      this.chatGateway.server.to(`chat_${message.chatId}`).emit('message', payload);
+    }
+
+    return messages;
+  }
 
 
   /**

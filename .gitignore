@@ -153,3 +153,4 @@ coverage/
 *.tgz
 *.tar.gz 
 .env
+.chat-crm-846fa-firebase-adminsdk-fbsvc-70fa57997d.json

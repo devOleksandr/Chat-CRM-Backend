@@ -10,6 +10,8 @@ import { MessageSpamStrategy } from './strategies/chat-error.strategies';
 import { ChatFilters, ProjectChatFilters } from './ports/chat-repository.port';
 import { MessageFilters } from './ports/message-repository.port';
 import { determineMessageType, validateImageMetadata } from './utils/message-validation.util';
+import { BroadcastMessageDto } from './dto/broadcast-message.dto';
+import { ProjectParticipantService } from '../project/services/project-participant.service';
 
 /**
  * Chat service containing business logic for chat operations
@@ -25,6 +27,7 @@ export class ChatService {
     private readonly messageRepository: MessageRepositoryPort,
     private readonly errorHandler: ChatErrorHandler,
     private readonly messageSpamStrategy: MessageSpamStrategy,
+    private readonly projectParticipantService: ProjectParticipantService,
   ) {}
 
   /**
@@ -349,6 +352,76 @@ export class ChatService {
         operation: 'createMessage',
         userId: senderId.toString(),
         chatId: createMessageDto.chatId.toString(),
+        timestamp: new Date(),
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * Broadcast a message from admin to all active participants of a project
+   * - Creates chat if it does not exist
+   * - Reuses standard validation/spam checks via createMessage
+   */
+  async sendBroadcastMessage(
+    projectId: number,
+    adminId: number,
+    dto: BroadcastMessageDto,
+  ): Promise<MessageResponseDto[]> {
+    try {
+      this.logger.log(`📢 Broadcasting message in project ${projectId} by admin ${adminId}`);
+
+      // Get all participants (authorization/ownership verified inside service)
+      const participants = await this.projectParticipantService.getProjectParticipants(
+        projectId,
+        adminId,
+        10000,
+        0,
+      );
+
+      if (!participants.length) {
+        this.logger.warn(`No participants found for project ${projectId}`);
+        return [];
+      }
+
+      const createdMessages: MessageResponseDto[] = [];
+
+      for (const participant of participants) {
+        // Skip if participant userId equals adminId (safety)
+        if (participant.userId === adminId) {
+          continue;
+        }
+
+        try {
+          const { chat } = await this.getOrCreateChat(projectId, adminId, participant.userId);
+
+          const createDto: CreateMessageDto = {
+            chatId: chat.id,
+            content: dto.content,
+            type: dto.type,
+            metadata: dto.metadata,
+          };
+
+          const message = await this.createMessage(createDto, adminId);
+          createdMessages.push(message);
+        } catch (participantError: any) {
+          this.logger.error(
+            `Failed to broadcast to participant ${participant.userId} in project ${projectId}: ${participantError?.message}`,
+          );
+          // continue with other participants
+        }
+      }
+
+      this.logger.log(
+        `📢 Broadcast finished for project ${projectId}: ${createdMessages.length}/${participants.length} messages created`,
+      );
+
+      return createdMessages;
+    } catch (error) {
+      await this.errorHandler.handleError(error, {
+        operation: 'sendBroadcastMessage',
+        projectId: projectId.toString(),
+        userId: adminId.toString(),
         timestamp: new Date(),
       });
       throw error;

@@ -1655,6 +1655,58 @@
         ]
       }
     },
+    "/api/chat/project/{projectId}/broadcast": {
+      "post": {
+        "description": "Sends a message from admin to every participant in the project. Creates a personal chat if it does not exist.",
+        "operationId": "ChatController_sendBroadcast",
+        "parameters": [
+          {
+            "name": "projectId",
+            "required": true,
+            "in": "path",
+            "description": "ID of the project",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BroadcastMessageDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MessageResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Broadcast message to all project participants",
+        "tags": [
+          "chat"
+        ]
+      }
+    },
     "/api/chat/{chatId}/read": {
       "put": {
         "description": "Marks all messages in a chat as read for the authenticated user. User ID is automatically extracted from JWT token.",
@@ -2861,6 +2913,44 @@
           "type": {
             "type": "string",
             "description": "Type of the message. Use IMAGE for image files, FILE for other files, TEXT for text messages",
+            "enum": [
+              "TEXT",
+              "EMOJI",
+              "FILE",
+              "IMAGE",
+              "SYSTEM"
+            ],
+            "example": "TEXT",
+            "default": "TEXT"
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Additional metadata for the message (e.g., file info, emoji data)",
+            "example": {
+              "fileUrl": "https://storage.googleapis.com/bucket/chat/1/uuid.jpg",
+              "fileName": "image.jpg",
+              "fileSize": 1024000,
+              "mimeType": "image/jpeg",
+              "originalName": "photo.jpg"
+            }
+          }
+        },
+        "required": [
+          "content"
+        ]
+      },
+      "BroadcastMessageDto": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string",
+            "description": "Content of the message to broadcast",
+            "example": "Hello everyone! Please check the latest updates.",
+            "maxLength": 1000
+          },
+          "type": {
+            "type": "string",
+            "description": "Type of the message. IMAGE for image files, FILE for other files, TEXT for text messages",
             "enum": [
               "TEXT",
               "EMOJI",
