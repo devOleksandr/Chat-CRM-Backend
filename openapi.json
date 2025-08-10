@@ -1982,6 +1982,357 @@
           "mobile-chat"
         ]
       }
+    },
+    "/api/chat-analytics/project/{projectId}/overview": {
+      "get": {
+        "description": "Returns key performance indicators for the specified project over a date range. Admin is taken from JWT.",
+        "operationId": "ChatAnalyticsController_getOverview",
+        "parameters": [
+          {
+            "name": "projectId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "from",
+            "required": false,
+            "in": "query",
+            "description": "ISO start datetime",
+            "schema": {
+              "example": "2025-07-01T00:00:00.000Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": false,
+            "in": "query",
+            "description": "ISO end datetime",
+            "schema": {
+              "example": "2025-08-01T00:00:00.000Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "granularity",
+            "required": false,
+            "in": "query",
+            "description": "Aggregation granularity",
+            "schema": {
+              "default": "day",
+              "type": "string",
+              "enum": [
+                "day",
+                "week",
+                "month"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Overview statistics",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "totalParticipants": 42,
+                    "newParticipantsLast30d": 12,
+                    "activeParticipantsLast30d": 25,
+                    "onlineNow": 7,
+                    "totalChats": 58,
+                    "activeChats": 50,
+                    "inactiveChats": 8,
+                    "avgUnread": 1.7
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Overview KPI for a project",
+        "tags": [
+          "chat-analytics"
+        ]
+      }
+    },
+    "/api/chat-analytics/project/{projectId}/participants/new": {
+      "get": {
+        "description": "Returns time series of new participants and a list of the latest participants. Admin is taken from JWT.",
+        "operationId": "ChatAnalyticsController_getNewParticipants",
+        "parameters": [
+          {
+            "name": "projectId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "from",
+            "required": false,
+            "in": "query",
+            "description": "ISO start datetime",
+            "schema": {
+              "example": "2025-07-01T00:00:00.000Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": false,
+            "in": "query",
+            "description": "ISO end datetime",
+            "schema": {
+              "example": "2025-08-01T00:00:00.000Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "granularity",
+            "required": false,
+            "in": "query",
+            "description": "Aggregation granularity",
+            "schema": {
+              "default": "day",
+              "type": "string",
+              "enum": [
+                "day",
+                "week",
+                "month"
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Limit for latest list",
+            "schema": {
+              "default": 10,
+              "example": 10,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Timeseries and latest participants",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "timeseries": [
+                      {
+                        "x": "2025-08-01",
+                        "y": 3
+                      },
+                      {
+                        "x": "2025-08-02",
+                        "y": 5
+                      }
+                    ],
+                    "latest": [
+                      {
+                        "id": 10,
+                        "userId": 101,
+                        "participantId": "U-1001",
+                        "firstName": "Ann",
+                        "lastName": "Lee",
+                        "createdAt": "2025-08-02T10:00:00.000Z"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "New participants timeseries and latest list",
+        "tags": [
+          "chat-analytics"
+        ]
+      }
+    },
+    "/api/chat-analytics/project/{projectId}/participants/activity": {
+      "get": {
+        "description": "Returns counts of active participants, silent share and average messages per participant for the period.",
+        "operationId": "ChatAnalyticsController_getParticipantsActivity",
+        "parameters": [
+          {
+            "name": "projectId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "from",
+            "required": false,
+            "in": "query",
+            "description": "ISO start datetime",
+            "schema": {
+              "example": "2025-07-01T00:00:00.000Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": false,
+            "in": "query",
+            "description": "ISO end datetime",
+            "schema": {
+              "example": "2025-08-01T00:00:00.000Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "granularity",
+            "required": false,
+            "in": "query",
+            "description": "Aggregation granularity",
+            "schema": {
+              "default": "day",
+              "type": "string",
+              "enum": [
+                "day",
+                "week",
+                "month"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Activity stats",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "activeCount": 23,
+                    "silentShare": 0.42,
+                    "avgMessagesPerParticipant": 3.1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Participants activity stats",
+        "tags": [
+          "chat-analytics"
+        ]
+      }
+    },
+    "/api/chat-analytics/project/{projectId}/chats": {
+      "get": {
+        "description": "Returns new chats timeseries and chat status KPIs for the period. Admin is taken from JWT.",
+        "operationId": "ChatAnalyticsController_getChats",
+        "parameters": [
+          {
+            "name": "projectId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "from",
+            "required": false,
+            "in": "query",
+            "description": "ISO start datetime",
+            "schema": {
+              "example": "2025-07-01T00:00:00.000Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": false,
+            "in": "query",
+            "description": "ISO end datetime",
+            "schema": {
+              "example": "2025-08-01T00:00:00.000Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "granularity",
+            "required": false,
+            "in": "query",
+            "description": "Aggregation granularity",
+            "schema": {
+              "default": "day",
+              "type": "string",
+              "enum": [
+                "day",
+                "week",
+                "month"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Chats stats",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "newChatsTimeseries": [
+                      {
+                        "x": "2025-08-01",
+                        "y": 2
+                      },
+                      {
+                        "x": "2025-08-02",
+                        "y": 4
+                      }
+                    ],
+                    "activeChats": 50,
+                    "inactiveChats": 8,
+                    "avgUnread": 1.7
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Chats stats and timeseries",
+        "tags": [
+          "chat-analytics"
+        ]
+      }
     }
   },
   "info": {

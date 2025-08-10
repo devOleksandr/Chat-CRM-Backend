@@ -5,6 +5,7 @@ import { ProjectModule } from './project/project.module';
 import { ChatModule } from './chat/chat.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ConfigModule } from '@nestjs/config';
+import { ChatAnalyticsModule } from './chat-analytics/chat-analytics.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { ConfigModule } from '@nestjs/config';
     UserModule,
     ProjectModule,
     ChatModule,
+    ChatAnalyticsModule,
     PrismaModule,
     ConfigModule.forRoot({
       isGlobal: true,
