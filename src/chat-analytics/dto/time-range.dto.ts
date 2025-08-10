@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsIn, IsInt, IsOptional, IsString, Min } from 'class-validator';
+import { IsIn, IsInt, IsOptional, IsString, Min, Max } from 'class-validator';
 
 export class TimeRangeDto {
   @ApiPropertyOptional({ description: 'ISO start datetime', example: '2025-07-01T00:00:00.000Z' })
@@ -23,6 +23,7 @@ export class LastItemsDto {
   @IsOptional()
   @IsInt()
   @Min(1)
+  @Max(100)
   limit?: number = 10;
 }
 
