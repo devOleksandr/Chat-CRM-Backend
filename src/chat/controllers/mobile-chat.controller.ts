@@ -231,6 +231,8 @@ export class MobileChatController {
     this.chatGateway.server.to(`chat_${chatId}`).emit('newMessage', payload);
     this.chatGateway.server.to(`chat_${chatId}`).emit('messageCreated', payload);
     this.chatGateway.server.to(`chat_${chatId}`).emit('message', payload);
+    // Also emit globally to support clients not yet subscribed to the room
+    this.chatGateway.server.emit('newMessage', payload);
     
     return message;
   }

@@ -389,10 +389,12 @@ export class ChatController {
     const message = await this.chatService.createMessage(messageDto, req.user.id);
     
     const payload = { chatId, message };
-    // Emit to the chat room so clients receive updates immediately
+    // Emit to the chat room so clients in the room receive updates immediately
     this.chatGateway.server.to(`chat_${chatId}`).emit('newMessage', payload);
     this.chatGateway.server.to(`chat_${chatId}`).emit('messageCreated', payload);
     this.chatGateway.server.to(`chat_${chatId}`).emit('message', payload);
+    // Also emit globally to support clients not subscribed to the room
+    this.chatGateway.server.emit('newMessage', payload);
     
     return message;
   }
@@ -425,6 +427,7 @@ export class ChatController {
       this.chatGateway.server.to(`chat_${message.chatId}`).emit('newMessage', payload);
       this.chatGateway.server.to(`chat_${message.chatId}`).emit('messageCreated', payload);
       this.chatGateway.server.to(`chat_${message.chatId}`).emit('message', payload);
+      this.chatGateway.server.emit('newMessage', payload);
     }
 
     return messages;
