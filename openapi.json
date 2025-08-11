@@ -1985,6 +1985,7 @@
     },
     "/api/notifications/device/register-mobile": {
       "post": {
+        "description": "Registers or updates a push token for a participant identified by participantId and projectUniqueId.",
         "operationId": "NotificationsController_registerMobile",
         "parameters": [],
         "requestBody": {
@@ -1993,13 +1994,46 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/RegisterMobileDeviceDto"
+              },
+              "examples": {
+                "example": {
+                  "summary": "Valid request",
+                  "value": {
+                    "participantId": "mobile_user_123",
+                    "projectUniqueId": "DEMO-001",
+                    "token": "fcm:AAAA...token",
+                    "platform": "android",
+                    "deviceId": "pixel7pro-abc123",
+                    "appVersion": "1.2.3",
+                    "locale": "en-US"
+                  }
+                }
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Token registered"
+            "description": "Token registered",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid participant or payload"
+          },
+          "404": {
+            "description": "Participant not found"
           }
         },
         "summary": "Register device token for mobile (no auth)",
@@ -2009,7 +2043,8 @@
       }
     },
     "/api/notifications/device/unregister": {
-      "delete": {
+      "post": {
+        "description": "Deactivates a previously registered push token.",
         "operationId": "NotificationsController_unregister",
         "parameters": [],
         "requestBody": {
@@ -2018,13 +2053,34 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/UnregisterDeviceDto"
+              },
+              "examples": {
+                "example": {
+                  "summary": "Valid request",
+                  "value": {
+                    "token": "fcm:AAAA...token"
+                  }
+                }
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Token deactivated"
+            "description": "Token deactivated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "summary": "Unregister device token (no auth)",
@@ -2035,11 +2091,28 @@
     },
     "/api/notifications/admin/test": {
       "post": {
+        "description": "Sends a test push notification to the currently authenticated admin user.",
         "operationId": "NotificationsController_adminTest",
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Test push queued"
+            "description": "Test push queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User not authenticated"
           }
         },
         "security": [
@@ -3400,11 +3473,67 @@
       },
       "RegisterMobileDeviceDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "participantId": {
+            "type": "string",
+            "description": "External participant ID within the project",
+            "example": "mobile_user_123"
+          },
+          "projectUniqueId": {
+            "type": "string",
+            "description": "Unique project identifier",
+            "example": "DEMO-001"
+          },
+          "token": {
+            "type": "string",
+            "description": "Push token (FCM/APNs/Web Push)",
+            "example": "fcm:AAAA...token"
+          },
+          "platform": {
+            "type": "string",
+            "description": "Client platform",
+            "enum": [
+              "ios",
+              "android",
+              "web"
+            ],
+            "example": "android"
+          },
+          "deviceId": {
+            "type": "string",
+            "description": "Optional device identifier",
+            "example": "pixel7pro-abc123"
+          },
+          "appVersion": {
+            "type": "string",
+            "description": "App version on the device",
+            "example": "1.2.3"
+          },
+          "locale": {
+            "type": "string",
+            "description": "User locale",
+            "example": "en-US"
+          }
+        },
+        "required": [
+          "participantId",
+          "projectUniqueId",
+          "token",
+          "platform"
+        ]
       },
       "UnregisterDeviceDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "Push token to deactivate",
+            "example": "fcm:AAAA...token"
+          }
+        },
+        "required": [
+          "token"
+        ]
       }
     }
   }
