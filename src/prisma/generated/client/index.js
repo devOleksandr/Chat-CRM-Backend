@@ -256,7 +256,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/Users/oleksandroliinyk/Documents/GRAY/Chat-CRM-Backend/src/prisma/generated/client",
+      "value": "/usr/src/app/src/prisma/generated/client",
       "fromEnvVar": null
     },
     "config": {
@@ -265,7 +265,7 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "darwin-arm64",
+        "value": "linux-musl-arm64-openssl-3.0.x",
         "native": true
       },
       {
@@ -280,7 +280,7 @@ const config = {
     "previewFeatures": [
       "fullTextSearchPostgres"
     ],
-    "sourceFilePath": "/Users/oleksandroliinyk/Documents/GRAY/Chat-CRM-Backend/prisma/schema.prisma",
+    "sourceFilePath": "/usr/src/app/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
@@ -342,8 +342,8 @@ exports.PrismaClient = PrismaClient
 Object.assign(exports, Prisma)
 
 // file annotations for bundling tools to include these files
-path.join(__dirname, "libquery_engine-darwin-arm64.dylib.node");
-path.join(process.cwd(), "src/prisma/generated/client/libquery_engine-darwin-arm64.dylib.node")
+path.join(__dirname, "libquery_engine-linux-musl-arm64-openssl-3.0.x.so.node");
+path.join(process.cwd(), "src/prisma/generated/client/libquery_engine-linux-musl-arm64-openssl-3.0.x.so.node")
 
 // file annotations for bundling tools to include these files
 path.join(__dirname, "libquery_engine-linux-musl-openssl-3.0.x.so.node");

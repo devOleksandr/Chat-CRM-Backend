@@ -84,7 +84,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 
       const user = await this.authenticateUser(client);
       if (!user) {
-        this.logger.warn(`❌ Unauthenticated connection attempt from ${client.id} - no valid token`);
+        const { participantId, projectId } = client.handshake.auth || {};
+        const hasMobileHandshake = Boolean(participantId && projectId);
+
+        if (hasMobileHandshake) {
+          await this.handleMobileConnection(client);
+          return;
+        }
+
+        this.logger.warn(`❌ Unauthenticated connection attempt from ${client.id} - no valid token or mobile handshake`);
         client.emit('error', { 
           message: 'Authentication required',
           code: 'AUTH_REQUIRED'

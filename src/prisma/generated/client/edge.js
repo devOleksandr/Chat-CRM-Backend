@@ -255,7 +255,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/Users/oleksandroliinyk/Documents/GRAY/Chat-CRM-Backend/src/prisma/generated/client",
+      "value": "/usr/src/app/src/prisma/generated/client",
       "fromEnvVar": null
     },
     "config": {
@@ -264,7 +264,7 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "darwin-arm64",
+        "value": "linux-musl-arm64-openssl-3.0.x",
         "native": true
       },
       {
@@ -279,7 +279,7 @@ const config = {
     "previewFeatures": [
       "fullTextSearchPostgres"
     ],
-    "sourceFilePath": "/Users/oleksandroliinyk/Documents/GRAY/Chat-CRM-Backend/prisma/schema.prisma",
+    "sourceFilePath": "/usr/src/app/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
