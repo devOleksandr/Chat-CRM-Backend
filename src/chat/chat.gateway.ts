@@ -20,6 +20,7 @@ import { MessageType } from './ports/message-repository.port';
 import { WebSocketConnectionError } from './errors/chat.errors';
 import { WsJwtGuard } from '../auth/guards/ws-jwt.guard';
 import { OnlineStatusService } from './services/online-status.service';
+import { getCorsOrigins } from '../config/cors';
 
 /**
  * WebSocket Gateway for real-time chat functionality
@@ -27,7 +28,7 @@ import { OnlineStatusService } from './services/online-status.service';
  */
 @WebSocketGateway({
   cors: {
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    origin: getCorsOrigins(),
     credentials: true,
   },
   namespace: '/chat',

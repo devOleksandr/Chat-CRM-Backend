@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { getCorsOrigins } from './config/cors';
 import { writeFileSync } from 'fs';
 
 const logger = new Logger('Bootstrap');
@@ -44,10 +45,7 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document);
   const configService = app.get(ConfigService);
   const nodeEnv = configService.get('NODE_ENV', 'development');
-  const frontendUrl = configService.get<string>('FRONTEND_URL');
-  const corsOrigins = frontendUrl 
-    ? [frontendUrl]
-    : ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:5173', 'http://localhost:8080'];
+  const corsOrigins = getCorsOrigins();
 
   app.enableCors({
     origin: corsOrigins,
