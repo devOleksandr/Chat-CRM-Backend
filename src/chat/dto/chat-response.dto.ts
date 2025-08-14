@@ -283,3 +283,31 @@ export class ExtendedChatResponseDto {
   })
   readonly metadata: DetailedChatMetadataDto;
 } 
+
+/**
+ * Minimal chat DTO for mobile usage
+ */
+export class ChatIdProjectDto {
+  @ApiProperty({
+    description: 'Chat ID',
+    example: 1,
+  })
+  readonly id: number;
+
+  @ApiProperty({
+    description: 'Project ID',
+    example: 1,
+  })
+  readonly projectId: number;
+}
+
+/**
+ * Wrapper for minimal chat response used by mobile apps
+ */
+export class MinimalChatWrapperDto {
+  @ApiProperty({
+    description: 'Minimal chat information containing only identifiers',
+    type: ChatIdProjectDto,
+  })
+  readonly chat: ChatIdProjectDto;
+}

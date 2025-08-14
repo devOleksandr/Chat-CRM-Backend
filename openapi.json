@@ -1823,7 +1823,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ChatWithMetadataResponseDto"
+                  "$ref": "#/components/schemas/MinimalChatWrapperDto"
                 }
               }
             }
@@ -3469,6 +3469,41 @@
         },
         "required": [
           "content"
+        ]
+      },
+      "ChatIdProjectDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Chat ID",
+            "example": 1
+          },
+          "projectId": {
+            "type": "number",
+            "description": "Project ID",
+            "example": 1
+          }
+        },
+        "required": [
+          "id",
+          "projectId"
+        ]
+      },
+      "MinimalChatWrapperDto": {
+        "type": "object",
+        "properties": {
+          "chat": {
+            "description": "Minimal chat information containing only identifiers",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ChatIdProjectDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "chat"
         ]
       },
       "RegisterMobileDeviceDto": {

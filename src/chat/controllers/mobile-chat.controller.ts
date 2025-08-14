@@ -23,7 +23,7 @@ import { ChatGateway } from '../chat.gateway';
 import { ProjectService } from '../../project/project.service';
 import { ProjectParticipantService } from '../../project/services/project-participant.service';
 import { CreateMessageViaApiDto } from '../dto/create-message.dto';
-import { ChatWithMetadataResponseDto } from '../dto/chat-response.dto';
+import { ChatWithMetadataResponseDto, MinimalChatWrapperDto } from '../dto/chat-response.dto';
 import { MessageResponseDto, PaginatedMessagesResponseDto } from '../dto/message-response.dto';
 import { calculateChatAge, generateChatMessage } from '../utils/chat-utils';
 
@@ -54,7 +54,7 @@ export class MobileChatController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Successfully retrieved or created chat',
-    type: ChatWithMetadataResponseDto,
+    type: MinimalChatWrapperDto,
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
@@ -74,7 +74,7 @@ export class MobileChatController {
   async createOrGetChatMobile(
     @Param('projectUniqueId') projectUniqueId: string,
     @Param('participantId') participantId: string,
-  ): Promise<ChatWithMetadataResponseDto> {
+  ): Promise<MinimalChatWrapperDto> {
     // Get the project and admin ID
     const project = await this.projectService.getProjectByUniqueIdPublic(projectUniqueId);
     const projectId = project.id;
@@ -84,16 +84,10 @@ export class MobileChatController {
     const participantUserId = await this.projectParticipantService.getParticipantUserIdByProjectUniqueId(participantId, projectUniqueId);
     
     const result = await this.chatService.getOrCreateChat(projectId, adminId, participantUserId);
-    const chatAge = calculateChatAge(result.chat.createdAt);
-    const message = generateChatMessage(result.isNewChat, chatAge);
-    
     return {
-      chat: result.chat,
-      metadata: {
-        isNewChat: result.isNewChat,
-        message,
-        createdAt: result.chat.createdAt,
-        accessedAt: new Date(),
+      chat: {
+        id: result.chat.id,
+        projectId: projectId,
       },
     };
   }
