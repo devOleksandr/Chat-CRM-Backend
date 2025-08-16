@@ -52,7 +52,7 @@ export class MessageRepository extends MessageRepositoryPort {
             },
           },
         },
-        orderBy: { createdAt: 'asc' },
+        orderBy: { createdAt: 'desc' },
         take: limit,
         skip: offset,
       });
