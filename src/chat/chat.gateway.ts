@@ -21,6 +21,13 @@ import { WebSocketConnectionError } from './errors/chat.errors';
 import { WsJwtGuard } from '../auth/guards/ws-jwt.guard';
 import { OnlineStatusService } from './services/online-status.service';
 import { getCorsOrigins } from '../config/cors';
+import { 
+  JoinProjectChatsDto, 
+  JoinAllChatsDto, 
+  ChatUpdateDto, 
+  MessageUpdateDto, 
+  ParticipantStatusUpdateDto 
+} from './dto/websocket-events.dto';
 
 /**
  * WebSocket Gateway for real-time chat functionality
@@ -249,8 +256,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         timestamp: new Date().toISOString()
       });
 
-      // Broadcast to ALL connected clients (not just chat room)
-      this.server.emit('newMessage', messagePayload);
+      // Broadcast to chat room only (more efficient)
+      this.server.to(`chat_${data.chatId}`).emit('newMessage', messagePayload);
 
       // Send confirmation to sender
       client.emit('messageSent', { 
@@ -304,8 +311,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
       // Mark messages as read through service
       await this.chatService.markChatAsRead(data.chatId, user.id);
 
-      // Notify all clients about read status
-      this.server.emit('messagesRead', {
+      // Notify chat room participants about read status
+      this.server.to(`chat_${data.chatId}`).emit('messagesRead', {
         chatId: data.chatId,
         readBy: user.id,
         timestamp: new Date(),
@@ -344,8 +351,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         return;
       }
 
-      // Broadcast typing status to all clients
-      this.server.emit('userTyping', {
+      // Broadcast typing status to chat room participants
+      this.server.to(`chat_${data.chatId}`).emit('userTyping', {
         chatId: data.chatId,
         userId: user.id,
         isTyping: data.isTyping,
@@ -452,6 +459,285 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
       this.logger.log(`User ${user.id} left chat ${data.chatId}`);
     } catch (error) {
       this.logger.error(`Error in handleLeaveChat: ${error.message}`, error.stack);
+    }
+  }
+
+  /**
+   * Handle joining all project chats for a specific project
+   * Adds user to all chat rooms for a specific project
+   * @param client - The socket client
+   * @param data - Data containing projectId
+   */
+  @SubscribeMessage('joinProjectChats')
+  async handleJoinProjectChats(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: JoinProjectChatsDto,
+  ) {
+    try {
+      this.logger.log(`👥 JoinProjectChats request received:`, {
+        socketId: client.id,
+        projectId: data.projectId,
+        timestamp: new Date().toISOString()
+      });
+
+      const user = await this.authenticateUser(client);
+      if (!user) {
+        this.logger.warn(`❌ Authentication failed for joinProjectChats socket ${client.id}`);
+        client.emit('error', { message: 'Authentication failed' });
+        return;
+      }
+
+      this.logger.log(`✅ User ${user.id} authenticated for joinProjectChats`);
+
+      // Get all chats for the specific project
+      const projectChats = await this.chatService.getChatsForProject(data.projectId, user.id);
+      
+      this.logger.log(`✅ Found ${projectChats.length} chats for project ${data.projectId}`);
+
+      // Join all project chat rooms
+      projectChats.forEach(chat => {
+        client.join(`chat_${chat.id}`);
+        this.logger.log(`✅ User ${user.id} joined chat ${chat.id} for project ${data.projectId}`);
+      });
+
+      // Notify client about successful join
+      client.emit('projectChatsJoined', {
+        projectId: data.projectId,
+        chatCount: projectChats.length,
+        chatIds: projectChats.map(chat => chat.id),
+        timestamp: new Date(),
+      });
+
+      this.logger.log(`✅ User ${user.id} successfully joined ${projectChats.length} chats for project ${data.projectId}`);
+    } catch (error) {
+      this.logger.error(`💥 Error in handleJoinProjectChats:`, {
+        error: error.message,
+        stack: error.stack,
+        socketId: client.id,
+        projectId: data.projectId,
+        timestamp: new Date().toISOString()
+      });
+
+      await this.errorHandler.handleError(error, {
+        operation: 'joinProjectChats',
+        socketId: client.id,
+        projectId: data.projectId?.toString(),
+        timestamp: new Date(),
+      });
+      
+      client.emit('error', { 
+        message: error.message,
+        timestamp: new Date(),
+      });
+    }
+  }
+
+  /**
+   * Handle joining all chats for the authenticated user
+   * Adds user to all chat rooms they have access to
+   * @param client - The socket client
+   */
+  @SubscribeMessage('joinAllChats')
+  async handleJoinAllChats(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: JoinAllChatsDto,
+  ) {
+    try {
+      this.logger.log(`👥 JoinAllChats request received:`, {
+        socketId: client.id,
+        timestamp: new Date().toISOString()
+      });
+
+      const user = await this.authenticateUser(client);
+      if (!user) {
+        this.logger.warn(`❌ Authentication failed for joinAllChats socket ${client.id}`);
+        client.emit('error', { message: 'Authentication failed' });
+        return;
+      }
+
+      this.logger.log(`✅ User ${user.id} authenticated for joinAllChats`);
+
+      // Get all chats for the user
+      const userChats = await this.chatService.getChatsForUser(user.id);
+      
+      this.logger.log(`✅ Found ${userChats.length} chats for user ${user.id}`);
+
+      // Join all user chat rooms
+      userChats.forEach(chat => {
+        client.join(`chat_${chat.id}`);
+        this.logger.log(`✅ User ${user.id} joined chat ${chat.id}`);
+      });
+
+      // Notify client about successful join
+      client.emit('allChatsJoined', {
+        chatCount: userChats.length,
+        chatIds: userChats.map(chat => chat.id),
+        timestamp: new Date(),
+      });
+
+      this.logger.log(`✅ User ${user.id} successfully joined ${userChats.length} chats`);
+    } catch (error) {
+      this.logger.error(`💥 Error in handleJoinAllChats:`, {
+        error: error.message,
+        stack: error.stack,
+        socketId: client.id,
+        timestamp: new Date().toISOString()
+      });
+
+      await this.errorHandler.handleError(error, {
+        operation: 'joinAllChats',
+        socketId: client.id,
+        timestamp: new Date(),
+      });
+      
+      client.emit('error', { 
+        message: error.message,
+        timestamp: new Date(),
+      });
+    }
+  }
+
+  /**
+   * Handle chat update notification
+   * Broadcasts chat updates to all participants
+   * @param client - The socket client
+   * @param data - Data containing chatId and chat updates
+   */
+  @SubscribeMessage('chatUpdate')
+  async handleChatUpdate(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: ChatUpdateDto,
+  ) {
+    try {
+      const user = await this.authenticateUser(client);
+      if (!user) {
+        client.emit('error', { message: 'Authentication failed' });
+        return;
+      }
+
+      // Verify user has access to this chat
+      const chat = await this.chatService.getChatById(data.chatId, user.id);
+      
+      // Broadcast chat update to chat room participants
+      this.server.to(`chat_${data.chatId}`).emit('chatUpdated', {
+        chatId: data.chatId,
+        chat: data.chat,
+        updatedBy: user.id,
+        timestamp: new Date(),
+      });
+
+      this.logger.log(`Chat ${data.chatId} updated by user ${user.id}`);
+    } catch (error) {
+      await this.errorHandler.handleError(error, {
+        operation: 'chatUpdate',
+        socketId: client.id,
+        chatId: data.chatId?.toString(),
+        timestamp: new Date(),
+      });
+      
+      client.emit('error', { 
+        message: error.message,
+        timestamp: new Date(),
+      });
+    }
+  }
+
+  /**
+   * Handle message update notification
+   * Broadcasts message updates to chat participants
+   * @param client - The socket client
+   * @param data - Data containing chatId and updated message
+   */
+  @SubscribeMessage('messageUpdate')
+  async handleMessageUpdate(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: MessageUpdateDto,
+  ) {
+    try {
+      const user = await this.authenticateUser(client);
+      if (!user) {
+        client.emit('error', { message: 'Authentication failed' });
+        return;
+      }
+
+      // Verify user has access to this chat
+      const chat = await this.chatService.getChatById(data.chatId, user.id);
+      
+      // Broadcast message update to chat room participants
+      this.server.to(`chat_${data.chatId}`).emit('messageUpdate', {
+        chatId: data.chatId,
+        message: data.message,
+        updatedBy: user.id,
+        timestamp: new Date(),
+      });
+
+      this.logger.log(`Message updated in chat ${data.chatId} by user ${user.id}`);
+    } catch (error) {
+      await this.errorHandler.handleError(error, {
+        operation: 'messageUpdate',
+        socketId: client.id,
+        chatId: data.chatId?.toString(),
+        timestamp: new Date(),
+      });
+      
+      client.emit('error', { 
+        message: error.message,
+        timestamp: new Date(),
+      });
+    }
+  }
+
+  /**
+   * Handle participant online status update
+   * Broadcasts participant online status to relevant chat rooms
+   * @param client - The socket client
+   * @param data - Data containing participantId and online status
+   */
+  @SubscribeMessage('participantStatusUpdate')
+  async handleParticipantStatusUpdate(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: ParticipantStatusUpdateDto,
+  ) {
+    try {
+      const user = await this.authenticateUser(client);
+      if (!user) {
+        client.emit('error', { message: 'Authentication failed' });
+        return;
+      }
+
+      // If specific chat IDs provided, broadcast to those chats only
+      if (data.chatIds && data.chatIds.length > 0) {
+        data.chatIds.forEach(chatId => {
+          this.server.to(`chat_${chatId}`).emit('participantOnline', {
+            participantId: data.participantId,
+            isOnline: data.isOnline,
+            timestamp: new Date(),
+          });
+        });
+      } else {
+        // Broadcast to all chats where this participant is present
+        const userChats = await this.chatService.getChatsForUser(user.id);
+        userChats.forEach(chat => {
+          this.server.to(`chat_${chat.id}`).emit('participantOnline', {
+            participantId: data.participantId,
+            isOnline: data.isOnline,
+            timestamp: new Date(),
+          });
+        });
+      }
+
+      this.logger.log(`Participant ${data.participantId} status updated to ${data.isOnline ? 'online' : 'offline'} by user ${user.id}`);
+    } catch (error) {
+      await this.errorHandler.handleError(error, {
+        operation: 'participantStatusUpdate',
+        socketId: client.id,
+        timestamp: new Date(),
+      });
+      
+      client.emit('error', { 
+        message: error.message,
+        timestamp: new Date(),
+      });
     }
   }
 

@@ -1,8 +1,9 @@
 /*
-  Minimal WS smoke test:
+  Enhanced WS smoke test:
   - Login as admin, create participant via REST (if not exists), create/get chat via mobile REST
   - Connect admin socket with JWT
   - Connect participant socket with handshake { participantId, projectId }
+  - Test new joinProjectChats and joinAllChats functionality
   - Join chat room on both, send message from participant, assert admin receives
 */
 
@@ -94,6 +95,40 @@ async function main() {
   });
   console.log('Admin socket connected:', adminSocket.id);
 
+  // Test new joinProjectChats functionality
+  console.log('Testing joinProjectChats...');
+  let projectChatsJoined = false;
+  adminSocket.on('projectChatsJoined', (data: any) => {
+    console.log('Admin joined project chats:', data);
+    projectChatsJoined = true;
+  });
+
+  adminSocket.emit('joinProjectChats', { projectId });
+  await sleep(1000);
+
+  if (!projectChatsJoined) {
+    console.warn('⚠️ joinProjectChats did not work as expected');
+  } else {
+    console.log('✅ joinProjectChats test passed');
+  }
+
+  // Test new joinAllChats functionality
+  console.log('Testing joinAllChats...');
+  let allChatsJoined = false;
+  adminSocket.on('allChatsJoined', (data: any) => {
+    console.log('Admin joined all chats:', data);
+    allChatsJoined = true;
+  });
+
+  adminSocket.emit('joinAllChats');
+  await sleep(1000);
+
+  if (!allChatsJoined) {
+    console.warn('⚠️ joinAllChats did not work as expected');
+  } else {
+    console.log('✅ joinAllChats test passed');
+  }
+
   // Admin listens for mobile messages
   let received = false;
   adminSocket.on('newMessage', (payload: any) => {
@@ -142,7 +177,70 @@ async function main() {
     throw new Error('Admin did not receive newMessage from participant');
   }
 
-  console.log('✅ Smoke test passed');
+  console.log('✅ Basic smoke test passed');
+
+  // Test new WebSocket events
+  console.log('Testing new WebSocket events...');
+  
+  // Test chatUpdate
+  let chatUpdated = false;
+  adminSocket.on('chatUpdated', (data: any) => {
+    console.log('Chat updated event received:', data);
+    chatUpdated = true;
+  });
+
+  adminSocket.emit('chatUpdate', {
+    chatId: chat.id,
+    chat: { name: 'Updated Chat Name', description: 'Updated description' }
+  });
+  await sleep(500);
+
+  if (!chatUpdated) {
+    console.warn('⚠️ chatUpdate event did not work as expected');
+  } else {
+    console.log('✅ chatUpdate test passed');
+  }
+
+  // Test messageUpdate
+  let messageUpdated = false;
+  adminSocket.on('messageUpdate', (data: any) => {
+    console.log('Message update event received:', data);
+    messageUpdated = true;
+  });
+
+  adminSocket.emit('messageUpdate', {
+    chatId: chat.id,
+    message: { id: 1, content: 'Updated message content' }
+  });
+  await sleep(500);
+
+  if (!messageUpdated) {
+    console.warn('⚠️ messageUpdate event did not work as expected');
+  } else {
+    console.log('✅ messageUpdate test passed');
+  }
+
+  // Test participantStatusUpdate
+  let participantStatusUpdated = false;
+  adminSocket.on('participantOnline', (data: any) => {
+    console.log('Participant status update event received:', data);
+    participantStatusUpdated = true;
+  });
+
+  adminSocket.emit('participantStatusUpdate', {
+    participantId: 999,
+    isOnline: true,
+    chatIds: [chat.id]
+  });
+  await sleep(500);
+
+  if (!participantStatusUpdated) {
+    console.warn('⚠️ participantStatusUpdate event did not work as expected');
+  } else {
+    console.log('✅ participantStatusUpdate test passed');
+  }
+
+  console.log('✅ Enhanced smoke test completed');
   adminSocket.close();
   participantSocket.close();
 }
