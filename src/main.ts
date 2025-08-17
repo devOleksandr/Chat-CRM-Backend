@@ -18,6 +18,7 @@ async function bootstrap() {
       transform: true,
       whitelist: true,
       forbidNonWhitelisted: true,
+      enableDebugMessages: true, // Додаю debug повідомлення
     }),
   );
 

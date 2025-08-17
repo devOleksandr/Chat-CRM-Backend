@@ -2126,6 +2126,38 @@
         ]
       }
     },
+    "/api/notifications/test-validation": {
+      "post": {
+        "description": "Simple test endpoint to debug validation issues.",
+        "operationId": "NotificationsController_testValidation",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Test successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "received": {
+                      "type": "object"
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Test endpoint for debugging validation",
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
     "/api/chat-analytics/project/{projectId}/overview": {
       "get": {
         "description": "Returns key performance indicators for the specified project over a date range. Admin is taken from JWT.",
