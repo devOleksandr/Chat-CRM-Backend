@@ -1985,7 +1985,7 @@
     },
     "/api/notifications/device/register-mobile": {
       "post": {
-        "description": "Registers or updates a push token for a participant identified by participantId and projectUniqueId.",
+        "description": "Registers or updates an Expo push token for a participant identified by participantId and projectUniqueId. This endpoint is used by mobile apps to enable push notifications.",
         "operationId": "NotificationsController_registerMobile",
         "parameters": [],
         "requestBody": {
@@ -1996,14 +1996,29 @@
                 "$ref": "#/components/schemas/RegisterMobileDeviceDto"
               },
               "examples": {
-                "example": {
-                  "summary": "Valid request",
+                "expoToken": {
+                  "summary": "Expo Push Token Registration",
+                  "description": "Register device with Expo push token for iOS/Android",
                   "value": {
                     "participantId": "mobile_user_123",
                     "projectUniqueId": "DEMO-001",
-                    "token": "fcm:AAAA...token",
+                    "token": "ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]",
+                    "platform": "ios",
+                    "deviceId": "iPhone14Pro-abc123",
+                    "appVersion": "1.2.3",
+                    "locale": "en-US",
+                    "expoAppId": "com.yourcompany.yourapp"
+                  }
+                },
+                "androidToken": {
+                  "summary": "Android Expo Token",
+                  "description": "Register Android device with Expo push token",
+                  "value": {
+                    "participantId": "android_user_456",
+                    "projectUniqueId": "DEMO-001",
+                    "token": "ExpoPushToken[yyyyyyyyyyyyyyyyyyyyyy]",
                     "platform": "android",
-                    "deviceId": "pixel7pro-abc123",
+                    "deviceId": "Pixel7Pro-def456",
                     "appVersion": "1.2.3",
                     "locale": "en-US"
                   }
@@ -2014,7 +2029,7 @@
         },
         "responses": {
           "200": {
-            "description": "Token registered",
+            "description": "Device registered successfully for Expo Push Notifications",
             "content": {
               "application/json": {
                 "schema": {
@@ -2023,6 +2038,14 @@
                     "status": {
                       "type": "string",
                       "example": "ok"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Device registered successfully"
+                    },
+                    "userId": {
+                      "type": "number",
+                      "example": 123
                     }
                   }
                 }
@@ -2030,22 +2053,22 @@
             }
           },
           "400": {
-            "description": "Invalid participant or payload"
+            "description": "Invalid participant data, invalid Expo push token format, or validation failed"
           },
           "404": {
-            "description": "Participant not found"
+            "description": "Participant not found in the specified project"
           }
         },
-        "summary": "Register device token for mobile (no auth)",
+        "summary": "Register device for Expo Push Notifications",
         "tags": [
           "notifications"
         ]
       }
     },
-    "/api/notifications/device/unregister": {
+    "/api/notifications/device/unregister-mobile": {
       "post": {
-        "description": "Deactivates a previously registered push token.",
-        "operationId": "NotificationsController_unregister",
+        "description": "Deactivates a previously registered Expo push token. Use this when the user logs out or uninstalls the app.",
+        "operationId": "NotificationsController_unregisterMobile",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -2055,10 +2078,11 @@
                 "$ref": "#/components/schemas/UnregisterDeviceDto"
               },
               "examples": {
-                "example": {
-                  "summary": "Valid request",
+                "expoToken": {
+                  "summary": "Unregister Expo Device",
+                  "description": "Deactivate Expo push token",
                   "value": {
-                    "token": "fcm:AAAA...token"
+                    "token": "ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]"
                   }
                 }
               }
@@ -2067,7 +2091,7 @@
         },
         "responses": {
           "200": {
-            "description": "Token deactivated",
+            "description": "Device unregistered successfully",
             "content": {
               "application/json": {
                 "schema": {
@@ -2076,14 +2100,21 @@
                     "status": {
                       "type": "string",
                       "example": "ok"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Device unregistered successfully"
                     }
                   }
                 }
               }
             }
+          },
+          "400": {
+            "description": "Invalid token format"
           }
         },
-        "summary": "Unregister device token (no auth)",
+        "summary": "Unregister Expo device",
         "tags": [
           "notifications"
         ]
@@ -2091,12 +2122,12 @@
     },
     "/api/notifications/admin/test": {
       "post": {
-        "description": "Sends a test push notification to the currently authenticated admin user.",
+        "description": "Sends a test Expo push notification to the currently authenticated admin user. Requires admin role.",
         "operationId": "NotificationsController_adminTest",
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Test push queued",
+            "description": "Test push notification sent successfully",
             "content": {
               "application/json": {
                 "schema": {
@@ -2105,6 +2136,10 @@
                     "status": {
                       "type": "string",
                       "example": "ok"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Test push notification sent"
                     }
                   }
                 }
@@ -2128,7 +2163,7 @@
     },
     "/api/notifications/test-expo-push": {
       "post": {
-        "description": "Sends a test Expo push notification to a specific user by participantId and projectUniqueId.",
+        "description": "Sends a test Expo push notification to a specific user by participantId and projectUniqueId. Useful for testing push notifications during development.",
         "operationId": "NotificationsController_testExpoPush",
         "parameters": [],
         "requestBody": {
@@ -2140,15 +2175,18 @@
                 "properties": {
                   "participantId": {
                     "type": "string",
-                    "example": "PROJ-248F685D_dev_af_uid_12345"
+                    "example": "PROJ-248F685D_dev_af_uid_12345",
+                    "description": "External participant ID provided by mobile app"
                   },
                   "projectUniqueId": {
                     "type": "string",
-                    "example": "PROJ-248F685D"
+                    "example": "PROJ-248F685D",
+                    "description": "Unique project identifier"
                   },
                   "message": {
                     "type": "string",
-                    "example": "This is a test Expo push notification"
+                    "example": "This is a test Expo push notification",
+                    "description": "Custom test message (optional)"
                   }
                 },
                 "required": [
@@ -2161,7 +2199,7 @@
         },
         "responses": {
           "200": {
-            "description": "Test push sent",
+            "description": "Test Expo push notification sent successfully",
             "content": {
               "application/json": {
                 "schema": {
@@ -2173,12 +2211,36 @@
                     },
                     "message": {
                       "type": "string",
-                      "example": "Test push notification sent"
+                      "example": "Test push notification sent to user 123"
+                    },
+                    "userId": {
+                      "type": "number",
+                      "example": 123
+                    },
+                    "details": {
+                      "type": "object",
+                      "properties": {
+                        "participantId": {
+                          "type": "string"
+                        },
+                        "projectUniqueId": {
+                          "type": "string"
+                        },
+                        "testMessage": {
+                          "type": "string"
+                        }
+                      }
                     }
                   }
                 }
               }
             }
+          },
+          "400": {
+            "description": "Invalid participant or project data"
+          },
+          "404": {
+            "description": "Participant not found in the specified project"
           }
         },
         "summary": "Test Expo push notification",
@@ -2189,28 +2251,45 @@
     },
     "/api/notifications/stats": {
       "get": {
-        "description": "Returns statistics about registered devices and push tokens.",
+        "description": "Returns comprehensive statistics about registered devices, Expo push tokens, and platform distribution. Useful for monitoring and analytics.",
         "operationId": "NotificationsController_getPushStats",
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Statistics retrieved",
+            "description": "Statistics retrieved successfully",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
                     "totalUsers": {
-                      "type": "number"
+                      "type": "number",
+                      "description": "Total number of users with registered devices",
+                      "example": 25
                     },
                     "activeTokens": {
-                      "type": "number"
+                      "type": "number",
+                      "description": "Total number of active push tokens",
+                      "example": 30
                     },
                     "expoTokens": {
-                      "type": "number"
+                      "type": "number",
+                      "description": "Number of active Expo push tokens",
+                      "example": 28
                     },
                     "byPlatform": {
-                      "type": "object"
+                      "type": "object",
+                      "description": "Distribution of tokens by platform",
+                      "example": {
+                        "ios": 15,
+                        "android": 13,
+                        "web": 2
+                      }
+                    },
+                    "summary": {
+                      "type": "string",
+                      "description": "Human-readable summary of statistics",
+                      "example": "25 users, 30 active tokens (28 Expo)"
                     }
                   }
                 }
@@ -2226,12 +2305,12 @@
     },
     "/api/notifications/config-status": {
       "get": {
-        "description": "Returns the current configuration status of Expo Push Notifications.",
+        "description": "Returns the current configuration status of Expo Push Notifications. Use this to verify that your Expo project ID and access token are properly configured.",
         "operationId": "NotificationsController_getExpoConfigStatus",
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Configuration status retrieved",
+            "description": "Configuration status retrieved successfully",
             "content": {
               "application/json": {
                 "schema": {
@@ -2239,16 +2318,39 @@
                   "properties": {
                     "projectId": {
                       "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "description": "Configured Expo project ID",
+                      "example": "your-expo-project-id"
                     },
                     "hasAccessToken": {
-                      "type": "boolean"
+                      "type": "boolean",
+                      "description": "Whether Expo access token is configured",
+                      "example": true
                     },
                     "isConfigured": {
-                      "type": "boolean"
+                      "type": "boolean",
+                      "description": "Whether Expo is properly configured",
+                      "example": true
                     },
                     "status": {
-                      "type": "string"
+                      "type": "string",
+                      "description": "Configuration status",
+                      "example": "configured"
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Human-readable status message",
+                      "example": "Expo Push Notifications are properly configured"
+                    },
+                    "recommendations": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "List of recommendations for configuration",
+                      "example": [
+                        "Set EXPO_PUBLIC_PROJECT_ID in .env file"
+                      ]
                     }
                   }
                 }
