@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, HttpCode, HttpStatus, Post, UseGuards, Request, Inject, Logger } from '@nestjs/common';
+import { Body, Controller, Delete, HttpCode, HttpStatus, Post, UseGuards, Request, Inject, Logger, Get } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags, ApiBadRequestResponse, ApiUnauthorizedResponse, ApiNotFoundResponse } from '@nestjs/swagger';
 import { PushNotificationsService } from './services/push-notifications.service';
 import { NotificationRepositoryPort, NOTIFICATION_REPOSITORY_PORT } from 'src/notifications/ports/notification-repository.port';
@@ -148,6 +148,114 @@ export class NotificationsController {
       data: { type: 'test' },
     });
     return { status: 'ok' };
+  }
+
+  @ApiOperation({ 
+    summary: 'Test Expo push notification', 
+    description: 'Sends a test Expo push notification to a specific user by participantId and projectUniqueId.' 
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        participantId: { type: 'string', example: 'PROJ-248F685D_dev_af_uid_12345' },
+        projectUniqueId: { type: 'string', example: 'PROJ-248F685D' },
+        message: { type: 'string', example: 'This is a test Expo push notification' }
+      },
+      required: ['participantId', 'projectUniqueId']
+    }
+  })
+  @ApiResponse({ 
+    status: HttpStatus.OK, 
+    description: 'Test push sent', 
+    schema: { 
+      type: 'object', 
+      properties: { 
+        status: { type: 'string', example: 'ok' },
+        message: { type: 'string', example: 'Test push notification sent' }
+      } 
+    } 
+  })
+  @Post('test-expo-push')
+  @HttpCode(HttpStatus.OK)
+  async testExpoPush(@Body() body: { participantId: string; projectUniqueId: string; message?: string }): Promise<{ status: string; message: string }> {
+    const userId = await this.participantService.getParticipantUserIdByProjectUniqueId(
+      body.participantId,
+      body.projectUniqueId,
+    );
+    
+    await this.pushService.sendTestNotification(userId, body.message || 'This is a test Expo push notification');
+    
+    return { 
+      status: 'ok',
+      message: `Test push notification sent to user ${userId}`
+    };
+  }
+
+  @ApiOperation({ 
+    summary: 'Get push notification statistics', 
+    description: 'Returns statistics about registered devices and push tokens.' 
+  })
+  @ApiResponse({ 
+    status: HttpStatus.OK, 
+    description: 'Statistics retrieved', 
+    schema: { 
+      type: 'object', 
+      properties: { 
+        totalUsers: { type: 'number' },
+        activeTokens: { type: 'number' },
+        expoTokens: { type: 'number' },
+        byPlatform: { type: 'object' }
+      } 
+    } 
+  })
+  @Get('stats')
+  @HttpCode(HttpStatus.OK)
+  async getPushStats(): Promise<any> {
+    return await this.pushService.getPushStats();
+  }
+
+  @ApiOperation({ 
+    summary: 'Check Expo configuration status', 
+    description: 'Returns the current configuration status of Expo Push Notifications.' 
+  })
+  @ApiResponse({ 
+    status: HttpStatus.OK, 
+    description: 'Configuration status retrieved', 
+    schema: { 
+      type: 'object', 
+      properties: { 
+        projectId: { type: 'string', nullable: true },
+        hasAccessToken: { type: 'boolean' },
+        isConfigured: { type: 'boolean' },
+        status: { type: 'string' }
+      } 
+    } 
+  })
+  @Get('config-status')
+  @HttpCode(HttpStatus.OK)
+  async getExpoConfigStatus(): Promise<any> {
+    // Отримуємо статус конфігурації з провайдера
+    const configStatus = (this.pushService as any).provider?.getConfigStatus?.();
+    
+    if (!configStatus) {
+      return {
+        projectId: null,
+        hasAccessToken: false,
+        isConfigured: false,
+        status: 'provider_not_available'
+      };
+    }
+
+    const status = configStatus.isConfigured ? 'configured' : 'not_configured';
+    
+    return {
+      ...configStatus,
+      status,
+      message: configStatus.isConfigured 
+        ? 'Expo Push Notifications are properly configured'
+        : 'Expo Push Notifications are not configured. Please set EXPO_PUBLIC_PROJECT_ID'
+    };
   }
 
   @ApiOperation({ 

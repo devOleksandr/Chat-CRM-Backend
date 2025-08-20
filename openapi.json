@@ -2126,6 +2126,142 @@
         ]
       }
     },
+    "/api/notifications/test-expo-push": {
+      "post": {
+        "description": "Sends a test Expo push notification to a specific user by participantId and projectUniqueId.",
+        "operationId": "NotificationsController_testExpoPush",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "participantId": {
+                    "type": "string",
+                    "example": "PROJ-248F685D_dev_af_uid_12345"
+                  },
+                  "projectUniqueId": {
+                    "type": "string",
+                    "example": "PROJ-248F685D"
+                  },
+                  "message": {
+                    "type": "string",
+                    "example": "This is a test Expo push notification"
+                  }
+                },
+                "required": [
+                  "participantId",
+                  "projectUniqueId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Test push sent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Test push notification sent"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Test Expo push notification",
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/api/notifications/stats": {
+      "get": {
+        "description": "Returns statistics about registered devices and push tokens.",
+        "operationId": "NotificationsController_getPushStats",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Statistics retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "totalUsers": {
+                      "type": "number"
+                    },
+                    "activeTokens": {
+                      "type": "number"
+                    },
+                    "expoTokens": {
+                      "type": "number"
+                    },
+                    "byPlatform": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Get push notification statistics",
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/api/notifications/config-status": {
+      "get": {
+        "description": "Returns the current configuration status of Expo Push Notifications.",
+        "operationId": "NotificationsController_getExpoConfigStatus",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Configuration status retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "projectId": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "hasAccessToken": {
+                      "type": "boolean"
+                    },
+                    "isConfigured": {
+                      "type": "boolean"
+                    },
+                    "status": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Check Expo configuration status",
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
     "/api/notifications/test-validation": {
       "post": {
         "description": "Simple test endpoint to debug validation issues.",
@@ -3553,8 +3689,8 @@
           },
           "token": {
             "type": "string",
-            "description": "Push token (FCM/APNs/Web Push)",
-            "example": "fcm:AAAA...token"
+            "description": "Expo push token (starts with ExponentPushToken[...] or ExpoPushToken[...])",
+            "example": "ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]"
           },
           "platform": {
             "type": "string",
@@ -3564,12 +3700,12 @@
               "android",
               "web"
             ],
-            "example": "android"
+            "example": "ios"
           },
           "deviceId": {
             "type": "string",
             "description": "Optional device identifier",
-            "example": "pixel7pro-abc123"
+            "example": "iPhone14Pro-abc123"
           },
           "appVersion": {
             "type": "string",
@@ -3580,6 +3716,11 @@
             "type": "string",
             "description": "User locale",
             "example": "en-US"
+          },
+          "expoAppId": {
+            "type": "string",
+            "description": "Expo app ID (optional)",
+            "example": "com.yourcompany.yourapp"
           }
         },
         "required": [

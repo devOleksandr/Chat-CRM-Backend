@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsEnum, IsOptional } from 'class-validator';
+import { IsString, IsEnum, IsOptional, Matches } from 'class-validator';
 
 export class RegisterMobileDeviceDto {
   @ApiProperty({ 
@@ -17,16 +17,19 @@ export class RegisterMobileDeviceDto {
   projectUniqueId!: string;
 
   @ApiProperty({ 
-    description: 'Push token (FCM/APNs/Web Push)', 
-    example: 'fcm:AAAA...token' 
+    description: 'Expo push token (starts with ExponentPushToken[...] or ExpoPushToken[...])', 
+    example: 'ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]' 
   })
   @IsString()
+  @Matches(/^(ExponentPushToken|ExpoPushToken)\[.+\]$/, {
+    message: 'Token must be a valid Expo push token starting with ExponentPushToken[...] or ExpoPushToken[...]'
+  })
   token!: string;
 
   @ApiProperty({ 
     description: 'Client platform', 
     enum: ['ios', 'android', 'web'], 
-    example: 'android' 
+    example: 'ios' 
   })
   @IsEnum(['ios', 'android', 'web'])
   platform!: 'ios' | 'android' | 'web';
@@ -34,7 +37,7 @@ export class RegisterMobileDeviceDto {
   @ApiProperty({ 
     description: 'Optional device identifier', 
     required: false, 
-    example: 'pixel7pro-abc123' 
+    example: 'iPhone14Pro-abc123' 
   })
   @IsOptional()
   @IsString()
@@ -57,4 +60,13 @@ export class RegisterMobileDeviceDto {
   @IsOptional()
   @IsString()
   locale?: string;
+
+  @ApiProperty({ 
+    description: 'Expo app ID (optional)', 
+    required: false, 
+    example: 'com.yourcompany.yourapp' 
+  })
+  @IsOptional()
+  @IsString()
+  expoAppId?: string;
 }
