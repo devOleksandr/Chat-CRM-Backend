@@ -2746,6 +2746,67 @@
           "chat-analytics"
         ]
       }
+    },
+    "/api/health": {
+      "get": {
+        "operationId": "HealthController_check",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Service is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "uptime": {
+                      "type": "number",
+                      "example": 12345
+                    },
+                    "version": {
+                      "type": "string",
+                      "example": "1.0.0"
+                    },
+                    "environment": {
+                      "type": "string",
+                      "example": "production"
+                    },
+                    "memory": {
+                      "type": "object",
+                      "properties": {
+                        "used": {
+                          "type": "number",
+                          "example": 123456789
+                        },
+                        "total": {
+                          "type": "number",
+                          "example": 987654321
+                        },
+                        "percentage": {
+                          "type": "number",
+                          "example": 12.5
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Health check endpoint",
+        "tags": [
+          "health"
+        ]
+      }
     }
   },
   "info": {
@@ -2766,6 +2827,10 @@
     {
       "name": "projects",
       "description": "Project management endpoints"
+    },
+    {
+      "name": "health",
+      "description": "Health check endpoints"
     }
   ],
   "servers": [],

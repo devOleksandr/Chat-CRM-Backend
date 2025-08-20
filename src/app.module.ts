@@ -7,6 +7,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { ConfigModule } from '@nestjs/config';
 import { ChatAnalyticsModule } from './chat-analytics/chat-analytics.module';
+import { HealthModule } from './health/health.module';
 import expoConfig from './config/expo.config';
 
 @Module({
@@ -18,6 +19,7 @@ import expoConfig from './config/expo.config';
     NotificationsModule,
     ChatAnalyticsModule,
     PrismaModule,
+    HealthModule,
     ConfigModule.forRoot({
       isGlobal: true,
       load: [expoConfig], // Додаємо Expo конфігурацію

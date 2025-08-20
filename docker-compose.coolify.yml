@@ -1,0 +1,57 @@
+# ========================================
+# COOLIFY DEPLOYMENT (BACKEND ONLY)
+# ========================================
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    container_name: chat-crm-backend-coolify
+    ports:
+      - "5055:5055"
+    environment:
+      # Core Configuration
+      - NODE_ENV=production
+      - PORT=5055
+      
+      # Database (External)
+      - DATABASE_URL=${DATABASE_URL}
+      
+      # JWT Configuration
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-15m}
+      - JWT_REFRESH_EXPIRES_IN=${JWT_REFRESH_EXPIRES_IN:-7d}
+      
+      # Expo Push Notifications
+      - EXPO_PUBLIC_PROJECT_ID=${EXPO_PUBLIC_PROJECT_ID}
+      - EXPO_ACCESS_TOKEN=${EXPO_ACCESS_TOKEN}
+      - EXPO_PUSH_RATE_LIMIT=${EXPO_PUSH_RATE_LIMIT:-100}
+      - EXPO_PUSH_BATCH_SIZE=${EXPO_PUSH_BATCH_SIZE:-100}
+      
+      # Email Configuration (Optional)
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASS=${SMTP_PASS}
+      
+      # CORS Configuration
+      - FRONTEND_URL=${FRONTEND_URL}
+      
+      # Logging
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5055/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - backend-network
+
+networks:
+  backend-network:
+    driver: bridge
