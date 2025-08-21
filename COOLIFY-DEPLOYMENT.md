@@ -14,8 +14,8 @@ This guide explains how to deploy the Chat CRM Backend to Coolify, a self-hosted
 ### **Coolify Production**
 - Backend only (no database)
 - External database connection
-- Optimized Docker image
 - Health checks and monitoring
+- Optimized Docker image
 
 ## 📁 File Structure
 
@@ -23,17 +23,14 @@ This guide explains how to deploy the Chat CRM Backend to Coolify, a self-hosted
 ├── Dockerfile                  # Development Dockerfile
 ├── Dockerfile.prod            # Production Dockerfile (Coolify)
 ├── docker-compose.yml         # Local development (full stack)
-├── docker-compose.prod.yml    # Staging (full stack)
 ├── docker-compose.coolify.yml # Coolify (backend only)
 ├── docker-compose.db.yml      # Database only (local)
 ├── scripts/
-│   ├── deploy-coolify.sh      # Coolify deployment script
-│   └── ci-build.sh            # CI/CD build script
-├── .github/workflows/
-│   └── ci-cd.yml              # GitHub Actions workflow
+│   └── deploy-coolify.sh      # Coolify deployment script
+├── src/health/                # Health check endpoints
 ├── env.local.example          # Local environment template
 ├── env.production.example     # Production environment template
-└── Makefile                   # Local development commands
+└── Makefile                   # Development commands
 ```
 
 ## 🔧 Prerequisites
@@ -53,13 +50,13 @@ This guide explains how to deploy the Chat CRM Backend to Coolify, a self-hosted
 ### **1. Local Development**
 
 ```bash
-# Start full stack (backend + database)
+# Full stack development
 make rebuild_local
 
-# Start database only
+# Database only
 make dev_local
 
-# Start database + pgAdmin
+# Database + pgAdmin
 make dev_local_pgadmin
 ```
 
@@ -76,17 +73,11 @@ make coolify_deploy
 make coolify_down
 ```
 
-### **3. CI/CD Pipeline**
+### **3. Deployment Script**
 
 ```bash
-# Full CI/CD pipeline
-./scripts/ci-build.sh
-
-# Skip tests
-./scripts/ci-build.sh --skip-tests
-
-# Development build
-./scripts/ci-build.sh -t development
+# Use deployment script
+./scripts/deploy-coolify.sh
 ```
 
 ## ☁️ Coolify Setup
@@ -127,10 +118,10 @@ EXPO_ACCESS_TOKEN=sPD-5LdUDWs3UknA1mix1UTPY7OQdzcl3vGXazht
 # Optional: Email Configuration
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
-SMTP_USER=your-email@gmail.com
-SMTP_PASS=your-app-password
+SMTP_USER=your-production-email@gmail.com
+SMTP_PASS=your-production-app-password
 
-# Frontend URL (for CORS)
+# Frontend URL (for CORS and email links)
 FRONTEND_URL=https://your-frontend-domain.com
 
 # Logging
@@ -162,46 +153,34 @@ GET /health
   "status": "ok",
   "timestamp": "2024-01-15T10:30:00.000Z",
   "uptime": 12345,
-  "version": "1.0.0"
+  "version": "1.0.0",
+  "environment": "production",
+  "memory": {
+    "used": 123,
+    "total": 987,
+    "percentage": 12.5
+  }
 }
 ```
 
 ### **Health Check Commands**
 ```bash
-# Check local health
-make health_local
-
-# Check staging health
-make health_stage
-
-# Check Coolify health
-make health_coolify
+make health_local        # Check local health
+make health_coolify      # Check Coolify health
 ```
 
 ## 📊 Monitoring
 
 ### **Logs**
 ```bash
-# Local logs
-make logs
-
-# Staging logs
-make logs_stage
-
-# Coolify logs
-make logs_coolify
+make logs                # Show local logs
+make logs_coolify        # Show Coolify logs
 ```
 
 ### **Status**
 ```bash
-# Local status
-make status
-
-# Staging status
-make status_stage
-
-# Coolify status
-make status_coolify
+make status              # Check local status
+make status_coolify      # Check Coolify status
 ```
 
 ## 🗄️ Database Setup
@@ -224,23 +203,6 @@ make db_with_pgadmin
 make db_migrate
 make db_reset
 make db_studio
-```
-
-## 🔄 CI/CD Pipeline
-
-### **GitHub Actions**
-- **Trigger**: Push to `main` or `develop`
-- **Build**: Node.js 18, npm ci, tests, linting
-- **Docker**: Build and push to GitHub Container Registry
-- **Deploy**: Automatic deployment to staging/production
-
-### **Manual Deployment**
-```bash
-# Deploy to staging
-gh workflow run ci-cd.yml -f environment=staging
-
-# Deploy to production
-gh workflow run ci-cd.yml -f environment=production
 ```
 
 ## 🛠️ Troubleshooting
@@ -268,7 +230,7 @@ kill -9 <PID>
 #### **3. Build Failed**
 ```bash
 # Clean Docker
-make docker_clean
+docker system prune -f
 
 # Rebuild
 make coolify_build
@@ -291,14 +253,9 @@ make coolify_down && make coolify_deploy
 # Show all available commands
 make help
 
-# Check Docker images
-make docker_images
-
-# Check Docker containers
-make docker_containers
-
-# Clean Docker system
-make docker_clean
+# Check Docker system
+docker system df
+docker images | grep chat-crm
 ```
 
 ## 📚 Additional Resources

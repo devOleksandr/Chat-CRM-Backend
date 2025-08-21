@@ -2,7 +2,7 @@
 
 ## 📋 Overview
 
-This document describes the deployment architecture and CI/CD pipeline for the Chat CRM Backend application.
+This document describes the deployment architecture for the Chat CRM Backend application, focusing on local development and Coolify deployment.
 
 ## 🏗️ Architecture
 
@@ -24,14 +24,10 @@ This document describes the deployment architecture and CI/CD pipeline for the C
 ├── Dockerfile                  # Development Dockerfile
 ├── Dockerfile.prod            # Production Dockerfile (Coolify)
 ├── docker-compose.yml         # Local development (full stack)
-├── docker-compose.prod.yml    # Staging (full stack)
 ├── docker-compose.coolify.yml # Coolify (backend only)
 ├── docker-compose.db.yml      # Database only (local)
 ├── scripts/
-│   ├── deploy-coolify.sh      # Coolify deployment script
-│   └── ci-build.sh            # CI/CD build script
-├── .github/workflows/
-│   └── ci-cd.yml              # GitHub Actions workflow
+│   └── deploy-coolify.sh      # Coolify deployment script
 ├── src/health/                # Health check endpoints
 ├── env.local.example          # Local environment template
 ├── env.production.example     # Production environment template
@@ -64,19 +60,6 @@ make coolify_deploy
 
 # Stop deployment
 make coolify_down
-```
-
-### **CI/CD Pipeline**
-
-```bash
-# Full pipeline
-./scripts/ci-build.sh
-
-# Skip tests
-./scripts/ci-build.sh --skip-tests
-
-# Development build
-./scripts/ci-build.sh -t development
 ```
 
 ## ☁️ Coolify Setup
@@ -142,7 +125,6 @@ GET /health
 ### **Health Check Commands**
 ```bash
 make health_local      # Local health
-make health_stage      # Staging health
 make health_coolify    # Coolify health
 ```
 
@@ -151,14 +133,12 @@ make health_coolify    # Coolify health
 ### **Logs**
 ```bash
 make logs              # Local logs
-make logs_stage        # Staging logs
 make logs_coolify      # Coolify logs
 ```
 
 ### **Status**
 ```bash
 make status            # Local status
-make status_stage      # Staging status
 make status_coolify    # Coolify status
 ```
 
@@ -185,29 +165,6 @@ make db_studio
 - Backup strategy
 - Monitoring
 
-## 🔄 CI/CD Pipeline
-
-### **GitHub Actions**
-- **Trigger**: Push to `main`/`develop`
-- **Build**: Node.js 18, tests, linting
-- **Docker**: Build and push to registry
-- **Deploy**: Automatic deployment
-
-### **Pipeline Stages**
-1. **Build & Test**: Compile, test, lint
-2. **Docker**: Build production image
-3. **Deploy**: Staging/Production deployment
-4. **Verify**: Health checks and monitoring
-
-### **Manual Deployment**
-```bash
-# Deploy to staging
-gh workflow run ci-cd.yml -f environment=staging
-
-# Deploy to production
-gh workflow run ci-cd.yml -f environment=production
-```
-
 ## 🛠️ Troubleshooting
 
 ### **Common Issues**
@@ -229,7 +186,7 @@ kill -9 <PID>
 #### **Build Failures**
 ```bash
 # Clean and rebuild
-make docker_clean
+docker system prune -f
 make coolify_build
 ```
 
@@ -244,9 +201,6 @@ make health_coolify
 ### **Debug Commands**
 ```bash
 make help              # Show all commands
-make docker_images     # List Docker images
-make docker_containers # List containers
-make docker_clean      # Clean Docker system
 ```
 
 ## 🔧 Development Workflow
@@ -265,8 +219,8 @@ make docker_clean      # Clean Docker system
 
 ### **Production Deployment**
 1. Push to `main` branch
-2. GitHub Actions build and test
-3. Automatic deployment to Coolify
+2. Use Coolify deployment script
+3. Deploy to Coolify
 4. Verify production health
 
 ## 📚 Additional Resources
@@ -278,7 +232,6 @@ make docker_clean      # Clean Docker system
 
 ### **Scripts**
 - [Coolify Deployment](./scripts/deploy-coolify.sh)
-- [CI/CD Build](./scripts/ci-build.sh)
 
 ### **Configuration**
 - [Local Environment](./env.local.example)
